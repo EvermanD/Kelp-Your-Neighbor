@@ -3,10 +3,150 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= title %></title>
+    <title>Post Gig</title>
   </head>
   <body>
-    <h1><%= heading %></h1>
-    <p><%= description %></p>
+    <h1>Post a Gig</h1>
+    <p>Fill out the form below to create a gig.</p>
+
+    <div id="feedbackDiv"></div>
+
+    <form action="/postGig" method="POST">
+      <div>
+        <label for="title">Gig Title:</label><br>
+        <input type="text" name="title" id="title">
+      </div>
+
+      <br>
+
+      <div>
+        <label for="description">Description:</label><br>
+        <textarea name="description" id="description" rows="4" cols="40"></textarea>
+      </div>
+
+      <br>
+
+      <div>
+        <label for="category">Category:</label><br>
+        <input type="text" name="category" id="category">
+      </div>
+
+      <br>
+
+      <div>
+        <label for="looking_for">Looking For:</label><br>
+        <input type="text" name="looking_for" id="looking_for">
+      </div>
+
+      <br>
+
+      <div>
+        <label for="organization_name">Organization Name:</label><br>
+        <input type="text" name="organization_name" id="organization_name">
+      </div>
+
+      <br>
+
+      <div>
+        <label for="location">Location:</label><br>
+        <input type="text" name="location" id="location">
+      </div>
+
+      <br>
+
+      <div>
+        <label for="location_type">Location Type:</label><br>
+        <select name="location_type" id="location_type">
+          <option value="">Select one</option>
+          <option value="On-site">On-site</option>
+          <option value="Remote">Remote</option>
+          <option value="Hybrid">Hybrid</option>
+        </select>
+      </div>
+
+      <br>
+
+      <div>
+        <label for="budget">Budget Description:</label><br>
+        <input type="text" name="budget" id="budget">
+      </div>
+
+      <br>
+
+      <div>
+        <label for="budget_min">Budget Min:</label><br>
+        <input type="number" name="budget_min" id="budget_min">
+      </div>
+
+      <br>
+
+      <div>
+        <label for="budget_max">Budget Max:</label><br>
+        <input type="number" name="budget_max" id="budget_max">
+      </div>
+
+      <br>
+
+      <div>
+        <label for="deadline">Deadline:</label><br>
+        <input type="date" name="deadline" id="deadline">
+      </div>
+
+      <br>
+
+      <div>
+        <label for="event_date">Event Date:</label><br>
+        <input type="date" name="event_date" id="event_date">
+      </div>
+
+      <br>
+
+      <div>
+        <label for="urgency">Urgency:</label><br>
+        <select name="urgency" id="urgency">
+          <option value="">Select one</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+          <option value="Urgent">Urgent</option>
+        </select>
+      </div>
+
+      <br>
+
+      <div>
+        <label for="beginner_friendly">Beginner Friendly:</label>
+        <input type="checkbox" name="beginner_friendly" id="beginner_friendly" value="1">
+      </div>
+
+      <br>
+
+      <div>
+        <label for="image_url">Image URL:</label><br>
+        <input type="text" name="image_url" id="image_url">
+      </div>
+
+      <br>
+
+      <div>
+        <label for="contact_email">Contact Email:</label><br>
+        <input type="email" name="contact_email" id="contact_email">
+      </div>
+
+      <br>
+
+      <div>
+        <label for="status">Status:</label><br>
+        <select name="status" id="status">
+          <option value="Open">Open</option>
+          <option value="Closed">Closed</option>
+          <option value="Filled">Filled</option>
+        </select>
+      </div>
+
+      <br>
+
+      <button type="submit">Create Gig</button>
+    </form>
   </body>
 </html>
