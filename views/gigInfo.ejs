@@ -2,16 +2,17 @@
 <html lang="en">
 <head>
     <%- include("partials/head.ejs") %>
-    <title>OtterGigs | Gig Info</title>
+    <title><img src="/js/logo.png" alt="OtterGigs" class="site-logo" />
+ | Gig Info</title>
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #E6F3FF;
         }
 
         .detail-card {
-            border: none;
+            border: 3px solid navy;
             border-radius: 20px;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
             overflow: hidden;
         }
 
@@ -48,9 +49,9 @@
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-light navbar-custom">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/home">OtterGigs</a>
+        <a class="navbar-brand fw-bold" href="/home"><img src="/js/logo.png" alt="OtterGigs" class="site-logo" /></a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
             <span class="navbar-toggler-icon"></span>
