@@ -260,6 +260,11 @@ a {
     background: var(--page-bg);
 }
 
+.navbar .btn-sm {
+    font-size: 1.1rem;
+    padding: 0.75rem 1.25rem;
+}
+
 .page-home .navbar.navbar-dark.bg-dark,
 .page-find-gig .navbar.navbar-dark.bg-dark,
 .page-find-pitch .navbar.navbar-dark.bg-dark,
@@ -291,6 +296,10 @@ a {
     background: rgba(252, 252, 250, 0.2);
     border-color: rgba(77, 99, 108, 0.18);
     color: var(--nav-text);
+}
+
+.page-post-gig .navbar .btn-sm,
+.page-post-pitch .navbar .btn-sm {
 }
 
 .page-home .navbar .btn-outline-light:hover,
