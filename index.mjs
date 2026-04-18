@@ -327,7 +327,7 @@ app.post('/postGig', async (req, res) => {
             user_id
         ];
 
-        await pool.promise().query(sql, sqlParams);
+        await pool.query(sql, sqlParams);
 
         res.send("Gig created successfully!");
     } catch (err) {
