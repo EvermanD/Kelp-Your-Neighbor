@@ -3,49 +3,100 @@
 <head>
     <%- include("partials/head.ejs") %>
     <title>OtterGigs | Home</title>
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+
+        .hero-card {
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0d6efd, #20c997);
+            color: white;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+        }
+
+        .action-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease;
+            height: 100%;
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+        }
+    </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand fw-bold" href="/home">OtterGigs</a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#homeNavbar"
-                aria-controls="homeNavbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="homeNavbar">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" href="/home">Return to Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/findGig">Find Gig</a>
-                </li>
-            </ul>
-
-            <div class="d-flex">
-                <a href="/logout" class="btn btn-outline-light">Logout</a>
-            </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="/findGig" class="btn btn-outline-light btn-sm">Find Gig</a>
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
+                <%= user && (user.display_name || user.username) ? (user.display_name || user.username) : 'Menu' %>
+            </button>
         </div>
     </div>
 </nav>
 
-<div class="container py-5">
-    <div class="p-4 p-md-5 bg-light rounded-3 border">
-        <h1 class="display-6 fw-bold mb-3">Welcome to OtterGigs</h1>
-        <p class="lead mb-2">
-            Find local creative gigs and connect with opportunities in your community.
-        </p>
-        <% if (username) { %>
-            <p class="text-muted mb-4">Logged in as <strong><%= username %></strong></p>
-        <% } %>
+<%- include("partials/userMenu.ejs") %>
 
-        <div class="d-flex gap-3 flex-wrap">
-            <a href="/findGig" class="btn btn-primary btn-lg">Find a Gig</a>
-            <a href="/postGig" class="btn btn-secondary btn-lg">Post a Gig</a>
+<div class="container py-5">
+    <div class="card hero-card mb-4">
+        <div class="card-body p-4 p-md-5">
+            <h1 class="display-6 fw-bold mb-3">Welcome to OtterGigs</h1>
+            <p class="lead mb-2">A local creative gig board for students, artists, and community opportunities.</p>
+            <p class="mb-4">
+                Signed in as
+                <strong><%= user.display_name || user.username %></strong>
+            </p>
+
+            <div class="d-flex flex-wrap gap-3">
+                <a href="/findGig" class="btn btn-light btn-lg">Find a Gig</a>
+                <a href="/postGig" class="btn btn-outline-light btn-lg">Post a Gig</a>
+                <a href="/profile" class="btn btn-outline-light btn-lg">View Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card action-card">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold">Browse Gigs</h4>
+                    <p class="text-muted">Search local opportunities by category, urgency, and location.</p>
+                    <a href="/findGig" class="btn btn-primary">Go to Find Gig</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card action-card">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold">Post a Gig</h4>
+                    <p class="text-muted">Need help from a creative? Post a gig for students and locals.</p>
+                    <a href="/postGig" class="btn btn-success">Go to Post Gig</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card action-card">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold">Your Profile</h4>
+                    <p class="text-muted">Manage your profile, see posted gigs, and view saved gigs.</p>
+                    <a href="/profile" class="btn btn-dark">Go to Profile</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

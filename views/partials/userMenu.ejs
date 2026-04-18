@@ -1,0 +1,30 @@
+<div class="offcanvas offcanvas-end" tabindex="-1" id="userMenuCanvas" aria-labelledby="userMenuCanvasLabel">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title" id="userMenuCanvasLabel">My Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body">
+        <% if (typeof user !== 'undefined' && user) { %>
+            <div class="text-center mb-4">
+                <img
+                    src="<%= user.profile_image_url && user.profile_image_url.trim() !== '' ? user.profile_image_url : 'https://via.placeholder.com/120x120?text=Profile' %>"
+                    alt="Profile"
+                    class="rounded-circle mb-3 border"
+                    style="width: 110px; height: 110px; object-fit: cover;"
+                >
+                <h5 class="mb-1"><%= user.display_name || user.username %></h5>
+                <p class="text-muted mb-0 text-capitalize"><%= user.profile_type || 'individual' %></p>
+            </div>
+        <% } %>
+
+        <div class="list-group">
+            <a href="/home" class="list-group-item list-group-item-action">Home</a>
+            <a href="/findGig" class="list-group-item list-group-item-action">Find Gig</a>
+            <a href="/postGig" class="list-group-item list-group-item-action">Post Gig</a>
+            <a href="/profile" class="list-group-item list-group-item-action">My Profile</a>
+            <a href="/updateProfile" class="list-group-item list-group-item-action">Update Profile</a>
+            <a href="/logout" class="list-group-item list-group-item-action text-danger">Logout</a>
+        </div>
+    </div>
+</div>
