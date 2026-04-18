@@ -6,14 +6,15 @@
  | Gig Info</title>
     <style>
         body {
-            background-color: #E6F3FF;
+            background-color: #F4F8F7;
         }
 
         .detail-card {
-            border: 3px solid navy;
-            border-radius: 20px;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            border: 1px solid #D6E4E5;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
             overflow: hidden;
+            background-color: #FAFBFB;
         }
 
         .hero-img {
@@ -21,6 +22,18 @@
             max-height: 420px;
             object-fit: cover;
             background-color: #e9ecef;
+            position: relative;
+        }
+
+        .hero-img::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.05), transparent);
+            pointer-events: none;
         }
 
         .info-pill {
@@ -30,21 +43,34 @@
             margin-right: 0.4rem;
             margin-bottom: 0.4rem;
             font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 500;
         }
 
         .section-title {
-            font-weight: 700;
+            font-weight: 600;
             margin-bottom: 1rem;
+            line-height: 1.3;
+            letter-spacing: -0.3px;
+            font-size: 18px;
+            color: #2F3E3E;
         }
 
         .label {
-            font-weight: 700;
-            color: #212529;
+            font-weight: 600;
+            color: #2F3E3E;
+            line-height: 1.5;
+            font-size: 13px;
         }
 
         .value {
-            color: #495057;
+            color: #6B7C7C;
+            font-weight: 400;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .card-body {
+            padding: 20px;
         }
     </style>
 </head>

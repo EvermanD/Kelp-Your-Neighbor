@@ -6,7 +6,27 @@
  | Home</title>
     <style>
         body {
-            background-color: #E6F3FF;
+            background-color: #F4F8F7;
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, #7FB7BE, #A7D0D4);
+            color: white;
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .welcome-card h1 {
+            font-weight: 600;
+            font-size: 32px;
+            line-height: 1.3;
+        }
+
+        .welcome-card p {
+            font-weight: 400;
+            font-size: 15px;
+            line-height: 1.6;
         }
     </style>
 </head>
@@ -38,13 +58,13 @@
 </nav>
 
 <div class="container py-5">
-    <div class="p-4 p-md-5 bg-light rounded-3 border">
-        <h1 class="display-6 fw-bold mb-3">Welcome to OtterGigs</h1>
+    <div class="p-4 p-md-5 welcome-card">
+        <h1 class="fw-bold mb-3">Welcome to OtterGigs</h1>
         <p class="lead mb-2">
             Find local creative gigs and connect with opportunities in your community.
         </p>
         <% if (username) { %>
-            <p class="text-muted mb-4">Logged in as <strong><%= username %></strong></p>
+            <p class="mb-4">Logged in as <strong><%= username %></strong></p>
         <% } %>
 
         <div class="d-flex gap-3 flex-wrap">
