@@ -28,6 +28,24 @@
         .action-card:hover {
             transform: translateY(-4px);
         }
+
+        .nav-profile-btn {
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            border-radius: 50%;
+            overflow: hidden;
+            border: none;
+            background: transparent;
+        }
+
+        .nav-profile-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
     </style>
 </head>
 <body>
@@ -35,10 +53,15 @@
     <div class="container">
         <a class="navbar-brand fw-bold" href="/home">OtterGigs</a>
 
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
             <a href="/findGig" class="btn btn-outline-light btn-sm">Find Gig</a>
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
-                <%= user && (user.display_name || user.username) ? (user.display_name || user.username) : 'Menu' %>
+            <a href="/findPitch" class="btn btn-outline-light btn-sm">Find Pitch</a>
+
+            <button class="nav-profile-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
+                <img
+                    src="<%= user && user.profile_image_url && user.profile_image_url.trim() !== '' ? user.profile_image_url : 'https://via.placeholder.com/80x80?text=U' %>"
+                    alt="Profile"
+                >
             </button>
         </div>
     </div>
@@ -58,14 +81,16 @@
 
             <div class="d-flex flex-wrap gap-3">
                 <a href="/findGig" class="btn btn-light btn-lg">Find a Gig</a>
+                <a href="/findPitch" class="btn btn-light btn-lg">Find a Pitch</a>
                 <a href="/postGig" class="btn btn-outline-light btn-lg">Post a Gig</a>
+                <a href="/postPitch" class="btn btn-outline-light btn-lg">Post a Pitch</a>
                 <a href="/profile" class="btn btn-outline-light btn-lg">View Profile</a>
             </div>
         </div>
     </div>
 
     <div class="row g-4">
-        <div class="col-md-4">
+        <div class="col-md-6 col-xl-3">
             <div class="card action-card">
                 <div class="card-body p-4">
                     <h4 class="fw-bold">Browse Gigs</h4>
@@ -75,7 +100,17 @@
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="card action-card">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold">Browse Pitches</h4>
+                    <p class="text-muted">Explore creator profiles, services, and skill offerings.</p>
+                    <a href="/findPitch" class="btn btn-primary">Go to Find Pitch</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
             <div class="card action-card">
                 <div class="card-body p-4">
                     <h4 class="fw-bold">Post a Gig</h4>
@@ -85,11 +120,23 @@
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="card action-card">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold">Post a Pitch</h4>
+                    <p class="text-muted">Offer your services so people can discover your work.</p>
+                    <a href="/postPitch" class="btn btn-success">Go to Post Pitch</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-md-6">
             <div class="card action-card">
                 <div class="card-body p-4">
                     <h4 class="fw-bold">Your Profile</h4>
-                    <p class="text-muted">Manage your profile, see posted gigs, and view saved gigs.</p>
+                    <p class="text-muted">Manage your profile, posted gigs, posted pitches, and saved items.</p>
                     <a href="/profile" class="btn btn-dark">Go to Profile</a>
                 </div>
             </div>

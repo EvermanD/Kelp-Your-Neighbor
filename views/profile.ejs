@@ -32,6 +32,7 @@
 
         <div class="d-flex align-items-center gap-2">
             <a href="/findGig" class="btn btn-outline-light btn-sm">Find Gig</a>
+            <a href="/findPitch" class="btn btn-outline-light btn-sm">Find Pitch</a>
             <% if (isOwnProfile) { %>
                 <button class="btn btn-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
                     <%= profileUser.display_name || profileUser.username %>
@@ -146,6 +147,54 @@
                                         <small class="text-muted"><%= gig.category || 'Misc' %></small>
                                     </div>
                                     <span class="badge bg-secondary"><%= gig.status %></span>
+                                </a>
+                            <% }) %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card section-card h-100">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold mb-3">Posted Pitches</h3>
+
+                    <% if (!postedPitches || postedPitches.length === 0) { %>
+                        <p class="text-muted mb-0">No posted pitches yet.</p>
+                    <% } else { %>
+                        <div class="list-group">
+                            <% postedPitches.forEach(pitch => { %>
+                                <a href="/pitchInfo/<%= pitch.id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-semibold"><%= pitch.title %></div>
+                                        <small class="text-muted"><%= pitch.category || 'Misc' %></small>
+                                    </div>
+                                    <span class="badge bg-dark"><%= pitch.status %></span>
+                                </a>
+                            <% }) %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card section-card h-100">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold mb-3">Saved Pitches</h3>
+
+                    <% if (!savedPitches || savedPitches.length === 0) { %>
+                        <p class="text-muted mb-0">No saved pitches yet.</p>
+                    <% } else { %>
+                        <div class="list-group">
+                            <% savedPitches.forEach(pitch => { %>
+                                <a href="/pitchInfo/<%= pitch.id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-semibold"><%= pitch.title %></div>
+                                        <small class="text-muted"><%= pitch.category || 'Misc' %></small>
+                                    </div>
+                                    <span class="badge bg-secondary"><%= pitch.status %></span>
                                 </a>
                             <% }) %>
                         </div>
