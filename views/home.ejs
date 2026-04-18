@@ -11,21 +11,61 @@
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
         </a>
 
-        <div class="d-flex align-items-center gap-2 flex-wrap">
-            <a href="/findGig" class="btn btn-outline-light btn-sm">Find Gig</a>
-            <a href="/findPitch" class="btn btn-outline-light btn-sm">Find Pitch</a>
-
-            <button class="nav-profile-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
-                <img
-                    src="<%= user && user.profile_image_url && user.profile_image_url.trim() !== '' ? user.profile_image_url : 'https://via.placeholder.com/80x80?text=U' %>"
-                    alt="Profile"
-                >
-            </button>
+        <div class="navbar-controls">
+            <%- include("partials/navActions.ejs") %>
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
         </div>
     </div>
 </nav>
 
 <%- include("partials/userMenu.ejs") %>
+
+<%
+    const featuredBusinesses = [
+        {
+            name: "Cypress Coast Coffee",
+            city: "Monterey",
+            type: "Sample coffee shop",
+            imageUrl: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Lighthouse Letterpress",
+            city: "Pacific Grove",
+            type: "Sample bookstore",
+            imageUrl: "https://images.unsplash.com/photo-1526243741027-444d633d7365?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Marina Salt & Butter",
+            city: "Marina",
+            type: "Sample bakery",
+            imageUrl: "https://images.unsplash.com/photo-1517433670267-08bbd4be890f?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Sandbar Social Kitchen",
+            city: "Seaside",
+            type: "Sample restaurant",
+            imageUrl: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Carmel Tide Gallery",
+            city: "Carmel",
+            type: "Sample art gallery",
+            imageUrl: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Wharf & Bloom Boutique",
+            city: "Monterey",
+            type: "Sample boutique",
+            imageUrl: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Ocean Porch Market",
+            city: "Pacific Grove",
+            type: "Sample neighborhood cafe",
+            imageUrl: "https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=1200&q=80"
+        }
+    ];
+%>
 
 <div class="container py-5">
     <div class="card hero-card mb-4">
@@ -46,6 +86,52 @@
             </div>
         </div>
     </div>
+
+    <section class="local-businesses-section mb-5" aria-labelledby="local-businesses-title">
+        <div class="local-businesses-shell">
+            <div class="local-businesses-header">
+                <div>
+                    <p class="local-businesses-eyebrow mb-2">Community Spotlight</p>
+                    <h2 id="local-businesses-title" class="local-businesses-title mb-2">Explore Local Businesses</h2>
+                    <p class="local-businesses-subtitle mb-0">
+                        Discover local spots from Monterey, Pacific Grove, Marina, Seaside, and Carmel.
+                    </p>
+                </div>
+
+                <div class="local-businesses-controls" aria-label="Business carousel controls">
+                    <button type="button" class="local-businesses-control" data-carousel-prev aria-label="Show previous businesses">
+                        <span aria-hidden="true">&larr;</span>
+                    </button>
+                    <button type="button" class="local-businesses-control" data-carousel-next aria-label="Show next businesses">
+                        <span aria-hidden="true">&rarr;</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="local-businesses-note">Sample showcase cards inspired by Monterey County business types.</div>
+
+            <div class="local-businesses-carousel" data-business-carousel>
+                <div class="local-businesses-viewport">
+                    <div class="local-businesses-track" data-carousel-track>
+                        <% featuredBusinesses.forEach((business) => { %>
+                            <article class="local-business-card" data-carousel-card>
+                                <div class="local-business-card__media">
+                                    <img src="<%= business.imageUrl %>" alt="<%= business.name %>" class="local-business-card__image">
+                                    <div class="local-business-card__overlay"></div>
+
+                                    <div class="local-business-card__content">
+                                        <span class="local-business-card__badge">Sample local spot</span>
+                                        <h3 class="local-business-card__title"><%= business.name %></h3>
+                                        <p class="local-business-card__meta mb-0"><%= business.city %> • <%= business.type %></p>
+                                    </div>
+                                </div>
+                            </article>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <div class="row g-4">
         <div class="col-md-6 col-xl-3">
@@ -102,6 +188,7 @@
     </div>
 </div>
 
+<script src="/js/homeCarousel.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

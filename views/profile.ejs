@@ -32,13 +32,10 @@
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
         </a>
 
-        <div class="d-flex align-items-center gap-2">
-            <a href="/findGig" class="btn btn-outline-light btn-sm">Find Gig</a>
-            <a href="/findPitch" class="btn btn-outline-light btn-sm">Find Pitch</a>
+        <div class="navbar-controls">
+            <%- include("partials/navActions.ejs") %>
             <% if (isOwnProfile) { %>
-                <button class="btn btn-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
-                    <%= profileUser.display_name || profileUser.username %>
-                </button>
+                <%- include("partials/navProfileButton.ejs", { profileImageUrl: profileUser && profileUser.profile_image_url }) %>
             <% } %>
         </div>
     </div>

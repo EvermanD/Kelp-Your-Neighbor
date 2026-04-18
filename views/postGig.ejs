@@ -11,11 +11,9 @@
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
         </a>
 
-        <div class="d-flex align-items-center gap-2">
-            <a href="/findGig" class="btn btn-outline-light btn-sm">Find Gig</a>
-            <button class="btn btn-nav-menu btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
-                <%= user && (user.display_name || user.username) ? (user.display_name || user.username) : 'Menu' %>
-            </button>
+        <div class="navbar-controls">
+            <%- include("partials/navActions.ejs") %>
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
         </div>
     </div>
 </nav>
@@ -23,11 +21,13 @@
 <%- include("partials/userMenu.ejs") %>
 
 <div class="container py-5">
+    <div class="page-form-hero">
+        <h1 class="fw-bold mb-2">Post a Gig</h1>
+        <p class="mb-0">Create a new gig for local creatives and students.</p>
+    </div>
+
     <div class="card form-card">
         <div class="card-body p-4 p-md-5">
-            <h1 class="form-title mb-3">Post a Gig</h1>
-            <p class="form-intro mb-4">Create a new gig for local creatives and students.</p>
-
             <form action="/postGig" method="POST" class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">Gig Title</label>
