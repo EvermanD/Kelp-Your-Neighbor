@@ -58,30 +58,7 @@
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="/home">OtterGigs</a>
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/home">Return to Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="/findGig">Find Gig</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/postGig">Post Gig</a>
-                </li>
-            </ul>
-            <a href="/logout" class="btn btn-outline-light">Logout</a>
-        </div>
-    </div>
-</nav>
+<%- include("partials/navbar.ejs") %>
 
 <div class="container py-4">
     <div class="page-header">
