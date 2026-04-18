@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 // app.set('views', path.join(__dirname, 'views'));
 
 app.use(session({
@@ -47,11 +47,11 @@ app.post('/signup', async (req, res) => {
 
     try {
         if (username === "") {
-            return res.json({error: "Error: username cannot be blank"});
+            return res.json({ error: "Error: username cannot be blank" });
         }
 
         if (password === "") {
-            return res.json({error: "Error: password cannot be blank"});
+            return res.json({ error: "Error: password cannot be blank" });
         }
 
         let sql = `SELECT username
@@ -62,7 +62,7 @@ app.post('/signup', async (req, res) => {
         const [rows] = await pool.query(sql, sqlParams);
 
         if (rows.length > 0) {
-            return res.json({error: "Error: username already exists"});
+            return res.json({ error: "Error: username already exists" });
         }
 
         sql = `INSERT INTO userGig (username, password, is_admin)
@@ -71,10 +71,10 @@ app.post('/signup', async (req, res) => {
 
         await pool.query(sql, sqlParams);
 
-        res.json({success: "Account created successfully!"});
+        res.json({ success: "Account created successfully!" });
     } catch (err) {
         console.error("Database error:", err);
-        res.json({error: "Error: database error"});
+        res.json({ error: "Error: database error" });
     }
 });
 
@@ -85,11 +85,11 @@ app.post('/login', async (req, res) => {
 
     try {
         if (username === "") {
-            return res.json({error: "Error: username cannot be blank"});
+            return res.json({ error: "Error: username cannot be blank" });
         }
 
         if (password === "") {
-            return res.json({error: "Error: password cannot be blank"});
+            return res.json({ error: "Error: password cannot be blank" });
         }
 
         let sql = `SELECT id, username, is_admin
@@ -101,18 +101,17 @@ app.post('/login', async (req, res) => {
         const [rows] = await pool.query(sql, sqlParams);
 
         if (rows.length === 0) {
-            return res.json({error: "Error: invalid username or password"});
+            return res.json({ error: "Error: invalid username or password" });
         }
 
-        console.log(rows[0]);
         req.session.userId = rows[0].id;
         req.session.username = rows[0].username;
         req.session.isAdmin = rows[0].is_admin;
 
-        res.json({success: "Login successful!"});
+        res.json({ success: "Login successful!", redirect: "/home" });
     } catch (err) {
         console.error("Database error:", err);
-        res.json({error: "Error: database error"});
+        res.json({ error: "Error: database error" });
     }
 });
 
@@ -124,6 +123,16 @@ app.get('/logout', (req, res) => {
         }
 
         res.redirect('/');
+    });
+});
+
+app.get('/home', (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/');
+    }
+
+    res.render('home', {
+        username: req.session.username
     });
 });
 
