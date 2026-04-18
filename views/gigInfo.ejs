@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("partials/head.ejs") %>
+    <title>OtterGigs | Gig Info</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .detail-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .hero-img {
+            width: 100%;
+            max-height: 420px;
+            object-fit: cover;
+            background-color: #e9ecef;
+        }
+
+        .info-pill {
+            display: inline-block;
+            padding: 0.45rem 0.75rem;
+            border-radius: 999px;
+            margin-right: 0.4rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .label {
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .value {
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/home">OtterGigs</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/home">Return to Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/findGig">Find Gig</a>
+                </li>
+            </ul>
+            <a href="/logout" class="btn btn-outline-light">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-4">
+    <div class="mb-3">
+        <a href="/findGig" class="btn btn-outline-secondary">&larr; Back to Find Gig</a>
+    </div>
+
+    <div class="card detail-card">
+        <img
+            src="<%= gig.image_url && gig.image_url.trim() !== '' ? gig.image_url : 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80' %>"
+            alt="<%= gig.title %>"
+            class="hero-img"
+        >
+
+        <div class="card-body p-4 p-md-5">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <h1 class="fw-bold mb-2"><%= gig.title %></h1>
+                    <p class="text-muted mb-0">Posted by <strong><%= gig.organization_name %></strong></p>
+                </div>
+
+                <div class="text-md-end">
+                    <span class="info-pill bg-primary text-white"><%= gig.category %></span>
+
+                    <% if (gig.urgency === 'Urgent') { %>
+                        <span class="info-pill bg-danger text-white"><%= gig.urgency %></span>
+                    <% } else if (gig.urgency === 'High') { %>
+                        <span class="info-pill bg-warning text-dark"><%= gig.urgency %></span>
+                    <% } else { %>
+                        <span class="info-pill bg-secondary text-white"><%= gig.urgency %></span>
+                    <% } %>
+
+                    <% if (gig.beginner_friendly) { %>
+                        <span class="info-pill bg-success text-white">Beginner Friendly</span>
+                    <% } %>
+
+                    <span class="info-pill bg-dark text-white"><%= gig.status %></span>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <h3 class="section-title">Gig Description</h3>
+                    <p class="value"><%= gig.description %></p>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="bg-light rounded-4 p-4">
+                        <h4 class="section-title">Gig Details</h4>
+
+                        <p><span class="label">Looking For:</span><br><span class="value"><%= gig.looking_for %></span></p>
+
+                        <p><span class="label">Location:</span><br><span class="value"><%= gig.location %></span></p>
+
+                        <p><span class="label">Location Type:</span><br><span class="value"><%= gig.location_type %></span></p>
+
+                        <p><span class="label">Budget:</span><br><span class="value"><%= gig.budget %></span></p>
+
+                        <% if (gig.budget_min !== null && gig.budget_max !== null) { %>
+                            <p><span class="label">Budget Range:</span><br><span class="value">$<%= gig.budget_min %> - $<%= gig.budget_max %></span></p>
+                        <% } %>
+
+                        <p><span class="label">Deadline:</span><br><span class="value"><%= gig.deadline ? new Date(gig.deadline).toLocaleDateString() : 'N/A' %></span></p>
+
+                        <p><span class="label">Event Date:</span><br><span class="value"><%= gig.event_date ? new Date(gig.event_date).toLocaleDateString() : 'N/A' %></span></p>
+
+                        <p><span class="label">Contact Email:</span><br><span class="value"><%= gig.contact_email %></span></p>
+
+                        <p><span class="label">Posted:</span><br><span class="value"><%= gig.created_at ? new Date(gig.created_at).toLocaleDateString() : 'N/A' %></span></p>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <a href="mailto:<%= gig.contact_email %>?subject=Interested in: <%= gig.title %>" class="btn btn-primary">
+                                Contact Poster
+                            </a>
+                            <button class="btn btn-outline-dark" disabled>
+                                Save Gig (Later)
+                            </button>
+                        </div>
+
+                        <small class="text-muted d-block mt-3">
+                            For now, users can contact the poster directly using the email above.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

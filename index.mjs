@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 // app.set('views', path.join(__dirname, 'views'));
 
 app.use(session({
@@ -47,11 +47,11 @@ app.post('/signup', async (req, res) => {
 
     try {
         if (username === "") {
-            return res.json({error: "Error: username cannot be blank"});
+            return res.json({ error: "Error: username cannot be blank" });
         }
 
         if (password === "") {
-            return res.json({error: "Error: password cannot be blank"});
+            return res.json({ error: "Error: password cannot be blank" });
         }
 
         let sql = `SELECT username
@@ -62,7 +62,7 @@ app.post('/signup', async (req, res) => {
         const [rows] = await pool.query(sql, sqlParams);
 
         if (rows.length > 0) {
-            return res.json({error: "Error: username already exists"});
+            return res.json({ error: "Error: username already exists" });
         }
 
         sql = `INSERT INTO userGig (username, password, is_admin)
@@ -71,10 +71,10 @@ app.post('/signup', async (req, res) => {
 
         await pool.query(sql, sqlParams);
 
-        res.json({success: "Account created successfully!"});
+        res.json({ success: "Account created successfully!" });
     } catch (err) {
         console.error("Database error:", err);
-        res.json({error: "Error: database error"});
+        res.json({ error: "Error: database error" });
     }
 });
 
@@ -85,11 +85,11 @@ app.post('/login', async (req, res) => {
 
     try {
         if (username === "") {
-            return res.json({error: "Error: username cannot be blank"});
+            return res.json({ error: "Error: username cannot be blank" });
         }
 
         if (password === "") {
-            return res.json({error: "Error: password cannot be blank"});
+            return res.json({ error: "Error: password cannot be blank" });
         }
 
         let sql = `SELECT id, username, is_admin
@@ -101,18 +101,17 @@ app.post('/login', async (req, res) => {
         const [rows] = await pool.query(sql, sqlParams);
 
         if (rows.length === 0) {
-            return res.json({error: "Error: invalid username or password"});
+            return res.json({ error: "Error: invalid username or password" });
         }
 
-        console.log(rows[0]);
         req.session.userId = rows[0].id;
         req.session.username = rows[0].username;
         req.session.isAdmin = rows[0].is_admin;
 
-        res.json({success: "Login successful!"});
+        res.json({ success: "Login successful!", redirect: "/home" });
     } catch (err) {
         console.error("Database error:", err);
-        res.json({error: "Error: database error"});
+        res.json({ error: "Error: database error" });
     }
 });
 
@@ -127,12 +126,126 @@ app.get('/logout', (req, res) => {
     });
 });
 
-app.get('/findGig', (req, res) => {
-    res.render('findGig', {
-        title: 'Find Gig',
-        heading: 'Find Gig',
-        description: 'This is the Find Gig page skeleton.',
+app.get('/home', (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/');
+    }
+
+    res.render('home', {
+        username: req.session.username
     });
+});
+
+app.get('/findGig', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/');
+    }
+
+    let search = req.query.search || '';
+    let category = req.query.category || '';
+    let location = req.query.location || '';
+    let urgency = req.query.urgency || '';
+    let beginner = req.query.beginner || '';
+
+    try {
+        let sql = `
+            SELECT id, title, description, category, looking_for, organization_name,
+                   location, location_type, budget, budget_min, budget_max,
+                   deadline, urgency, beginner_friendly, image_url, status
+            FROM Gig
+            WHERE status = 'Open'
+        `;
+
+        let sqlParams = [];
+
+        if (search.trim() !== '') {
+            sql += `
+                AND (
+                    title LIKE ?
+                    OR description LIKE ?
+                    OR category LIKE ?
+                    OR looking_for LIKE ?
+                    OR organization_name LIKE ?
+                )
+            `;
+            let searchTerm = `%${search}%`;
+            sqlParams.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+        }
+
+        if (category.trim() !== '') {
+            sql += ` AND category = ?`;
+            sqlParams.push(category);
+        }
+
+        if (location.trim() !== '') {
+            sql += ` AND location LIKE ?`;
+            sqlParams.push(`%${location}%`);
+        }
+
+        if (urgency.trim() !== '') {
+            sql += ` AND urgency = ?`;
+            sqlParams.push(urgency);
+        }
+
+        if (beginner === '1') {
+            sql += ` AND beginner_friendly = 1`;
+        }
+
+        sql += ` ORDER BY created_at DESC`;
+
+        const [gigs] = await pool.query(sql, sqlParams);
+
+        res.render('findGig', {
+            gigs,
+            filters: {
+                search,
+                category,
+                location,
+                urgency,
+                beginner
+            }
+        });
+    } catch (err) {
+        console.error('Database error in /findGig:', err);
+        res.status(500).send('Database error loading gigs.');
+    }
+});
+
+app.get('/gigInfo/:id', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/');
+    }
+
+    let gigId = req.params.id;
+
+    try {
+        let sql = `
+            SELECT id, title, description, category, looking_for, organization_name,
+                   location, location_type, budget, budget_min, budget_max,
+                   deadline, event_date, urgency, beginner_friendly, image_url,
+                   contact_email, status, created_at, updated_at
+            FROM Gig
+            WHERE id = ?
+        `;
+        let sqlParams = [gigId];
+
+        const [rows] = await pool.query(sql, sqlParams);
+
+        if (rows.length === 0) {
+            return res.status(404).render('404', {
+                title: 'Gig Not Found',
+                heading: 'Gig Not Found',
+                description: 'That gig does not exist.'
+            });
+        }
+
+        res.render('gigInfo', {
+            gig: rows[0]
+        });
+    } catch (err) {
+        console.error('Database error in /gigInfo/:id:', err);
+        res.status(500).send('Database error loading gig details.');
+    }
 });
 
 app.get('/postGig', (req, res) => {
