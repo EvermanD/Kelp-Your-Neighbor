@@ -5,31 +5,7 @@
     <title>OtterGigs | Home</title>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="/home">OtterGigs</a>
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#homeNavbar"
-                aria-controls="homeNavbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="homeNavbar">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" href="/home">Return to Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/findGig">Find Gig</a>
-                </li>
-            </ul>
-
-            <div class="d-flex">
-                <a href="/logout" class="btn btn-outline-light">Logout</a>
-            </div>
-        </div>
-    </div>
-</nav>
+<%- include("partials/navbar.ejs") %>
 
 <div class="container py-5">
     <div class="p-4 p-md-5 bg-light rounded-3 border">
