@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("partials/head.ejs") %>
+    <title>Complete Gig</title>
+</head>
+<body class="bg-light">
+<div class="container py-5">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4 p-md-5">
+            <h1 class="fw-bold mb-3">Mark Gig as Completed</h1>
+            <p class="text-muted mb-4">
+                Choose the user who completed "<strong><%= gig.title %></strong>" and leave feedback.
+            </p>
+
+            <form action="/completeGig/<%= gig.id %>" method="POST" class="row g-3">
+                <div class="col-12">
+                    <label class="form-label">Who completed this gig?</label>
+                    <select name="completed_user_id" class="form-select" required>
+                        <option value="">Choose a user</option>
+                        <% users.forEach(person => { %>
+                            <option value="<%= person.id %>">
+                                <%= person.display_name || person.username %> (<%= person.profile_type %>)
+                            </option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Feedback / Praise</label>
+                    <textarea name="feedback" class="form-control" rows="5" placeholder="They did an amazing job, communicated well, and delivered on time."></textarea>
+                </div>
+
+                <div class="col-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-success">Complete Gig</button>
+                    <a href="/gigInfo/<%= gig.id %>" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

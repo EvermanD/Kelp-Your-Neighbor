@@ -23,6 +23,14 @@
             border: 4px solid white;
             box-shadow: 0 6px 16px rgba(0,0,0,0.15);
         }
+
+        .feedback-box {
+            background: #f8f9fa;
+            border-left: 4px solid #198754;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -102,6 +110,58 @@
                             <% }) %>
                         <% } %>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card section-card h-100">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold mb-3">Completed Gigs</h3>
+
+                    <% if (!completedGigs || completedGigs.length === 0) { %>
+                        <p class="text-muted mb-0">No completed gigs verified yet.</p>
+                    <% } else { %>
+                        <% completedGigs.forEach(item => { %>
+                            <div class="border rounded-4 p-3 mb-3">
+                                <a href="/gigInfo/<%= item.gig_id %>" class="fw-semibold text-decoration-none"><%= item.title %></a>
+                                <div><small class="text-muted"><%= item.category || 'Misc' %></small></div>
+                                <div><small class="text-muted">Verified by <%= item.poster_name || item.poster_username %></small></div>
+                                <% if (item.feedback) { %>
+                                    <div class="feedback-box">
+                                        <strong>Feedback:</strong>
+                                        <div><%= item.feedback %></div>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card section-card h-100">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold mb-3">Completed Pitches</h3>
+
+                    <% if (!completedPitches || completedPitches.length === 0) { %>
+                        <p class="text-muted mb-0">No completed pitches verified yet.</p>
+                    <% } else { %>
+                        <% completedPitches.forEach(item => { %>
+                            <div class="border rounded-4 p-3 mb-3">
+                                <a href="/pitchInfo/<%= item.pitch_id %>" class="fw-semibold text-decoration-none"><%= item.title %></a>
+                                <div><small class="text-muted"><%= item.category || 'Misc' %></small></div>
+                                <div><small class="text-muted">Verified by <%= item.poster_name || item.poster_username %></small></div>
+                                <% if (item.feedback) { %>
+                                    <div class="feedback-box">
+                                        <strong>Feedback:</strong>
+                                        <div><%= item.feedback %></div>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% }) %>
+                    <% } %>
                 </div>
             </div>
         </div>
