@@ -551,12 +551,48 @@ app.get('/profile', requireLogin, async (req, res) => {
             [req.session.userId]
         );
 
+        const [completedGigs] = await pool.query(
+            `SELECT cg.id,
+                    cg.feedback,
+                    cg.completed_at,
+                    g.id AS gig_id,
+                    g.title,
+                    g.category,
+                    u.display_name AS poster_name,
+                    u.username AS poster_username
+             FROM CompletedGig cg
+             JOIN Gig g ON cg.gig_id = g.id
+             JOIN userGig u ON cg.poster_user_id = u.id
+             WHERE cg.completed_user_id = ?
+             ORDER BY cg.completed_at DESC`,
+            [req.session.userId]
+        );
+
+        const [completedPitches] = await pool.query(
+            `SELECT cp.id,
+                    cp.feedback,
+                    cp.completed_at,
+                    p.id AS pitch_id,
+                    p.title,
+                    p.category_skills AS category,
+                    u.display_name AS poster_name,
+                    u.username AS poster_username
+             FROM CompletedPitch cp
+             JOIN Pitch p ON cp.pitch_id = p.id
+             JOIN userGig u ON cp.poster_user_id = u.id
+             WHERE cp.completed_user_id = ?
+             ORDER BY cp.completed_at DESC`,
+            [req.session.userId]
+        );
+
         res.render('profile', {
             profileUser: users[0],
             postedGigs,
             savedGigs,
             postedPitches,
             savedPitches,
+            completedGigs,
+            completedPitches,
             isOwnProfile: true
         });
     } catch (err) {
@@ -604,12 +640,48 @@ app.get('/profile/:id', requireLogin, async (req, res) => {
             [profileId]
         );
 
+        const [completedGigs] = await pool.query(
+            `SELECT cg.id,
+                    cg.feedback,
+                    cg.completed_at,
+                    g.id AS gig_id,
+                    g.title,
+                    g.category,
+                    u.display_name AS poster_name,
+                    u.username AS poster_username
+             FROM CompletedGig cg
+             JOIN Gig g ON cg.gig_id = g.id
+             JOIN userGig u ON cg.poster_user_id = u.id
+             WHERE cg.completed_user_id = ?
+             ORDER BY cg.completed_at DESC`,
+            [profileId]
+        );
+
+        const [completedPitches] = await pool.query(
+            `SELECT cp.id,
+                    cp.feedback,
+                    cp.completed_at,
+                    p.id AS pitch_id,
+                    p.title,
+                    p.category_skills AS category,
+                    u.display_name AS poster_name,
+                    u.username AS poster_username
+             FROM CompletedPitch cp
+             JOIN Pitch p ON cp.pitch_id = p.id
+             JOIN userGig u ON cp.poster_user_id = u.id
+             WHERE cp.completed_user_id = ?
+             ORDER BY cp.completed_at DESC`,
+            [profileId]
+        );
+
         res.render('profile', {
             profileUser: users[0],
             postedGigs,
             savedGigs: [],
             postedPitches,
             savedPitches: [],
+            completedGigs,
+            completedPitches,
             isOwnProfile: Number(profileId) === req.session.userId
         });
     } catch (err) {
@@ -1072,6 +1144,160 @@ app.post('/updatePitch/:id', requireLogin, async (req, res) => {
     } catch (err) {
         console.error('Database error in POST /updatePitch/:id:', err);
         res.status(500).send('Database error updating pitch.');
+    }
+});
+
+app.get('/completeGig/:id', requireLogin, async (req, res) => {
+    const gigId = req.params.id;
+
+    try {
+        const [gigRows] = await pool.query(
+            `SELECT id, title, user_id, status
+             FROM Gig
+             WHERE id = ? AND user_id = ?`,
+            [gigId, req.session.userId]
+        );
+
+        if (gigRows.length === 0) {
+            return res.status(403).send('You cannot complete this gig.');
+        }
+
+        const [users] = await pool.query(
+            `SELECT id, username, display_name, profile_type
+             FROM userGig
+             WHERE id != ?
+             ORDER BY COALESCE(display_name, username) ASC`,
+            [req.session.userId]
+        );
+
+        const user = await getCurrentUser(req.session.userId);
+
+        res.render('completeGig', {
+            gig: gigRows[0],
+            users,
+            user
+        });
+    } catch (err) {
+        console.error('Database error in GET /completeGig/:id:', err);
+        res.status(500).send('Database error loading complete gig page.');
+    }
+});
+
+app.post('/completeGig/:id', requireLogin, async (req, res) => {
+    const gigId = req.params.id;
+    const { completed_user_id, feedback } = req.body;
+
+    try {
+        const [gigRows] = await pool.query(
+            `SELECT id, user_id
+             FROM Gig
+             WHERE id = ? AND user_id = ?`,
+            [gigId, req.session.userId]
+        );
+
+        if (gigRows.length === 0) {
+            return res.status(403).send('You cannot complete this gig.');
+        }
+
+        await pool.query(
+            `UPDATE Gig
+             SET status = 'Completed',
+                 updated_at = NOW()
+             WHERE id = ? AND user_id = ?`,
+            [gigId, req.session.userId]
+        );
+
+        await pool.query(
+            `INSERT INTO CompletedGig (gig_id, poster_user_id, completed_user_id, feedback)
+             VALUES (?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE
+                 completed_user_id = VALUES(completed_user_id),
+                 feedback = VALUES(feedback),
+                 completed_at = CURRENT_TIMESTAMP`,
+            [gigId, req.session.userId, completed_user_id, feedback]
+        );
+
+        res.redirect(`/gigInfo/${gigId}`);
+    } catch (err) {
+        console.error('Database error in POST /completeGig/:id:', err);
+        res.status(500).send('Database error completing gig.');
+    }
+});
+
+app.get('/completePitch/:id', requireLogin, async (req, res) => {
+    const pitchId = req.params.id;
+
+    try {
+        const [pitchRows] = await pool.query(
+            `SELECT id, title, user_id, status
+             FROM Pitch
+             WHERE id = ? AND user_id = ?`,
+            [pitchId, req.session.userId]
+        );
+
+        if (pitchRows.length === 0) {
+            return res.status(403).send('You cannot complete this pitch.');
+        }
+
+        const [users] = await pool.query(
+            `SELECT id, username, display_name, profile_type
+             FROM userGig
+             WHERE id != ?
+             ORDER BY COALESCE(display_name, username) ASC`,
+            [req.session.userId]
+        );
+
+        const user = await getCurrentUser(req.session.userId);
+
+        res.render('completePitch', {
+            pitch: pitchRows[0],
+            users,
+            user
+        });
+    } catch (err) {
+        console.error('Database error in GET /completePitch/:id:', err);
+        res.status(500).send('Database error loading complete pitch page.');
+    }
+});
+
+app.post('/completePitch/:id', requireLogin, async (req, res) => {
+    const pitchId = req.params.id;
+    const { completed_user_id, feedback } = req.body;
+
+    try {
+        const [pitchRows] = await pool.query(
+            `SELECT id, user_id
+             FROM Pitch
+             WHERE id = ? AND user_id = ?`,
+            [pitchId, req.session.userId]
+        );
+
+        if (pitchRows.length === 0) {
+            return res.status(403).send('You cannot complete this pitch.');
+        }
+
+        await pool.query(
+            `UPDATE Pitch
+             SET status = 'Completed',
+                 updated_at = NOW()
+             WHERE id = ? AND user_id = ?`,
+            [pitchId, req.session.userId]
+        );
+
+        await pool.query(
+            `INSERT INTO CompletedPitch (pitch_id, poster_user_id, completed_user_id, feedback)
+             VALUES (?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE
+                 completed_user_id = VALUES(completed_user_id),
+                 feedback = VALUES(feedback),
+                 completed_at = CURRENT_TIMESTAMP`,
+            [pitchId, req.session.userId, completed_user_id, feedback]
+        );
+
+        res.redirect(`/pitchInfo/${pitchId}`);
+    } catch (err) {
+        console.error('Database error in POST /completePitch/:id:', err);
+        res.status(500).send('Database error completing pitch.');
     }
 });
 
