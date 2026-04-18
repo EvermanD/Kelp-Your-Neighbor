@@ -3,84 +3,13 @@
 <head>
     <%- include("partials/head.ejs") %>
     <title>OtterGigs | Find Pitch</title>
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .page-header {
-            background: linear-gradient(135deg, #6f42c1, #0dcaf0);
-            color: white;
-            border-radius: 22px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.1);
-        }
-
-        .filter-card,
-        .pitch-card {
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        }
-
-        .pitch-card {
-            overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            height: 100%;
-        }
-
-        .pitch-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 14px 30px rgba(0,0,0,0.12);
-        }
-
-        .pitch-image {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            background: #e9ecef;
-        }
-
-        .poster-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .poster-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #fff;
-        }
-
-        .nav-profile-btn {
-            width: 42px;
-            height: 42px;
-            padding: 0;
-            border-radius: 50%;
-            overflow: hidden;
-            border: none;
-            background: transparent;
-        }
-
-        .nav-profile-btn img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 2px solid white;
-        }
-    </style>
 </head>
-<body>
+<body class="page-find-pitch">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/home">OtterGigs</a>
+        <a class="navbar-brand fw-bold" href="/home">
+            <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
+        </a>
 
         <div class="d-flex align-items-center gap-2">
             <a href="/home" class="btn btn-outline-light btn-sm">Home</a>
@@ -140,8 +69,8 @@
                 </div>
 
                 <div class="col-12 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Search / Filter</button>
-                    <a href="/findPitch" class="btn btn-outline-secondary">Clear</a>
+                    <button type="submit" class="btn btn-filter-primary">Search / Filter</button>
+                    <a href="/findPitch" class="btn btn-filter-secondary">Clear</a>
                 </div>
             </form>
         </div>
@@ -153,7 +82,7 @@
         </div>
     <% } %>
 
-    <div class="row g-4">
+    <div class="row g-4 pitches-grid">
         <% pitches.forEach(pitch => { %>
             <div class="col-md-6 col-lg-4">
                 <div class="card pitch-card">
@@ -164,30 +93,36 @@
                     >
 
                     <div class="card-body d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-primary"><%= pitch.category || 'Misc' %></span>
-
+                        <% const pitchCategory = (pitch.category || 'Misc').toLowerCase(); %>
+                        <% const pitchCategoryClass = pitchCategory === 'design' ? 'pitch-pill-design' : pitchCategory === 'photography' || pitchCategory === 'video' ? 'pitch-pill-photography' : pitchCategory === 'marketing' || pitchCategory === 'writing' ? 'pitch-pill-marketing' : 'pitch-pill-default'; %>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="theme-pill <%= pitchCategoryClass %>"><%= pitch.category || 'Misc' %></span>
+                            <% if (pitch.rate_type) { %>
+                                <span class="theme-pill pitch-pill-rate"><%= pitch.rate_type %></span>
+                            <% } %>
                             <% if (pitch.beginner_friendly) { %>
-                                <span class="badge bg-success">Beginner Friendly</span>
+                                <span class="theme-pill pitch-pill-beginner">Beginner Friendly</span>
                             <% } else { %>
-                                <span class="badge bg-secondary">Open</span>
+                                <span class="theme-pill pitch-pill-open">Open</span>
                             <% } %>
                         </div>
 
-                        <h4 class="card-title fw-bold mb-1"><%= pitch.title %></h4>
-                        <p class="text-muted mb-1"><strong>Service:</strong> <%= pitch.name %></p>
-                        <p class="text-muted mb-1"><strong>Location:</strong> <%= pitch.location || 'N/A' %> <%= pitch.location_type ? '(' + pitch.location_type + ')' : '' %></p>
-                        <p class="text-muted mb-1"><strong>Rate Type:</strong> <%= pitch.rate_type || 'Not listed' %></p>
+                        <h4 class="card-title fw-bold mb-3"><%= pitch.title %></h4>
+                        <p class="card-meta mb-1"><strong>Service:</strong> <%= pitch.name %></p>
+                        <p class="card-meta mb-1"><strong>Location:</strong> <%= pitch.location || 'N/A' %> <%= pitch.location_type ? '(' + pitch.location_type + ')' : '' %></p>
+                        <p class="card-meta mb-1"><strong>Rate Type:</strong> <%= pitch.rate_type || 'Not listed' %></p>
 
                         <% if (pitch.rate_min !== null && pitch.rate_max !== null) { %>
-                            <p class="text-muted mb-3"><strong>Rate Range:</strong> $<%= pitch.rate_min %> - $<%= pitch.rate_max %></p>
+                            <p class="card-meta mb-3"><strong>Rate Range:</strong> $<%= pitch.rate_min %> - $<%= pitch.rate_max %></p>
                         <% } else { %>
-                            <p class="text-muted mb-3"><strong>Availability:</strong> <%= pitch.availability || 'Not listed' %></p>
+                            <p class="card-meta mb-3"><strong>Availability:</strong> <%= pitch.availability || 'Not listed' %></p>
                         <% } %>
 
-                        <p class="text-muted">
-                            <%= pitch.bio.length > 120 ? pitch.bio.substring(0, 120) + '...' : pitch.bio %>
-                        </p>
+                        <div class="card-description-panel mb-3">
+                            <p class="mb-0 description-text">
+                                <%= pitch.bio.length > 120 ? pitch.bio.substring(0, 120) + '...' : pitch.bio %>
+                            </p>
+                        </div>
 
                         <div class="mt-auto d-flex justify-content-between align-items-center gap-2 flex-wrap">
                             <a href="/profile/<%= pitch.user_id %>" class="poster-chip">
@@ -199,7 +134,7 @@
                                 <small class="fw-semibold"><%= pitch.display_name || pitch.name || 'User' %></small>
                             </a>
 
-                            <a href="/pitchInfo/<%= pitch.id %>" class="btn btn-dark btn-sm">View Full Pitch</a>
+                            <a href="/pitchInfo/<%= pitch.id %>" class="btn btn-card-cta btn-sm">View Full Pitch</a>
                         </div>
                     </div>
                 </div>

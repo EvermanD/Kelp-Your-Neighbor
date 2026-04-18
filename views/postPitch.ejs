@@ -3,26 +3,17 @@
 <head>
     <%- include("partials/head.ejs") %>
     <title>OtterGigs | Post Pitch</title>
-    <style>
-        body {
-            background: #f8f9fa;
-        }
-
-        .form-card {
-            border: none;
-            border-radius: 22px;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
-        }
-    </style>
 </head>
-<body>
+<body class="page-post-pitch">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/home">OtterGigs</a>
+        <a class="navbar-brand fw-bold" href="/home">
+            <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
+        </a>
 
         <div class="d-flex align-items-center gap-2">
             <a href="/findPitch" class="btn btn-outline-light btn-sm">Find Pitch</a>
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
+            <button class="btn btn-nav-menu btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
                 <%= user && (user.display_name || user.username) ? (user.display_name || user.username) : 'Menu' %>
             </button>
         </div>
@@ -34,8 +25,8 @@
 <div class="container py-5">
     <div class="card form-card">
         <div class="card-body p-4 p-md-5">
-            <h1 class="fw-bold mb-3">Post a Pitch</h1>
-            <p class="text-muted mb-4">Create a service listing so others can find your work.</p>
+            <h1 class="form-title mb-3">Post a Pitch</h1>
+            <p class="form-intro mb-4">Create a service listing so others can find your work.</p>
 
             <form action="/postPitch" method="POST" class="row g-3">
                 <div class="col-md-6">
@@ -131,8 +122,8 @@
                 </div>
 
                 <div class="col-12 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Post Pitch</button>
-                    <a href="/home" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-form-primary">Post Pitch</button>
+                    <a href="/home" class="btn btn-form-secondary">Cancel</a>
                 </div>
             </form>
         </div>
