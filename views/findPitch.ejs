@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
     <%- include("partials/head.ejs") %>
-    <title>OtterGigs | Find Gig</title>
+    <title>OtterGigs | Find Pitch</title>
     <style>
         body {
             background-color: #f8f9fa;
         }
 
         .page-header {
-            background: linear-gradient(135deg, #0d6efd, #20c997);
+            background: linear-gradient(135deg, #6f42c1, #0dcaf0);
             color: white;
             border-radius: 22px;
             padding: 2rem;
@@ -18,24 +18,24 @@
         }
 
         .filter-card,
-        .gig-card {
+        .pitch-card {
             border: none;
             border-radius: 20px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
 
-        .gig-card {
+        .pitch-card {
             overflow: hidden;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             height: 100%;
         }
 
-        .gig-card:hover {
+        .pitch-card:hover {
             transform: translateY(-6px);
             box-shadow: 0 14px 30px rgba(0,0,0,0.12);
         }
 
-        .gig-image {
+        .pitch-image {
             width: 100%;
             height: 220px;
             object-fit: cover;
@@ -99,19 +99,19 @@
 
 <div class="container py-4">
     <div class="page-header">
-        <h1 class="fw-bold mb-2">Find Your Next Gig</h1>
-        <p class="mb-0">Browse open community opportunities and filter the ones that match your skills.</p>
+        <h1 class="fw-bold mb-2">Find a Pitch</h1>
+        <p class="mb-0">Browse creators, services, and skill offerings from students and locals.</p>
     </div>
 
     <div class="card filter-card mb-4">
         <div class="card-body">
-            <form action="/findGig" method="GET" class="row g-3">
-                <div class="col-md-4">
+            <form action="/findPitch" method="GET" class="row g-3">
+                <div class="col-md-5">
                     <label class="form-label">Search</label>
-                    <input type="text" name="search" class="form-control" placeholder="Title, role, organization..." value="<%= filters.search %>">
+                    <input type="text" name="search" class="form-control" placeholder="Title, skill, service, bio..." value="<%= filters.search %>">
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <label class="form-label">Category</label>
                     <select name="category" class="form-select">
                         <option value="">All</option>
@@ -128,18 +128,7 @@
 
                 <div class="col-md-2">
                     <label class="form-label">Location</label>
-                    <input type="text" name="location" class="form-control" placeholder="Campus, Downtown..." value="<%= filters.location %>">
-                </div>
-
-                <div class="col-md-2">
-                    <label class="form-label">Urgency</label>
-                    <select name="urgency" class="form-select">
-                        <option value="">All</option>
-                        <option value="Low" <%= filters.urgency === 'Low' ? 'selected' : '' %>>Low</option>
-                        <option value="Medium" <%= filters.urgency === 'Medium' ? 'selected' : '' %>>Medium</option>
-                        <option value="High" <%= filters.urgency === 'High' ? 'selected' : '' %>>High</option>
-                        <option value="Urgent" <%= filters.urgency === 'Urgent' ? 'selected' : '' %>>Urgent</option>
-                    </select>
+                    <input type="text" name="location" class="form-control" placeholder="Campus, Monterey..." value="<%= filters.location %>">
                 </div>
 
                 <div class="col-md-2">
@@ -152,69 +141,65 @@
 
                 <div class="col-12 d-flex gap-2">
                     <button type="submit" class="btn btn-primary">Search / Filter</button>
-                    <a href="/findGig" class="btn btn-outline-secondary">Clear</a>
+                    <a href="/findPitch" class="btn btn-outline-secondary">Clear</a>
                 </div>
             </form>
         </div>
     </div>
 
-    <% if (!gigs || gigs.length === 0) { %>
+    <% if (!pitches || pitches.length === 0) { %>
         <div class="alert alert-info rounded-4">
-            No open gigs matched your filters.
+            No open pitches matched your filters.
         </div>
     <% } %>
 
     <div class="row g-4">
-        <% gigs.forEach(gig => { %>
+        <% pitches.forEach(pitch => { %>
             <div class="col-md-6 col-lg-4">
-                <div class="card gig-card">
+                <div class="card pitch-card">
                     <img
-                        src="<%= gig.image_url && gig.image_url.trim() !== '' ? gig.image_url : 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80' %>"
-                        alt="<%= gig.title %>"
-                        class="gig-image"
+                        src="<%= pitch.image_url && pitch.image_url.trim() !== '' ? pitch.image_url : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80' %>"
+                        alt="<%= pitch.title %>"
+                        class="pitch-image"
                     >
 
                     <div class="card-body d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-primary"><%= gig.category || 'Misc' %></span>
+                            <span class="badge bg-primary"><%= pitch.category || 'Misc' %></span>
 
-                            <% if (gig.urgency === 'Urgent') { %>
-                                <span class="badge bg-danger"><%= gig.urgency %></span>
-                            <% } else if (gig.urgency === 'High') { %>
-                                <span class="badge bg-warning text-dark"><%= gig.urgency %></span>
+                            <% if (pitch.beginner_friendly) { %>
+                                <span class="badge bg-success">Beginner Friendly</span>
                             <% } else { %>
-                                <span class="badge bg-secondary"><%= gig.urgency %></span>
+                                <span class="badge bg-secondary">Open</span>
                             <% } %>
                         </div>
 
-                        <h4 class="card-title fw-bold"><%= gig.title %></h4>
+                        <h4 class="card-title fw-bold mb-1"><%= pitch.title %></h4>
+                        <p class="text-muted mb-1"><strong>Service:</strong> <%= pitch.name %></p>
+                        <p class="text-muted mb-1"><strong>Location:</strong> <%= pitch.location || 'N/A' %> <%= pitch.location_type ? '(' + pitch.location_type + ')' : '' %></p>
+                        <p class="text-muted mb-1"><strong>Rate Type:</strong> <%= pitch.rate_type || 'Not listed' %></p>
 
-                        <p class="text-muted mb-1"><strong>Looking for:</strong> <%= gig.looking_for %></p>
-                        <p class="text-muted mb-1"><strong>Location:</strong> <%= gig.location %> <%= gig.location_type ? '(' + gig.location_type + ')' : '' %></p>
-                        <p class="text-muted mb-1"><strong>Budget:</strong> <%= gig.budget || 'Not listed' %></p>
-                        <p class="text-muted mb-3"><strong>Deadline:</strong> <%= gig.deadline ? new Date(gig.deadline).toLocaleDateString() : 'N/A' %></p>
-
-                        <% if (gig.beginner_friendly) { %>
-                            <div class="mb-3">
-                                <span class="badge bg-success">Beginner Friendly</span>
-                            </div>
+                        <% if (pitch.rate_min !== null && pitch.rate_max !== null) { %>
+                            <p class="text-muted mb-3"><strong>Rate Range:</strong> $<%= pitch.rate_min %> - $<%= pitch.rate_max %></p>
+                        <% } else { %>
+                            <p class="text-muted mb-3"><strong>Availability:</strong> <%= pitch.availability || 'Not listed' %></p>
                         <% } %>
 
                         <p class="text-muted">
-                            <%= gig.description.length > 120 ? gig.description.substring(0, 120) + '...' : gig.description %>
+                            <%= pitch.bio.length > 120 ? pitch.bio.substring(0, 120) + '...' : pitch.bio %>
                         </p>
 
                         <div class="mt-auto d-flex justify-content-between align-items-center gap-2 flex-wrap">
-                            <a href="/profile/<%= gig.user_id %>" class="poster-chip">
+                            <a href="/profile/<%= pitch.user_id %>" class="poster-chip">
                                 <img
-                                    src="<%= gig.profile_image_url && gig.profile_image_url.trim() !== '' ? gig.profile_image_url : 'https://via.placeholder.com/40x40?text=U' %>"
-                                    alt="Poster"
+                                    src="<%= pitch.profile_image_url && pitch.profile_image_url.trim() !== '' ? pitch.profile_image_url : 'https://via.placeholder.com/40x40?text=U' %>"
+                                    alt="Creator"
                                     class="poster-avatar"
                                 >
-                                <small class="fw-semibold"><%= gig.display_name || gig.organization_name || 'User' %></small>
+                                <small class="fw-semibold"><%= pitch.display_name || pitch.name || 'User' %></small>
                             </a>
 
-                            <a href="/gigInfo/<%= gig.id %>" class="btn btn-dark btn-sm">View Full Gig</a>
+                            <a href="/pitchInfo/<%= pitch.id %>" class="btn btn-dark btn-sm">View Full Pitch</a>
                         </div>
                     </div>
                 </div>
