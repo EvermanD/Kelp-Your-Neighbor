@@ -11,15 +11,9 @@
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
         </a>
 
-        <div class="d-flex align-items-center gap-2">
-            <a href="/home" class="btn btn-outline-light btn-sm">Home</a>
-
-            <button class="nav-profile-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
-                <img
-                    src="<%= user && user.profile_image_url && user.profile_image_url.trim() !== '' ? user.profile_image_url : 'https://via.placeholder.com/80x80?text=U' %>"
-                    alt="Profile"
-                >
-            </button>
+        <div class="navbar-controls">
+            <%- include("partials/navActions.ejs") %>
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
         </div>
     </div>
 </nav>

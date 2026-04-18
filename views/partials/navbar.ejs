@@ -4,25 +4,8 @@
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/home">Return to Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="/findGig">Find Gig</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/postGig">Post Gig</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/profile">My Profile</a>
-                </li>
-            </ul>
+        <div class="navbar-controls">
+            <%- include("navActions.ejs") %>
             <a href="/logout" class="btn btn-outline-light">Logout</a>
         </div>
     </div>

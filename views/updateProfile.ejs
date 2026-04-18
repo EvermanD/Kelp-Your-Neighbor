@@ -22,11 +22,9 @@
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
         </a>
 
-        <div class="d-flex align-items-center gap-2">
-            <a href="/profile" class="btn btn-outline-light btn-sm">Back to Profile</a>
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
-                <%= profileUser.display_name || profileUser.username %>
-            </button>
+        <div class="navbar-controls">
+            <%- include("partials/navActions.ejs") %>
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: profileUser && profileUser.profile_image_url }) %>
         </div>
     </div>
 </nav>

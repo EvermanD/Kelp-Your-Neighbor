@@ -22,11 +22,9 @@
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
         </a>
 
-        <div class="d-flex align-items-center gap-2">
-            <a href="/gigInfo/<%= gig.id %>" class="btn btn-outline-light btn-sm">Back to Gig</a>
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
-                <%= user && (user.display_name || user.username) ? (user.display_name || user.username) : 'Menu' %>
-            </button>
+        <div class="navbar-controls">
+            <%- include("partials/navActions.ejs") %>
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
         </div>
     </div>
 </nav>
