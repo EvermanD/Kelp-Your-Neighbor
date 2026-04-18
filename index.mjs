@@ -1,11 +1,24 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import 'dotenv/config';
+import * as mysql from "mysql2";
 
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+app.use(express.urlencoded({extended:true}));
+
+const pool = mysql.createPool({
+    host: "k2pdcy98kpcsweia.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: "nm2pf20notjcum1m",
+    connectionLimit: 10,
+    waitForConnections: true
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
