@@ -32,6 +32,25 @@ const pool = mysql.createPool({
     waitForConnections: true
 });
 
+function requireLogin(req, res, next) {
+    if (!req.session.userId) {
+        return res.redirect('/');
+    }
+    next();
+}
+
+async function getCurrentUser(userId) {
+    const sql = `
+        SELECT id, username, display_name, profile_type, bio, about,
+               profile_image_url, portfolio_image_1, portfolio_image_2, portfolio_image_3,
+               location, contact_email
+        FROM userGig
+        WHERE id = ?
+    `;
+    const [rows] = await pool.query(sql, [userId]);
+    return rows.length > 0 ? rows[0] : null;
+}
+
 app.get('/', (req, res) => {
     res.render('index', {});
 });
@@ -126,21 +145,20 @@ app.get('/logout', (req, res) => {
     });
 });
 
-app.get('/home', (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/');
-    }
+app.get('/home', requireLogin, async (req, res) => {
+    try {
+        const user = await getCurrentUser(req.session.userId);
 
-    res.render('home', {
-        username: req.session.username
-    });
+        res.render('home', {
+            user
+        });
+    } catch (err) {
+        console.error('Database error in /home:', err);
+        res.status(500).send('Database error loading home page.');
+    }
 });
 
-app.get('/findGig', async (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/');
-    }
-
+app.get('/findGig', requireLogin, async (req, res) => {
     let search = req.query.search || '';
     let category = req.query.category || '';
     let location = req.query.location || '';
@@ -149,11 +167,13 @@ app.get('/findGig', async (req, res) => {
 
     try {
         let sql = `
-            SELECT id, title, description, category, looking_for, organization_name,
-                   location, location_type, budget, budget_min, budget_max,
-                   deadline, urgency, beginner_friendly, image_url, status
-            FROM Gig
-            WHERE status = 'Open'
+            SELECT g.id, g.title, g.description, g.category, g.looking_for, g.organization_name,
+                   g.location, g.location_type, g.budget, g.budget_min, g.budget_max,
+                   g.deadline, g.urgency, g.beginner_friendly, g.image_url, g.status,
+                   g.user_id, u.display_name, u.profile_image_url
+            FROM Gig g
+            JOIN userGig u ON g.user_id = u.id
+            WHERE g.status = 'Open'
         `;
 
         let sqlParams = [];
@@ -161,11 +181,11 @@ app.get('/findGig', async (req, res) => {
         if (search.trim() !== '') {
             sql += `
                 AND (
-                    title LIKE ?
-                    OR description LIKE ?
-                    OR category LIKE ?
-                    OR looking_for LIKE ?
-                    OR organization_name LIKE ?
+                    g.title LIKE ?
+                    OR g.description LIKE ?
+                    OR g.category LIKE ?
+                    OR g.looking_for LIKE ?
+                    OR g.organization_name LIKE ?
                 )
             `;
             let searchTerm = `%${search}%`;
@@ -173,27 +193,28 @@ app.get('/findGig', async (req, res) => {
         }
 
         if (category.trim() !== '') {
-            sql += ` AND category = ?`;
+            sql += ` AND g.category = ?`;
             sqlParams.push(category);
         }
 
         if (location.trim() !== '') {
-            sql += ` AND location LIKE ?`;
+            sql += ` AND g.location LIKE ?`;
             sqlParams.push(`%${location}%`);
         }
 
         if (urgency.trim() !== '') {
-            sql += ` AND urgency = ?`;
+            sql += ` AND g.urgency = ?`;
             sqlParams.push(urgency);
         }
 
         if (beginner === '1') {
-            sql += ` AND beginner_friendly = 1`;
+            sql += ` AND g.beginner_friendly = 1`;
         }
 
-        sql += ` ORDER BY created_at DESC`;
+        sql += ` ORDER BY g.created_at DESC`;
 
         const [gigs] = await pool.query(sql, sqlParams);
+        const user = await getCurrentUser(req.session.userId);
 
         res.render('findGig', {
             gigs,
@@ -203,7 +224,8 @@ app.get('/findGig', async (req, res) => {
                 location,
                 urgency,
                 beginner
-            }
+            },
+            user
         });
     } catch (err) {
         console.error('Database error in /findGig:', err);
@@ -211,25 +233,22 @@ app.get('/findGig', async (req, res) => {
     }
 });
 
-app.get('/gigInfo/:id', async (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/');
-    }
-
+app.get('/gigInfo/:id', requireLogin, async (req, res) => {
     let gigId = req.params.id;
 
     try {
         let sql = `
-            SELECT id, title, description, category, looking_for, organization_name,
-                   location, location_type, budget, budget_min, budget_max,
-                   deadline, event_date, urgency, beginner_friendly, image_url,
-                   contact_email, status, created_at, updated_at
-            FROM Gig
-            WHERE id = ?
+            SELECT g.id, g.title, g.description, g.category, g.looking_for, g.organization_name,
+                   g.location, g.location_type, g.budget, g.budget_min, g.budget_max,
+                   g.deadline, g.event_date, g.urgency, g.beginner_friendly, g.image_url,
+                   g.contact_email, g.status, g.created_at, g.updated_at, g.user_id,
+                   u.display_name, u.profile_type, u.profile_image_url, u.bio
+            FROM Gig g
+            JOIN userGig u ON g.user_id = u.id
+            WHERE g.id = ?
         `;
-        let sqlParams = [gigId];
 
-        const [rows] = await pool.query(sql, sqlParams);
+        const [rows] = await pool.query(sql, [gigId]);
 
         if (rows.length === 0) {
             return res.status(404).render('404', {
@@ -239,8 +258,20 @@ app.get('/gigInfo/:id', async (req, res) => {
             });
         }
 
+        const gig = rows[0];
+
+        const [savedRows] = await pool.query(
+            `SELECT id FROM SavedGig WHERE user_id = ? AND gig_id = ?`,
+            [req.session.userId, gigId]
+        );
+
+        const user = await getCurrentUser(req.session.userId);
+
         res.render('gigInfo', {
-            gig: rows[0]
+            gig,
+            isSaved: savedRows.length > 0,
+            isOwner: req.session.userId === gig.user_id,
+            user
         });
     } catch (err) {
         console.error('Database error in /gigInfo/:id:', err);
@@ -248,65 +279,77 @@ app.get('/gigInfo/:id', async (req, res) => {
     }
 });
 
-app.get('/postGig', (req, res) => {
-    res.render('postGig.ejs');
-});
-
-app.post('/postGig', async (req, res) => {
-    let title = req.body.title;
-    let description = req.body.description;
-    let category = req.body.category;
-    let looking_for = req.body.looking_for;
-    let organization_name = req.body.organization_name;
-    let location = req.body.location;
-    let location_type = req.body.location_type;
-    let budget = req.body.budget;
-    let budget_min = req.body.budget_min;
-    let budget_max = req.body.budget_max;
-    let deadline = req.body.deadline;
-    let event_date = req.body.event_date;
-    let urgency = req.body.urgency;
-    let beginner_friendly = req.body.beginner_friendly ? 1 : 0;
-    let image_url = req.body.image_url;
-    let contact_email = req.body.contact_email;
-    let status = req.body.status;
-
-    let user_id = 1; // temporary for now until login/session is connected
+app.post('/saveGig/:id', requireLogin, async (req, res) => {
+    let gigId = req.params.id;
+    let userId = req.session.userId;
 
     try {
-        if (title == "") {
-            return res.json({ error: "Error: title cannot be blank" });
+        const [existing] = await pool.query(
+            `SELECT id FROM SavedGig WHERE user_id = ? AND gig_id = ?`,
+            [userId, gigId]
+        );
+
+        if (existing.length === 0) {
+            await pool.query(
+                `INSERT INTO SavedGig (user_id, gig_id) VALUES (?, ?)`,
+                [userId, gigId]
+            );
         }
 
-        if (description == "") {
-            return res.json({ error: "Error: description cannot be blank" });
-        }
+        res.redirect(`/gigInfo/${gigId}`);
+    } catch (err) {
+        console.error('Database error in /saveGig/:id:', err);
+        res.status(500).send('Database error saving gig.');
+    }
+});
 
-        let sql = `
-            INSERT INTO Gig (
-                title,
-                description,
-                category,
-                looking_for,
-                organization_name,
-                location,
-                location_type,
-                budget,
-                budget_min,
-                budget_max,
-                deadline,
-                event_date,
-                urgency,
-                beginner_friendly,
-                image_url,
-                contact_email,
-                status,
-                user_id
+app.get('/postGig', requireLogin, async (req, res) => {
+    try {
+        const user = await getCurrentUser(req.session.userId);
+
+        res.render('postGig', {
+            user
+        });
+    } catch (err) {
+        console.error('Database error in GET /postGig:', err);
+        res.status(500).send('Database error loading post gig page.');
+    }
+});
+
+app.post('/postGig', requireLogin, async (req, res) => {
+    const {
+        title,
+        description,
+        category,
+        looking_for,
+        organization_name,
+        location,
+        location_type,
+        budget,
+        budget_min,
+        budget_max,
+        deadline,
+        event_date,
+        urgency,
+        beginner_friendly,
+        image_url,
+        contact_email
+    } = req.body;
+
+    try {
+        const sql = `
+            INSERT INTO Gig
+            (
+                user_id, title, description, category, looking_for, organization_name,
+                location, location_type, budget, budget_min, budget_max,
+                deadline, event_date, urgency, beginner_friendly, image_url,
+                contact_email, status, created_at, updated_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Open', NOW(), NOW())
         `;
 
-        let sqlParams = [
+        const sqlParams = [
+            req.session.userId,
             title,
             description,
             category,
@@ -315,24 +358,273 @@ app.post('/postGig', async (req, res) => {
             location,
             location_type,
             budget,
-            budget_min,
-            budget_max,
-            deadline,
-            event_date,
+            budget_min || null,
+            budget_max || null,
+            deadline || null,
+            event_date || null,
             urgency,
-            beginner_friendly,
+            beginner_friendly ? 1 : 0,
             image_url,
-            contact_email,
-            status,
-            user_id
+            contact_email
         ];
 
         await pool.query(sql, sqlParams);
 
-        res.send("Gig created successfully!");
+        res.redirect('/findGig');
     } catch (err) {
-        console.error("Database error:", err);
-        res.json({ error: "Error: database error" });
+        console.error('Database error in POST /postGig:', err);
+        res.status(500).send('Database error posting gig.');
+    }
+});
+
+app.get('/updateGig/:id', requireLogin, async (req, res) => {
+    let gigId = req.params.id;
+
+    try {
+        const [rows] = await pool.query(
+            `SELECT *
+             FROM Gig
+             WHERE id = ? AND user_id = ?`,
+            [gigId, req.session.userId]
+        );
+
+        if (rows.length === 0) {
+            return res.status(403).send('You cannot edit this gig.');
+        }
+
+        const user = await getCurrentUser(req.session.userId);
+
+        res.render('updateGig', {
+            gig: rows[0],
+            user
+        });
+    } catch (err) {
+        console.error('Database error in GET /updateGig/:id:', err);
+        res.status(500).send('Database error loading update gig page.');
+    }
+});
+
+app.post('/updateGig/:id', requireLogin, async (req, res) => {
+    let gigId = req.params.id;
+
+    const {
+        title,
+        description,
+        category,
+        looking_for,
+        organization_name,
+        location,
+        location_type,
+        budget,
+        budget_min,
+        budget_max,
+        deadline,
+        event_date,
+        urgency,
+        beginner_friendly,
+        image_url,
+        contact_email,
+        status
+    } = req.body;
+
+    try {
+        const sql = `
+            UPDATE Gig
+            SET title = ?,
+                description = ?,
+                category = ?,
+                looking_for = ?,
+                organization_name = ?,
+                location = ?,
+                location_type = ?,
+                budget = ?,
+                budget_min = ?,
+                budget_max = ?,
+                deadline = ?,
+                event_date = ?,
+                urgency = ?,
+                beginner_friendly = ?,
+                image_url = ?,
+                contact_email = ?,
+                status = ?,
+                updated_at = NOW()
+            WHERE id = ? AND user_id = ?
+        `;
+
+        const sqlParams = [
+            title,
+            description,
+            category,
+            looking_for,
+            organization_name,
+            location,
+            location_type,
+            budget,
+            budget_min || null,
+            budget_max || null,
+            deadline || null,
+            event_date || null,
+            urgency,
+            beginner_friendly ? 1 : 0,
+            image_url,
+            contact_email,
+            status,
+            gigId,
+            req.session.userId
+        ];
+
+        await pool.query(sql, sqlParams);
+
+        res.redirect(`/gigInfo/${gigId}`);
+    } catch (err) {
+        console.error('Database error in POST /updateGig/:id:', err);
+        res.status(500).send('Database error updating gig.');
+    }
+});
+
+app.get('/profile', requireLogin, async (req, res) => {
+    try {
+        const [users] = await pool.query(
+            `SELECT *
+             FROM userGig
+             WHERE id = ?`,
+            [req.session.userId]
+        );
+
+        const [postedGigs] = await pool.query(
+            `SELECT id, title, category, status, created_at
+             FROM Gig
+             WHERE user_id = ?
+             ORDER BY created_at DESC`,
+            [req.session.userId]
+        );
+
+        const [savedGigs] = await pool.query(
+            `SELECT g.id, g.title, g.category, g.status, sg.created_at AS saved_at
+             FROM SavedGig sg
+             JOIN Gig g ON sg.gig_id = g.id
+             WHERE sg.user_id = ?
+             ORDER BY sg.created_at DESC`,
+            [req.session.userId]
+        );
+
+        res.render('profile', {
+            profileUser: users[0],
+            postedGigs,
+            savedGigs,
+            isOwnProfile: true
+        });
+    } catch (err) {
+        console.error('Database error in /profile:', err);
+        res.status(500).send('Database error loading profile.');
+    }
+});
+
+app.get('/profile/:id', requireLogin, async (req, res) => {
+    try {
+        const profileId = req.params.id;
+
+        const [users] = await pool.query(
+            `SELECT *
+             FROM userGig
+             WHERE id = ?`,
+            [profileId]
+        );
+
+        if (users.length === 0) {
+            return res.status(404).render('404', {
+                title: 'Profile Not Found',
+                heading: 'Profile Not Found',
+                description: 'That profile does not exist.'
+            });
+        }
+
+        const [postedGigs] = await pool.query(
+            `SELECT id, title, category, status, created_at
+             FROM Gig
+             WHERE user_id = ?
+             ORDER BY created_at DESC`,
+            [profileId]
+        );
+
+        res.render('profile', {
+            profileUser: users[0],
+            postedGigs,
+            savedGigs: [],
+            isOwnProfile: Number(profileId) === req.session.userId
+        });
+    } catch (err) {
+        console.error('Database error in /profile/:id:', err);
+        res.status(500).send('Database error loading public profile.');
+    }
+});
+
+app.get('/updateProfile', requireLogin, async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            `SELECT *
+             FROM userGig
+             WHERE id = ?`,
+            [req.session.userId]
+        );
+
+        res.render('updateProfile', {
+            profileUser: rows[0]
+        });
+    } catch (err) {
+        console.error('Database error in GET /updateProfile:', err);
+        res.status(500).send('Database error loading update profile page.');
+    }
+});
+
+app.post('/updateProfile', requireLogin, async (req, res) => {
+    const {
+        display_name,
+        profile_type,
+        bio,
+        about,
+        profile_image_url,
+        portfolio_image_1,
+        portfolio_image_2,
+        portfolio_image_3,
+        location,
+        contact_email
+    } = req.body;
+
+    try {
+        const sql = `
+            UPDATE userGig
+            SET display_name = ?,
+                profile_type = ?,
+                bio = ?,
+                about = ?,
+                profile_image_url = ?,
+                portfolio_image_1 = ?,
+                portfolio_image_2 = ?,
+                portfolio_image_3 = ?,
+                location = ?,
+                contact_email = ?
+            WHERE id = ?
+        `;
+
+        await pool.query(sql, [
+            display_name,
+            profile_type,
+            bio,
+            about,
+            profile_image_url,
+            portfolio_image_1,
+            portfolio_image_2,
+            portfolio_image_3,
+            location,
+            contact_email,
+            req.session.userId
+        ]);
+
+        res.redirect('/profile');
+    } catch (err) {
+        console.error('Database error in POST /updateProfile:', err);
+        res.status(500).send('Database error updating profile.');
     }
 });
 
@@ -349,14 +641,6 @@ app.get('/myPitches', (req, res) => {
         title: 'My Pitches',
         heading: 'My Pitches',
         description: 'This is the My Pitches page skeleton.',
-    });
-});
-
-app.get('/profile', (req, res) => {
-    res.render('profile', {
-        title: 'Profile',
-        heading: 'Profile',
-        description: 'This is the Profile page skeleton.',
     });
 });
 

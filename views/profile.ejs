@@ -2,9 +2,160 @@
 <html lang="en">
 <head>
     <%- include("partials/head.ejs") %>
-    <title>OtterGigs | My Profile</title>
+    <title>OtterGigs | Profile</title>
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+
+        .profile-card,
+        .section-card {
+            border: none;
+            border-radius: 22px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+        }
+
+        .profile-avatar {
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+    </style>
 </head>
 <body>
-<%- include("partials/navbar.ejs") %>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/home">OtterGigs</a>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="/findGig" class="btn btn-outline-light btn-sm">Find Gig</a>
+            <% if (isOwnProfile) { %>
+                <button class="btn btn-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
+                    <%= profileUser.display_name || profileUser.username %>
+                </button>
+            <% } %>
+        </div>
+    </div>
+</nav>
+
+<% if (isOwnProfile) { %>
+    <%- include("partials/userMenu.ejs", { user: profileUser }) %>
+<% } %>
+
+<div class="container py-5">
+    <div class="card profile-card mb-4">
+        <div class="card-body p-4 p-md-5">
+            <div class="row align-items-center g-4">
+                <div class="col-md-auto text-center">
+                    <img
+                        src="<%= profileUser.profile_image_url && profileUser.profile_image_url.trim() !== '' ? profileUser.profile_image_url : 'https://via.placeholder.com/150x150?text=Profile' %>"
+                        alt="Profile"
+                        class="profile-avatar"
+                    >
+                </div>
+
+                <div class="col">
+                    <h1 class="fw-bold mb-1"><%= profileUser.display_name || profileUser.username %></h1>
+                    <p class="text-muted text-capitalize mb-2"><%= profileUser.profile_type || 'individual' %></p>
+                    <p class="mb-2"><%= profileUser.bio || 'No bio added yet.' %></p>
+                    <p class="text-muted mb-3"><%= profileUser.location || 'Location not added' %></p>
+
+                    <% if (isOwnProfile) { %>
+                        <a href="/updateProfile" class="btn btn-primary">Edit Profile</a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card section-card h-100">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold mb-3">About</h3>
+                    <p class="text-muted"><%= profileUser.about || 'No about section added yet.' %></p>
+
+                    <% if (profileUser.contact_email) { %>
+                        <p class="mb-1"><strong>Contact:</strong> <%= profileUser.contact_email %></p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card section-card h-100">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold mb-3">Portfolio Images</h3>
+                    <div class="row g-3">
+                        <% const portfolioImages = [profileUser.portfolio_image_1, profileUser.portfolio_image_2, profileUser.portfolio_image_3].filter(Boolean); %>
+
+                        <% if (portfolioImages.length === 0) { %>
+                            <p class="text-muted mb-0">No portfolio images added yet.</p>
+                        <% } else { %>
+                            <% portfolioImages.forEach(img => { %>
+                                <div class="col-4">
+                                    <img src="<%= img %>" class="img-fluid rounded-3 border" style="height: 120px; width: 100%; object-fit: cover;" alt="Portfolio image">
+                                </div>
+                            <% }) %>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card section-card h-100">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold mb-3">Posted Gigs</h3>
+
+                    <% if (!postedGigs || postedGigs.length === 0) { %>
+                        <p class="text-muted mb-0">No posted gigs yet.</p>
+                    <% } else { %>
+                        <div class="list-group">
+                            <% postedGigs.forEach(gig => { %>
+                                <a href="/gigInfo/<%= gig.id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-semibold"><%= gig.title %></div>
+                                        <small class="text-muted"><%= gig.category || 'Misc' %></small>
+                                    </div>
+                                    <span class="badge bg-dark"><%= gig.status %></span>
+                                </a>
+                            <% }) %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card section-card h-100">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold mb-3">Saved Gigs</h3>
+
+                    <% if (!savedGigs || savedGigs.length === 0) { %>
+                        <p class="text-muted mb-0">No saved gigs yet.</p>
+                    <% } else { %>
+                        <div class="list-group">
+                            <% savedGigs.forEach(gig => { %>
+                                <a href="/gigInfo/<%= gig.id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-semibold"><%= gig.title %></div>
+                                        <small class="text-muted"><%= gig.category || 'Misc' %></small>
+                                    </div>
+                                    <span class="badge bg-secondary"><%= gig.status %></span>
+                                </a>
+                            <% }) %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
