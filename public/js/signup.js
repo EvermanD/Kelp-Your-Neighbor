@@ -1,0 +1,53 @@
+document.querySelector("#signupForm").addEventListener("submit", signupUser);
+
+let feedbackDiv = document.querySelector("#feedbackDiv");
+feedbackDiv.style.display = "none";
+
+async function signupUser(event) {
+    event.preventDefault();
+
+    let username = document.querySelector("input[name=username]").value;
+    let password = document.querySelector("input[name=password]").value;
+
+    if (username === "") {
+        feedbackDiv.style.display = "block";
+        feedbackDiv.textContent = "Error: username cannot be blank";
+        feedbackDiv.style.color = "red";
+        return;
+    }
+
+    if (password === "") {
+        feedbackDiv.style.display = "block";
+        feedbackDiv.textContent = "Error: password cannot be blank";
+        feedbackDiv.style.color = "red";
+        return;
+    }
+
+    let formData = new URLSearchParams();
+    formData.append("username", username);
+    formData.append("password", password);
+
+    let response = await fetch("/signup", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: formData
+    });
+
+    let data = await response.json();
+
+    feedbackDiv.style.display = "block";
+
+    if (data.error) {
+        feedbackDiv.textContent = data.error;
+        feedbackDiv.style.color = "red";
+    } else {
+        feedbackDiv.textContent = data.success;
+        feedbackDiv.style.color = "green";
+
+        setTimeout(function() {
+            window.location.href = "/";
+        }, 1500);
+    }
+}
