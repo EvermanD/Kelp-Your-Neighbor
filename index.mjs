@@ -136,12 +136,116 @@ app.get('/home', (req, res) => {
     });
 });
 
-app.get('/findGig', (req, res) => {
-    res.render('findGig', {
-        title: 'Find Gig',
-        heading: 'Find Gig',
-        description: 'This is the Find Gig page skeleton.',
-    });
+app.get('/findGig', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/');
+    }
+
+    let search = req.query.search || '';
+    let category = req.query.category || '';
+    let location = req.query.location || '';
+    let urgency = req.query.urgency || '';
+    let beginner = req.query.beginner || '';
+
+    try {
+        let sql = `
+            SELECT id, title, description, category, looking_for, organization_name,
+                   location, location_type, budget, budget_min, budget_max,
+                   deadline, urgency, beginner_friendly, image_url, status
+            FROM Gig
+            WHERE status = 'Open'
+        `;
+
+        let sqlParams = [];
+
+        if (search.trim() !== '') {
+            sql += `
+                AND (
+                    title LIKE ?
+                    OR description LIKE ?
+                    OR category LIKE ?
+                    OR looking_for LIKE ?
+                    OR organization_name LIKE ?
+                )
+            `;
+            let searchTerm = `%${search}%`;
+            sqlParams.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+        }
+
+        if (category.trim() !== '') {
+            sql += ` AND category = ?`;
+            sqlParams.push(category);
+        }
+
+        if (location.trim() !== '') {
+            sql += ` AND location LIKE ?`;
+            sqlParams.push(`%${location}%`);
+        }
+
+        if (urgency.trim() !== '') {
+            sql += ` AND urgency = ?`;
+            sqlParams.push(urgency);
+        }
+
+        if (beginner === '1') {
+            sql += ` AND beginner_friendly = 1`;
+        }
+
+        sql += ` ORDER BY created_at DESC`;
+
+        const [gigs] = await pool.query(sql, sqlParams);
+
+        res.render('findGig', {
+            gigs,
+            filters: {
+                search,
+                category,
+                location,
+                urgency,
+                beginner
+            }
+        });
+    } catch (err) {
+        console.error('Database error in /findGig:', err);
+        res.status(500).send('Database error loading gigs.');
+    }
+});
+
+app.get('/gigInfo/:id', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/');
+    }
+
+    let gigId = req.params.id;
+
+    try {
+        let sql = `
+            SELECT id, title, description, category, looking_for, organization_name,
+                   location, location_type, budget, budget_min, budget_max,
+                   deadline, event_date, urgency, beginner_friendly, image_url,
+                   contact_email, status, created_at, updated_at
+            FROM Gig
+            WHERE id = ?
+        `;
+        let sqlParams = [gigId];
+
+        const [rows] = await pool.query(sql, sqlParams);
+
+        if (rows.length === 0) {
+            return res.status(404).render('404', {
+                title: 'Gig Not Found',
+                heading: 'Gig Not Found',
+                description: 'That gig does not exist.'
+            });
+        }
+
+        res.render('gigInfo', {
+            gig: rows[0]
+        });
+    } catch (err) {
+        console.error('Database error in /gigInfo/:id:', err);
+        res.status(500).send('Database error loading gig details.');
+    }
 });
 
 app.get('/postGig', (req, res) => {
