@@ -51,8 +51,79 @@ async function getCurrentUser(userId) {
     return rows.length > 0 ? rows[0] : null;
 }
 
-app.get('/', (req, res) => {
-    res.render('index', {});
+app.get('/', async (req, res) => {
+    let search = req.query.search || '';
+    let category = req.query.category || '';
+    let location = req.query.location || '';
+    let urgency = req.query.urgency || '';
+    let beginner = req.query.beginner || '';
+
+    try {
+        let sql = `
+            SELECT g.id, g.title, g.description, g.category, g.looking_for, g.organization_name,
+                   g.location, g.location_type, g.budget, g.budget_min, g.budget_max,
+                   g.deadline, g.urgency, g.beginner_friendly, g.image_url, g.status,
+                   g.user_id, u.display_name, u.profile_image_url
+            FROM Gig g
+            JOIN userGig u ON g.user_id = u.id
+            WHERE g.status = 'Open'
+        `;
+
+        let sqlParams = [];
+
+        if (search.trim() !== '') {
+            sql += `
+                AND (
+                    g.title LIKE ?
+                    OR g.description LIKE ?
+                    OR g.category LIKE ?
+                    OR g.looking_for LIKE ?
+                    OR g.organization_name LIKE ?
+                )
+            `;
+            let searchTerm = `%${search}%`;
+            sqlParams.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+        }
+
+        if (category.trim() !== '') {
+            sql += ` AND g.category = ?`;
+            sqlParams.push(category);
+        }
+
+        if (location.trim() !== '') {
+            sql += ` AND g.location LIKE ?`;
+            sqlParams.push(`%${location}%`);
+        }
+
+        if (urgency.trim() !== '') {
+            sql += ` AND g.urgency = ?`;
+            sqlParams.push(urgency);
+        }
+
+        if (beginner === '1') {
+            sql += ` AND g.beginner_friendly = 1`;
+        }
+
+        sql += ` ORDER BY g.created_at DESC LIMIT 6`;
+
+        const [gigs] = await pool.query(sql, sqlParams);
+        const user = await getCurrentUser(req.session.userId);
+
+        res.render('index', {
+            gigs,
+            filters: {
+                search,
+                category,
+                location,
+                urgency,
+                beginner
+            },
+            user
+        });
+    } catch (err) {
+        console.error('Database error in /:', err);
+        res.status(500).send('Database error loading gigs.');
+    }
 });
 
 app.get('/signup', (req, res) => {
