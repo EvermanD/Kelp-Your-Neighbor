@@ -4,19 +4,227 @@
     <%- include("partials/head.ejs") %>
     <title>OtterGigs | Update Profile</title>
     <style>
-        body {
-            background: #f8f9fa;
+        :root {
+            --profile-bg: #F2F6FF;
+            --profile-surface: #FFFFFF;
+            --profile-lavender: #7C6CF2;
+            --profile-lavender-deep: #6657E6;
+            --profile-lavender-soft: #EEF0FF;
+            --profile-blue-soft: #EAF4FF;
+            --profile-text: #2F3755;
+            --profile-text-soft: #6E7A98;
+            --profile-shadow: 0 24px 54px rgba(99, 131, 191, 0.13);
+            --profile-shadow-soft: 0 14px 32px rgba(113, 142, 198, 0.10);
+        }
+
+        body.page-profile-edit {
+            background:
+                radial-gradient(circle at top left, rgba(169, 204, 255, 0.42), transparent 28%),
+                radial-gradient(circle at top right, rgba(124, 108, 242, 0.12), transparent 32%),
+                linear-gradient(180deg, #FAFCFF 0%, var(--profile-bg) 24%, #F4F3FF 100%);
+            color: var(--profile-text);
+        }
+
+        .page-profile-edit .profile-navbar {
+            background: linear-gradient(135deg, #EAF4FF 0%, #EEF0FF 48%, #FFFFFF 100%);
+            border-bottom: 1px solid rgba(124, 108, 242, 0.09);
+            box-shadow: 0 12px 28px rgba(113, 142, 198, 0.09);
+        }
+
+        .page-profile-edit .navbar-brand {
+            align-items: center;
+            display: inline-flex;
+        }
+
+        .page-profile-edit .nav-btn {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(245, 250, 255, 0.92) 100%);
+            border: 1px solid rgba(124, 108, 242, 0.10);
+            border-radius: 999px;
+            box-shadow: 0 8px 18px rgba(113, 142, 198, 0.08);
+            color: var(--profile-text);
+            padding: 0.82rem 1.2rem;
+        }
+
+        .page-profile-edit .nav-btn:hover,
+        .page-profile-edit .nav-btn:focus {
+            background: #FFFFFF;
+            border-color: rgba(124, 108, 242, 0.20);
+            color: var(--profile-lavender-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 24px rgba(113, 142, 198, 0.12);
+        }
+
+        .page-profile-edit .nav-profile-btn {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(234, 244, 255, 0.90));
+            border: 1px solid rgba(124, 108, 242, 0.16);
+            box-shadow: 0 12px 24px rgba(113, 142, 198, 0.10);
+            height: 50px;
+            width: 50px;
+        }
+
+        .page-profile-edit .nav-profile-btn img {
+            border: 2px solid rgba(255, 255, 255, 0.92);
+        }
+
+        .profile-edit-shell {
+            padding-bottom: 4.5rem;
+            padding-top: 3.25rem;
+            position: relative;
+        }
+
+        .profile-edit-shell::before,
+        .profile-edit-shell::after {
+            border-radius: 50%;
+            content: "";
+            filter: blur(18px);
+            pointer-events: none;
+            position: absolute;
+            z-index: 0;
+        }
+
+        .profile-edit-shell::before {
+            background: rgba(169, 204, 255, 0.40);
+            height: 220px;
+            left: -26px;
+            top: 12px;
+            width: 220px;
+        }
+
+        .profile-edit-shell::after {
+            background: rgba(124, 108, 242, 0.12);
+            height: 240px;
+            right: -14px;
+            top: 110px;
+            width: 240px;
+        }
+
+        .profile-edit-shell > * {
+            position: relative;
+            z-index: 1;
         }
 
         .form-card {
-            border: none;
-            border-radius: 22px;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 251, 255, 0.98) 100%);
+            border: 1px solid rgba(124, 108, 242, 0.08);
+            border-radius: 24px;
+            box-shadow: var(--profile-shadow);
+            overflow: hidden;
+        }
+
+        .form-card .card-body {
+            padding: 2rem !important;
+        }
+
+        .page-title {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            margin-bottom: 0.55rem;
+        }
+
+        .page-subtitle {
+            color: var(--profile-text-soft);
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 1.8rem;
+            max-width: 56ch;
+        }
+
+        .page-profile-edit .form-label {
+            color: var(--profile-text-soft);
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .page-profile-edit .form-control,
+        .page-profile-edit .form-select {
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 100%);
+            border: 1px solid rgba(124, 108, 242, 0.12);
+            border-radius: 14px;
+            box-shadow: none;
+            color: var(--profile-text);
+            min-height: 50px;
+            padding: 0.82rem 0.98rem;
+        }
+
+        .page-profile-edit textarea.form-control {
+            min-height: 124px;
+        }
+
+        .page-profile-edit .form-control:focus,
+        .page-profile-edit .form-select:focus {
+            background: #FFFFFF;
+            border-color: rgba(124, 108, 242, 0.28);
+            box-shadow: 0 0 0 0.2rem rgba(124, 108, 242, 0.12);
+        }
+
+        .form-section-note {
+            background: linear-gradient(180deg, var(--profile-lavender-soft) 0%, #F7F5FF 100%);
+            border: 1px solid rgba(124, 108, 242, 0.10);
+            border-radius: 16px;
+            color: var(--profile-lavender-deep);
+            font-size: 0.9rem;
+            margin-bottom: 1.4rem;
+            padding: 0.95rem 1rem;
+        }
+
+        .profile-btn-primary,
+        .profile-btn-secondary {
+            align-items: center;
+            border: 0;
+            border-radius: 16px;
+            box-shadow: 0 12px 24px rgba(113, 142, 198, 0.12);
+            display: inline-flex;
+            font-weight: 600;
+            justify-content: center;
+            padding: 0.94rem 1.38rem;
+            text-decoration: none;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease, color 0.22s ease;
+        }
+
+        .profile-btn-primary {
+            background: linear-gradient(135deg, var(--profile-lavender) 0%, #8C85FF 100%);
+            color: #FFFFFF;
+        }
+
+        .profile-btn-primary:hover,
+        .profile-btn-primary:focus {
+            background: linear-gradient(135deg, var(--profile-lavender-deep) 0%, #7B74FF 100%);
+            color: #FFFFFF;
+            transform: translateY(-2px);
+            box-shadow: 0 18px 28px rgba(124, 108, 242, 0.18);
+        }
+
+        .profile-btn-secondary {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(234, 244, 255, 0.92) 100%);
+            color: var(--profile-text);
+        }
+
+        .profile-btn-secondary:hover,
+        .profile-btn-secondary:focus {
+            background: linear-gradient(180deg, #F5FAFF 0%, #E7F2FF 100%);
+            color: var(--profile-lavender-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 16px 26px rgba(113, 142, 198, 0.14);
+        }
+
+        @media (max-width: 767.98px) {
+            .profile-edit-shell {
+                padding-top: 2rem;
+            }
+
+            .form-card .card-body {
+                padding: 1.35rem !important;
+            }
+
+            .page-title {
+                font-size: 1.85rem;
+            }
         }
     </style>
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<body class="page-profile-edit">
+<nav class="navbar navbar-expand-lg profile-navbar">
     <div class="container">
         <a class="navbar-brand fw-bold" href="/home">
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
@@ -31,11 +239,13 @@
 
 <%- include("partials/userMenu.ejs", { user: profileUser }) %>
 
-<div class="container py-5">
+<div class="container profile-edit-shell">
     <div class="card form-card">
         <div class="card-body p-4 p-md-5">
-            <h1 class="fw-bold mb-3">Update Profile</h1>
-            <p class="text-muted mb-4">Add your bio, profile image, and portfolio links.</p>
+            <h1 class="page-title">Update Profile</h1>
+            <p class="page-subtitle">Edit your public profile details with the same soft lavender and blue styling as your profile page.</p>
+
+            <!-- <div class="form-section-note">Keep your profile image, bio, about section, and portfolio links current so your showcase page stays polished.</div> -->
 
             <form action="/updateProfile" method="POST" class="row g-3">
                 <div class="col-md-6">
@@ -92,8 +302,8 @@
                 </div>
 
                 <div class="col-12 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Save Profile</button>
-                    <a href="/profile" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="profile-btn-primary">Save Profile</button>
+                    <a href="/profile" class="profile-btn-secondary">Cancel</a>
                 </div>
             </form>
         </div>
