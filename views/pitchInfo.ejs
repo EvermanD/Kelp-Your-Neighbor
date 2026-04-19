@@ -4,10 +4,6 @@
     <%- include("partials/head.ejs") %>
     <title>OtterGigs | Pitch Info</title>
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
-
         .detail-card {
             border: none;
             border-radius: 22px;
@@ -48,30 +44,19 @@
             border-radius: 50%;
         }
 
-        .nav-profile-btn {
-            width: 42px;
-            height: 42px;
-            padding: 0;
-            border-radius: 50%;
-            overflow: hidden;
-            border: none;
-            background: transparent;
-        }
-
-        .nav-profile-btn img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 2px solid white;
+        .detail-sidebar {
+            background: rgba(255, 252, 248, 0.78);
+            border-radius: 22px;
+            border: 1px solid rgba(160, 139, 118, 0.2);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.04);
         }
     </style>
 </head>
-<body>
+<body class="page-detail page-theme-pitch">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <div class="navbar-controls">
-            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: typeof user !== "undefined" && user ? user.profile_image_url : null }) %>
             <%- include("partials/navActions.ejs") %>
         </div>
 
@@ -92,6 +77,9 @@
         >
 
         <div class="card-body p-4 p-md-5">
+            <% const pitchCategory = (pitch.category || 'Misc').toLowerCase(); %>
+            <% const pitchCategoryClass = pitchCategory === 'design' ? 'pitch-pill-design' : pitchCategory === 'photography' || pitchCategory === 'video' ? 'pitch-pill-photography' : pitchCategory === 'marketing' || pitchCategory === 'writing' ? 'pitch-pill-marketing' : 'pitch-pill-default'; %>
+            <% const pitchStatusClass = pitch.status === 'New' ? 'pitch-pill-status-new' : pitch.status === 'Filled' ? 'pitch-pill-status-filled' : pitch.status === 'Completed' ? 'pitch-pill-status-completed' : pitch.status === 'Closed' ? 'pitch-pill-status-closed' : 'pitch-pill-open'; %>
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                 <div>
                     <h1 class="fw-bold mb-2"><%= pitch.title %></h1>
@@ -99,13 +87,13 @@
                 </div>
 
                 <div class="text-md-end">
-                    <span class="info-pill bg-primary text-white"><%= pitch.category || 'Misc' %></span>
+                    <span class="info-pill theme-pill <%= pitchCategoryClass %>"><%= pitch.category || 'Misc' %></span>
 
                     <% if (pitch.beginner_friendly) { %>
-                        <span class="info-pill bg-success text-white">Beginner Friendly</span>
+                        <span class="info-pill theme-pill pitch-pill-beginner">Beginner Friendly</span>
                     <% } %>
 
-                    <span class="info-pill bg-dark text-white"><%= pitch.status %></span>
+                    <span class="info-pill theme-pill <%= pitchStatusClass %>"><%= pitch.status %></span>
                 </div>
             </div>
 
@@ -144,7 +132,7 @@
                 </div>
 
                 <div class="col-lg-4">
-                    <div class="bg-light rounded-4 p-4 border">
+                    <div class="detail-sidebar p-4">
                         <h4 class="fw-bold mb-3">Pitch Details</h4>
 
                         <p><strong>Service Name:</strong><br><span class="text-muted"><%= pitch.name %></span></p>

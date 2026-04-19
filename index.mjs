@@ -428,6 +428,7 @@ app.get('/gigInfo/:id', requireLogin, async (req, res) => {
             gig,
             isSaved: savedRows.length > 0,
             isOwner: req.session.userId === gig.user_id,
+            theme: 'gig',
             user
         });
     } catch (err) {
@@ -1154,6 +1155,7 @@ app.get('/pitchInfo/:id', requireLogin, async (req, res) => {
             pitch,
             isSaved: savedRows.length > 0,
             isOwner: req.session.userId === pitch.user_id,
+            theme: 'pitch',
             user
         });
     } catch (err) {
