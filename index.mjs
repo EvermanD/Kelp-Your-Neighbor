@@ -52,6 +52,51 @@ async function getCurrentUser(userId) {
 }
 
 app.get('/', async (req, res) => {
+    const featuredBusinesses = [
+        {
+            name: "Cypress Coast Coffee",
+            city: "Monterey",
+            type: "Sample coffee shop",
+            imageUrl: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Lighthouse Letterpress",
+            city: "Pacific Grove",
+            type: "Sample bookstore",
+            imageUrl: "https://images.unsplash.com/photo-1526243741027-444d633d7365?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Marina Salt & Butter",
+            city: "Marina",
+            type: "Sample bakery",
+            imageUrl: "https://images.unsplash.com/photo-1517433670267-08bbd4be890f?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Sandbar Social Kitchen",
+            city: "Seaside",
+            type: "Sample restaurant",
+            imageUrl: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Carmel Tide Gallery",
+            city: "Carmel",
+            type: "Sample art gallery",
+            imageUrl: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Wharf & Bloom Boutique",
+            city: "Monterey",
+            type: "Sample boutique",
+            imageUrl: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Ocean Porch Market",
+            city: "Pacific Grove",
+            type: "Sample neighborhood cafe",
+            imageUrl: "https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=1200&q=80"
+        }
+    ];
+
     let search = req.query.search || '';
     let category = req.query.category || '';
     let location = req.query.location || '';
@@ -85,7 +130,8 @@ app.get('/', async (req, res) => {
                 urgency,
                 beginner
             },
-            user
+            user,
+            featuredBusinesses
         });
     } catch (err) {
         console.error('Database error in /:', err);
