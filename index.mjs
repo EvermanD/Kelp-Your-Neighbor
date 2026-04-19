@@ -39,6 +39,133 @@ function requireLogin(req, res, next) {
     next();
 }
 
+const MONTEREY_AREA_COORDINATES = {
+    marina: {
+        key: 'marina',
+        label: 'Marina',
+        lat: 36.6844,
+        lng: -121.8022
+    },
+    monterey: {
+        key: 'monterey',
+        label: 'Monterey',
+        lat: 36.6002,
+        lng: -121.8947
+    },
+    seaside: {
+        key: 'seaside',
+        label: 'Seaside',
+        lat: 36.6111,
+        lng: -121.8516
+    },
+    salinas: {
+        key: 'salinas',
+        label: 'Salinas',
+        lat: 36.6777,
+        lng: -121.6555
+    },
+    pacific_grove: {
+        key: 'pacific_grove',
+        label: 'Pacific Grove',
+        lat: 36.6177,
+        lng: -121.9166
+    },
+    sand_city: {
+        key: 'sand_city',
+        label: 'Sand City',
+        lat: 36.6170,
+        lng: -121.8463
+    },
+    carmel: {
+        key: 'carmel',
+        label: 'Carmel',
+        lat: 36.5552,
+        lng: -121.9233
+    },
+    csumb: {
+        key: 'csumb',
+        label: 'CSUMB',
+        lat: 36.6533,
+        lng: -121.7989
+    }
+};
+
+function normalizeLocationToArea(locationText = '') {
+    const value = String(locationText).trim().toLowerCase();
+
+    if (!value) return null;
+
+    if (value.includes('csumb') || value.includes('campus') || value.includes('cal state monterey bay')) {
+        return MONTEREY_AREA_COORDINATES.csumb;
+    }
+
+    if (value.includes('marina')) {
+        return MONTEREY_AREA_COORDINATES.marina;
+    }
+
+    if (value.includes('monterey')) {
+        return MONTEREY_AREA_COORDINATES.monterey;
+    }
+
+    if (value.includes('seaside')) {
+        return MONTEREY_AREA_COORDINATES.seaside;
+    }
+
+    if (value.includes('salinas')) {
+        return MONTEREY_AREA_COORDINATES.salinas;
+    }
+
+    if (value.includes('pacific grove')) {
+        return MONTEREY_AREA_COORDINATES.pacific_grove;
+    }
+
+    if (value.includes('sand city')) {
+        return MONTEREY_AREA_COORDINATES.sand_city;
+    }
+
+    if (value.includes('carmel')) {
+        return MONTEREY_AREA_COORDINATES.carmel;
+    }
+
+    return null;
+}
+
+function groupMapRows(rows, type) {
+    const grouped = {};
+
+    for (const row of rows) {
+        const area = normalizeLocationToArea(row.location);
+
+        if (!area) {
+            continue;
+        }
+
+        if (!grouped[area.key]) {
+            grouped[area.key] = {
+                areaKey: area.key,
+                label: area.label,
+                lat: area.lat,
+                lng: area.lng,
+                count: 0,
+                type,
+                filterLocation: area.label,
+                items: []
+            };
+        }
+
+        grouped[area.key].count += 1;
+        grouped[area.key].items.push({
+            id: row.id,
+            title: row.title,
+            location: row.location,
+            category: row.category || '',
+            url: type === 'gig' ? `/gigInfo/${row.id}` : `/pitchInfo/${row.id}`
+        });
+    }
+
+    return Object.values(grouped).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+}
+
 async function getCurrentUser(userId) {
     const sql = `
         SELECT id, username, display_name, profile_type, bio, about,
@@ -1317,6 +1444,46 @@ app.post('/completePitch/:id', requireLogin, async (req, res) => {
     } catch (err) {
         console.error('Database error in POST /completePitch/:id:', err);
         res.status(500).send('Database error completing pitch.');
+    }
+});
+
+app.get('/map', requireLogin, async (req, res) => {
+    try {
+        const user = await getCurrentUser(req.session.userId);
+
+        res.render('mapView', {
+            user
+        });
+    } catch (err) {
+        console.error('Database error in /map:', err);
+        res.status(500).send('Database error loading map page.');
+    }
+});
+
+app.get('/api/map-points', requireLogin, async (req, res) => {
+    const type = (req.query.type || 'gig').toLowerCase();
+
+    try {
+        if (type === 'pitch') {
+            const [rows] = await pool.query(
+                `SELECT id, title, category_skills AS category, location
+                 FROM Pitch
+                 WHERE status = 'Open'`
+            );
+
+            return res.json(groupMapRows(rows, 'pitch'));
+        }
+
+        const [rows] = await pool.query(
+            `SELECT id, title, category, location
+             FROM Gig
+             WHERE status = 'Open'`
+        );
+
+        return res.json(groupMapRows(rows, 'gig'));
+    } catch (err) {
+        console.error('Database error in /api/map-points:', err);
+        res.status(500).json({ error: 'Database error loading map points.' });
     }
 });
 
