@@ -1583,6 +1583,32 @@ app.get('/map', requireLogin, async (req, res) => {
     }
 });
 
+app.get('/api/motivation', requireLogin, async (req, res) => {
+    try {
+        const response = await fetch('https://zenquotes.io/api/random');
+        const data = await response.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+            return res.json({
+                quote: 'Your next opportunity might be one click away.',
+                author: 'OtterGigs'
+            });
+        }
+
+        return res.json({
+            quote: data[0].q || 'Keep showing up. Your work matters.',
+            author: data[0].a || 'Unknown'
+        });
+    } catch (err) {
+        console.error('Quote API error:', err);
+
+        return res.json({
+            quote: 'Your next opportunity might be one click away.',
+            author: 'OtterGigs'
+        });
+    }
+});
+
 app.get('/api/map-points', requireLogin, async (req, res) => {
     const type = (req.query.type || 'gig').toLowerCase();
 

@@ -180,15 +180,38 @@
                             <% } %>
                         </div>
 
-                        <small class="text-muted d-block mt-3">
-                            placeholder for something motivational or something.....
-                        </small>
+                        <div class="motivation-box mt-4">
+                            <p class="motivation-label mb-2">Daily motivation</p>
+                            <p id="pitchMotivationQuote" class="motivation-quote mb-2">Loading something encouraging...</p>
+                            <p id="pitchMotivationAuthor" class="motivation-author mb-0"></p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+async function loadPitchMotivation() {
+    try {
+        const response = await fetch('/api/motivation');
+        const data = await response.json();
+
+        const quoteEl = document.getElementById('pitchMotivationQuote');
+        const authorEl = document.getElementById('pitchMotivationAuthor');
+
+        if (!quoteEl || !authorEl) return;
+
+        quoteEl.textContent = `"${data.quote}"`;
+        authorEl.textContent = `— ${data.author}`;
+    } catch (error) {
+        console.error('Error loading motivation:', error);
+    }
+}
+
+loadPitchMotivation();
+</script>
 
 </body>
 </html>
