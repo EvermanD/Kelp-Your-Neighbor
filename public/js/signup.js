@@ -10,24 +10,29 @@ async function signupUser(event) {
     let password = document.querySelector("input[name=password]").value;
     let submitButton = document.querySelector('#signupForm button[type="submit"]');
 
+    submitButton.textContent = "Creating account...";
+    submitButton.disabled = true;
+
     if (username === "") {
         feedbackDiv.style.display = "block";
         feedbackDiv.textContent = "Error: username cannot be blank";
         feedbackDiv.style.color = "red";
-        if (window.showUiToast) window.showUiToast("Username cannot be blank.", "error");
+        // if (window.showUiToast) window.showUiToast("Username cannot be blank.", "error");
+        submitButton.textContent = "Create Account";
+        submitButton.disabled = false;
         return;
-    }
 
+    }
     if (password === "") {
         feedbackDiv.style.display = "block";
         feedbackDiv.textContent = "Error: password cannot be blank";
         feedbackDiv.style.color = "red";
-        if (window.showUiToast) window.showUiToast("Password cannot be blank.", "error");
+        // if (window.showUiToast) window.showUiToast("Password cannot be blank.", "error");
+        submitButton.textContent = "Create Account";
+        submitButton.disabled = false;
         return;
-    }
 
-    submitButton.disabled = true;
-    submitButton.textContent = "Creating account...";
+    }
 
     let formData = new URLSearchParams();
     formData.append("username", username);
@@ -48,13 +53,13 @@ async function signupUser(event) {
     if (data.error) {
         feedbackDiv.textContent = data.error;
         feedbackDiv.style.color = "red";
-        if (window.showUiToast) window.showUiToast(data.error, "error");
+        // if (window.showUiToast) window.showUiToast(data.error, "error");
         submitButton.disabled = false;
         submitButton.textContent = "Sign Up";
     } else {
         feedbackDiv.textContent = data.success;
         feedbackDiv.style.color = "green";
-        if (window.showUiToast) window.showUiToast("Account created successfully!", "success");
+        // if (window.showUiToast) window.showUiToast("Account created successfully!", "success");
 
         setTimeout(function() {
             window.location.href = "/";

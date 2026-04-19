@@ -8,8 +8,6 @@
 <div class="container mt-5">
     <h1>Create Account</h1>
 
-    <div id="feedbackDiv" class="mb-2"></div>
-
     <form id="signupForm" action="/signup" method="POST" class="mt-4">
         <div class="mb-3">
             <label for="username">Username:</label>
@@ -24,10 +22,12 @@
         <button type="submit" class="btn btn-success">Create Account</button>
         <a href="/" class="btn btn-secondary">Back to Login</a>
     </form>
+
+    <div id="feedbackDiv" class="mt-2"></div>
 </div>
 
-<script src="/js/uiFeedback.js"></script>
 
+<script src="/js/uiFeedback.js"></script>
 <script src="js/signup.js"></script>
 </body>
 </html>

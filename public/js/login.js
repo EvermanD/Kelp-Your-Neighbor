@@ -17,7 +17,7 @@ async function loginUser(event) {
         feedbackDiv.style.display = "block";
         feedbackDiv.textContent = "Error: username cannot be blank";
         feedbackDiv.style.color = "red";
-        if (window.showUiToast) window.showUiToast("Username cannot be blank.", "error");
+        // if (window.showUiToast) window.showUiToast("Username cannot be blank.", "error");
         submitButton.textContent = "Login";
         submitButton.disabled = false;
         return;
@@ -27,7 +27,7 @@ async function loginUser(event) {
         feedbackDiv.style.display = "block";
         feedbackDiv.textContent = "Error: password cannot be blank";
         feedbackDiv.style.color = "red";
-        if (window.showUiToast) window.showUiToast("Password cannot be blank.", "error");
+        // if (window.showUiToast) window.showUiToast("Password cannot be blank.", "error");
         submitButton.textContent = "Login";
         submitButton.disabled = false;
         return;
@@ -53,13 +53,13 @@ async function loginUser(event) {
     if (data.error) {
         feedbackDiv.textContent = data.error;
         feedbackDiv.style.color = "red";
-        if (window.showUiToast) window.showUiToast(data.error, "error");
+        // if (window.showUiToast) window.showUiToast(data.error, "error");
         submitButton.disabled = false;
         submitButton.textContent = "Login";
     } else {
         feedbackDiv.textContent = data.success;
         feedbackDiv.style.color = "green";
-        if (window.showUiToast) window.showUiToast("Login successful!", "success");
+        // if (window.showUiToast) window.showUiToast("Login successful!", "success");
 
         setTimeout(function() {
             window.location.href = "/home";
