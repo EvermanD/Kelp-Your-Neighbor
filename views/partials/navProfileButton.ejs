@@ -1,6 +1,15 @@
-<button class="nav-profile-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuCanvas" aria-controls="userMenuCanvas">
-    <img
-        src="<%= profileImageUrl && profileImageUrl.trim() !== '' ? profileImageUrl : 'https://via.placeholder.com/80x80?text=U' %>"
-        alt="Profile"
+<div class="profile-menu-anchor">
+    <button
+        class="nav-profile-btn profile-menu-trigger"
+        type="button"
+        id="profileMenuTrigger"
+        aria-expanded="false"
+        aria-haspopup="true"
+        aria-controls="profileMenuDropdown"
     >
-</button>
+        <img
+            src="<%= profileImageUrl && profileImageUrl.trim() !== '' ? profileImageUrl : 'https://via.placeholder.com/80x80?text=U' %>"
+            alt="Profile"
+        >
+    </button>
+</div>

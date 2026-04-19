@@ -70,19 +70,47 @@
 <div class="container py-5">
     <div class="card hero-card mb-4">
         <div class="card-body p-4 p-md-5">
-            <h1 class="display-6 fw-bold mb-3">Welcome to OtterGigs!</h1>
-            <p class="lead mb-2">A local creative gig board for students, artists, and community opportunities.</p>
+            <h1 class="display-6 fw-bold mb-3">Where Monterey Bay creativity meets local opportunity</h1>
+            <p class="lead mb-2">
+                Discover gigs, creators, and collaborations happening across students, artists, and local businesses.
+            </p>
             <p class="mb-4">
-                Signed in as
+                Welcome back,
                 <strong><%= user.display_name || user.username %></strong>
+                — your community is active right now.
             </p>
 
-            <div class="d-flex flex-wrap gap-3">
-                <a href="/findGig" class="btn hero-btn-primary btn-lg">Find a Gig</a>
-                <a href="/findPitch" class="btn hero-btn-primary btn-lg">Find a Pitch</a>
-                <a href="/postGig" class="btn hero-btn-secondary btn-lg">Post a Gig</a>
-                <a href="/postPitch" class="btn hero-btn-secondary btn-lg">Post a Pitch</a>
-                <a href="/profile" class="btn hero-btn-secondary btn-lg">View Profile</a>
+            <div class="hero-quickstart-shell mt-4">
+                <div class="hero-quickstart-label mb-3">New here? Start here.</div>
+                <p class="hero-quickstart-copy mb-3">
+                    Choose a path to get started fast — browse beginner-friendly opportunities or post your first listing.
+                </p>
+
+                <div class="hero-quickstart-grid">
+                    <a href="/findGig?beginner=1" class="hero-quickstart-card hero-quickstart-card-primary">
+                        <span class="hero-quickstart-kicker">For creatives</span>
+                        <span class="hero-quickstart-title">Find beginner-friendly gigs</span>
+                        <span class="hero-quickstart-meta">Browse welcoming opportunities from local businesses, students, and community groups.</span>
+                    </a>
+
+                    <a href="/findPitch?beginner=1" class="hero-quickstart-card hero-quickstart-card-secondary">
+                        <span class="hero-quickstart-kicker">For posters</span>
+                        <span class="hero-quickstart-title">Explore beginner-friendly pitches</span>
+                        <span class="hero-quickstart-meta">See local creators and students who are ready to collaborate.</span>
+                    </a>
+
+                    <a href="/postGig" class="hero-quickstart-card hero-quickstart-card-accent">
+                        <span class="hero-quickstart-kicker">Need creative help?</span>
+                        <span class="hero-quickstart-title">Post your first gig</span>
+                        <span class="hero-quickstart-meta">Share what you need and connect with nearby talent quickly.</span>
+                    </a>
+
+                    <a href="/postPitch" class="hero-quickstart-card hero-quickstart-card-outline">
+                        <span class="hero-quickstart-kicker">Offering a service?</span>
+                        <span class="hero-quickstart-title">Post your first pitch</span>
+                        <span class="hero-quickstart-meta">Create a simple profile so people can discover your work.</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -133,61 +161,396 @@
         </div>
     </section>
 
-    <div class="row g-4">
-        <div class="col-md-6 col-xl-3">
-            <div class="card action-card variant-a">
-                <div class="card-body p-4">
-                    <h4 class="fw-bold">Browse Gigs</h4>
-                    <p class="text-muted">Search local opportunities by category, urgency, and location.</p>
-                    <a href="/findGig" class="btn btn-home-ocean">Go to Find Gig</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-xl-3">
-            <div class="card action-card variant-b">
-                <div class="card-body p-4">
-                    <h4 class="fw-bold">Browse Pitches</h4>
-                    <p class="text-muted">Explore creator profiles, services, and skill offerings.</p>
-                    <a href="/findPitch" class="btn btn-home-ocean">Go to Find Pitch</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-xl-3">
-            <div class="card action-card variant-c">
-                <div class="card-body p-4">
-                    <h4 class="fw-bold">Post a Gig</h4>
-                    <p class="text-muted">Need help from a creative? Post a gig for students and locals.</p>
-                    <a href="/postGig" class="btn btn-home-sand">Go to Post Gig</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-xl-3">
-            <div class="card action-card variant-d">
-                <div class="card-body p-4">
-                    <h4 class="fw-bold">Post a Pitch</h4>
-                    <p class="text-muted">Offer your services so people can discover your work.</p>
-                    <a href="/postPitch" class="btn btn-home-sand">Go to Post Pitch</a>
-                </div>
-            </div>
+    <section class="home-live-shell mb-5" aria-labelledby="home-live-title">
+    <div class="home-live-header mb-3">
+        <div>
+            <p class="local-businesses-eyebrow mb-2">Live OtterGigs</p>
+            <h2 id="home-live-title" class="local-businesses-title mb-2">What’s happening in the community right now</h2>
+            <p class="local-businesses-subtitle mb-0">
+                Fresh activity from local gigs, creators, collaborations, and reviews.
+            </p>
         </div>
     </div>
 
-    <div class="row g-4 mt-1">
-        <div class="col-md-6">
-            <div class="card action-card variant-profile">
-                <div class="card-body p-4">
-                    <h4 class="fw-bold">Your Profile</h4>
-                    <p class="text-muted">Manage your profile, posted gigs, posted pitches, and saved items.</p>
-                    <a href="/profile" class="btn btn-home-driftwood">Go to Profile</a>
+    <div class="row g-3 mb-3" id="homeStatsGrid">
+        <div class="col-6 col-lg-3">
+            <article class="home-stat-card">
+                <div class="home-stat-label">Open Gigs</div>
+                <div class="home-stat-value" data-home-stat="openGigs">--</div>
+            </article>
+        </div>
+        <div class="col-6 col-lg-3">
+            <article class="home-stat-card">
+                <div class="home-stat-label">Open Pitches</div>
+                <div class="home-stat-value" data-home-stat="openPitches">--</div>
+            </article>
+        </div>
+        <div class="col-6 col-lg-3">
+            <article class="home-stat-card">
+                <div class="home-stat-label">Areas Active</div>
+                <div class="home-stat-value" data-home-stat="activeAreas">--</div>
+            </article>
+        </div>
+        <div class="col-6 col-lg-3">
+            <article class="home-stat-card">
+                <div class="home-stat-label">Completed Collaborations</div>
+                <div class="home-stat-value" data-home-stat="completedWork">--</div>
+            </article>
+        </div>
+    </div>
+
+    <div class="home-activity-shell">
+        <div class="home-activity-title">Recent community activity</div>
+        <div class="home-activity-list" id="homeActivityList">
+            <div class="home-activity-empty">Loading recent activity...</div>
+        </div>
+    </div>
+</section>
+
+<div class="row g-4 mb-5">
+    <div class="col-lg-5">
+        <section class="home-spotlight-card h-100" aria-labelledby="home-spotlight-title">
+            <p class="local-businesses-eyebrow mb-2">This week’s spotlight</p>
+            <h2 id="home-spotlight-title" class="home-section-title mb-2">Featured local profile</h2>
+            <p class="home-section-copy mb-4">
+                Highlighting a local business or creator who is actively posting and building community momentum.
+            </p>
+
+            <div id="homeSpotlightCard" class="home-spotlight-body">
+                <div class="home-loading-state">Loading spotlight...</div>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-lg-7">
+        <section class="home-pulse-card h-100" aria-labelledby="home-pulse-title">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <p class="local-businesses-eyebrow mb-2">Community pulse</p>
+                    <h2 id="home-pulse-title" class="home-section-title mb-2">Fresh opportunities and creator activity</h2>
+                    <p class="home-section-copy mb-0">
+                        Toggle between gigs and pitches to see what was posted most recently.
+                    </p>
+                </div>
+
+                <div class="home-pulse-toggle-group" role="tablist" aria-label="Toggle community pulse feed">
+                    <button class="home-pulse-toggle active" type="button" data-pulse-type="gig">Gigs</button>
+                    <button class="home-pulse-toggle" type="button" data-pulse-type="pitch">Pitches</button>
                 </div>
             </div>
-        </div>
+
+            <div class="home-pulse-rotator mb-3" id="homePulseRotator">Loading updates...</div>
+
+            <div class="home-pulse-list" id="homePulseList">
+                <div class="home-loading-state">Loading pulse feed...</div>
+            </div>
+        </section>
     </div>
 </div>
 
+<section class="impact-metrics-shell mb-5" aria-labelledby="impact-metrics-title">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+        <div>
+            <p class="local-businesses-eyebrow mb-2">Community impact</p>
+            <h2 id="impact-metrics-title" class="home-section-title mb-2">What OtterGigs is helping power</h2>
+            <p class="home-section-copy mb-0">
+                A quick look at the creative momentum building across the local community.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-3" id="impactMetricsGrid">
+        <div class="col-6 col-lg-3">
+            <article class="impact-metric-card">
+                <div class="impact-metric-label">Gigs Posted</div>
+                <div class="impact-metric-value" data-impact-stat="gigsPosted">--</div>
+            </article>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <article class="impact-metric-card">
+                <div class="impact-metric-label">Collaborations Completed</div>
+                <div class="impact-metric-value" data-impact-stat="collaborationsCompleted">--</div>
+            </article>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <article class="impact-metric-card">
+                <div class="impact-metric-label">Areas Active</div>
+                <div class="impact-metric-value" data-impact-stat="activeAreas">--</div>
+            </article>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <article class="impact-metric-card">
+                <div class="impact-metric-label">Reviews Shared</div>
+                <div class="impact-metric-value" data-impact-stat="reviewsShared">--</div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="home-map-shell mb-5" aria-labelledby="home-map-title">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+        <div>
+            <p class="local-businesses-eyebrow mb-2">Community map</p>
+            <h2 id="home-map-title" class="home-section-title mb-2">See where creativity is happening</h2>
+            <p class="home-section-copy mb-0">
+                Explore open gigs and pitches around Monterey, Marina, Seaside, Pacific Grove, Carmel, and CSUMB.
+            </p>
+        </div>
+
+        <div class="map-toggle-group">
+            <button type="button" class="btn-map-toggle active" data-map-type="gig">Show Gigs</button>
+            <button type="button" class="btn-map-toggle" data-map-type="pitch">Show Pitches</button>
+        </div>
+    </div>
+
+    <div class="map-insight-banner mb-3" id="localMapInsight">
+        Loading local activity insight...
+    </div>
+
+    <div id="localMap" class="local-map-frame home-map-frame rounded-4"></div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/animejs@4.0.2/lib/anime.iife.min.js"></script>
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+/>
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+></script>
+
 <script src="/js/homeCarousel.js"></script>
+<script src="/js/localMap.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const statsMap = {
+        openGigs: document.querySelector('[data-home-stat="openGigs"]'),
+        openPitches: document.querySelector('[data-home-stat="openPitches"]'),
+        activeAreas: document.querySelector('[data-home-stat="activeAreas"]'),
+        completedWork: document.querySelector('[data-home-stat="completedWork"]')
+    };
+
+    const activityList = document.getElementById("homeActivityList");
+    const spotlightCard = document.getElementById("homeSpotlightCard");
+    const pulseList = document.getElementById("homePulseList");
+    const pulseRotator = document.getElementById("homePulseRotator");
+    const pulseButtons = Array.from(document.querySelectorAll("[data-pulse-type]"));
+
+    let currentPulseType = "gig";
+    let pulseMessages = [];
+    let pulseMessageIndex = 0;
+    let pulseInterval = null;
+
+    function formatTimeAgo(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "";
+
+        const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+
+        if (seconds < 60) return "just now";
+        if (seconds < 3600) return Math.floor(seconds / 60) + " min ago";
+        if (seconds < 86400) return Math.floor(seconds / 3600) + " hr ago";
+        return Math.floor(seconds / 86400) + " day" + (Math.floor(seconds / 86400) === 1 ? "" : "s") + " ago";
+    }
+
+    function escapeHtml(value) {
+        return String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function startPulseRotation() {
+        if (pulseInterval) {
+            clearInterval(pulseInterval);
+            pulseInterval = null;
+        }
+
+        if (!pulseMessages.length) return;
+
+        pulseRotator.textContent = pulseMessages[0];
+        pulseMessageIndex = 0;
+
+        if (pulseMessages.length === 1) return;
+
+        pulseInterval = window.setInterval(() => {
+            pulseMessageIndex = (pulseMessageIndex + 1) % pulseMessages.length;
+            pulseRotator.textContent = pulseMessages[pulseMessageIndex];
+        }, 3200);
+    }
+
+    async function loadStats() {
+        try {
+            const response = await fetch("/api/home-stats");
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Unable to load home stats.");
+            }
+
+            statsMap.openGigs.textContent = data.openGigs;
+            statsMap.openPitches.textContent = data.openPitches;
+            statsMap.activeAreas.textContent = data.activeAreas;
+            statsMap.completedWork.textContent = data.completedWork;
+
+            if (!Array.isArray(data.recentActivity) || data.recentActivity.length === 0) {
+                activityList.innerHTML = '<div class="home-activity-empty">No recent activity yet.</div>';
+                return;
+            }
+
+            activityList.innerHTML = data.recentActivity.map(item => {
+                return `
+                    <a href="${item.url}" class="home-activity-item">
+                        <span class="home-activity-dot"></span>
+                        <div>
+                            <div class="home-activity-text">${escapeHtml(item.text)}</div>
+                            <div class="home-activity-time">${formatTimeAgo(item.created_at)}</div>
+                        </div>
+                    </a>
+                `;
+            }).join("");
+        } catch (error) {
+            activityList.innerHTML = '<div class="home-activity-empty">Unable to load activity right now.</div>';
+        }
+    }
+
+    async function loadSpotlight() {
+        try {
+            const response = await fetch("/api/home-spotlight");
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Unable to load spotlight.");
+            }
+
+            spotlightCard.innerHTML = `
+                <div class="home-spotlight-profile">
+                    <img
+                        src="${escapeHtml(data.profile_image_url || "/img/defaultImage.jpg")}"
+                        alt="${escapeHtml(data.name)}"
+                        class="home-spotlight-avatar"
+                    />
+
+                    <div class="home-spotlight-meta">
+                        <div class="home-spotlight-name">${escapeHtml(data.name)}</div>
+                        <div class="home-spotlight-subtitle">${escapeHtml(data.profile_type_label)}</div>
+                        <div class="home-spotlight-location">${escapeHtml(data.location || "Monterey Bay area")}</div>
+                    </div>
+                </div>
+
+                <div class="home-spotlight-summary">
+                    ${escapeHtml(data.summary)}
+                </div>
+
+                <div class="home-spotlight-tags">
+                    <span class="home-spotlight-tag">${data.open_gigs} open gig${data.open_gigs === 1 ? "" : "s"}</span>
+                    <span class="home-spotlight-tag">${data.open_pitches} open pitch${data.open_pitches === 1 ? "" : "es"}</span>
+                </div>
+
+                <a href="/profile/${data.id}" class="btn btn-home-ocean mt-3">View Spotlight Profile</a>
+            `;
+        } catch (error) {
+            spotlightCard.innerHTML = '<div class="home-loading-state">Unable to load spotlight right now.</div>';
+        }
+    }
+
+        const impactStats = {
+        gigsPosted: document.querySelector('[data-impact-stat="gigsPosted"]'),
+        collaborationsCompleted: document.querySelector('[data-impact-stat="collaborationsCompleted"]'),
+        activeAreas: document.querySelector('[data-impact-stat="activeAreas"]'),
+        reviewsShared: document.querySelector('[data-impact-stat="reviewsShared"]')
+    };
+
+    async function loadImpactMetrics() {
+        try {
+            const response = await fetch("/api/community-impact");
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Unable to load impact metrics.");
+            }
+
+            impactStats.gigsPosted.textContent = data.gigsPosted;
+            impactStats.collaborationsCompleted.textContent = data.collaborationsCompleted;
+            impactStats.activeAreas.textContent = data.activeAreas;
+            impactStats.reviewsShared.textContent = data.reviewsShared;
+        } catch (error) {
+            Object.values(impactStats).forEach((element) => {
+                if (element) {
+                    element.textContent = "--";
+                }
+            });
+        }
+    }
+
+    loadImpactMetrics();
+
+    async function loadPulse(type) {
+        currentPulseType = type;
+
+        pulseButtons.forEach(button => {
+            button.classList.toggle("active", button.dataset.pulseType === type);
+        });
+
+        pulseList.innerHTML = '<div class="home-loading-state">Loading pulse feed...</div>';
+
+        try {
+            const response = await fetch("/api/home-pulse?type=" + encodeURIComponent(type));
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Unable to load pulse.");
+            }
+
+            pulseMessages = Array.isArray(data.updates) ? data.updates : [];
+            startPulseRotation();
+
+            if (!Array.isArray(data.items) || data.items.length === 0) {
+                pulseList.innerHTML = '<div class="home-loading-state">No recent items yet.</div>';
+                return;
+            }
+
+            pulseList.innerHTML = data.items.map(item => {
+                return `
+                    <a href="${item.url}" class="home-pulse-item">
+                        <div class="home-pulse-item-main">
+                            <div class="home-pulse-item-title">${escapeHtml(item.title)}</div>
+                            <div class="home-pulse-item-meta">
+                                ${escapeHtml(item.location || "Local")} • ${escapeHtml(item.category || "Community")}
+                            </div>
+                        </div>
+                        <div class="home-pulse-item-time">${formatTimeAgo(item.created_at)}</div>
+                    </a>
+                `;
+            }).join("");
+        } catch (error) {
+            pulseRotator.textContent = "Unable to load rotating updates right now.";
+            pulseList.innerHTML = '<div class="home-loading-state">Unable to load pulse feed.</div>';
+        }
+    }
+
+    pulseButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            loadPulse(button.dataset.pulseType);
+        });
+    });
+
+    loadStats();
+    loadSpotlight();
+    loadPulse("gig");
+});
+</script>
+
+<script src="/js/uiFeedback.js"></script>
 </body>
 </html>

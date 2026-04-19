@@ -1,27 +1,43 @@
-<div class="offcanvas offcanvas-end" tabindex="-1" id="userMenuCanvas" aria-labelledby="userMenuCanvasLabel">
-    <div class="offcanvas-header border-bottom">
-        <h5 class="offcanvas-title" id="userMenuCanvasLabel">My Menu</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-
-    <div class="offcanvas-body">
-        <% if (typeof user !== 'undefined' && user) { %>
-            <div class="text-center mb-4">
+<div
+    class="profile-menu-dropdown"
+    id="profileMenuDropdown"
+    role="menu"
+    aria-labelledby="profileMenuTrigger"
+    hidden
+>
+    <% if (typeof user !== 'undefined' && user) { %>
+        <div class="profile-menu-card">
+            <div class="profile-menu-header">
                 <img
                     src="<%= user.profile_image_url && user.profile_image_url.trim() !== '' ? user.profile_image_url : 'https://via.placeholder.com/120x120?text=Profile' %>"
                     alt="Profile"
-                    class="rounded-circle mb-3 border"
-                    style="width: 110px; height: 110px; object-fit: cover;"
+                    class="profile-menu-avatar"
                 >
-                <h5 class="mb-1"><%= user.display_name || user.username %></h5>
-                <p class="text-muted mb-0 text-capitalize"><%= user.profile_type || 'individual' %></p>
-            </div>
-        <% } %>
 
-        <div class="list-group">
-            <a href="/profile" class="list-group-item list-group-item-action">My Profile</a>
-            <a href="/logout" class="list-group-item list-group-item-action text-danger">Logout</a>
+                <div class="profile-menu-user">
+                    <div class="profile-menu-name"><%= user.display_name || user.username %></div>
+                    <div class="profile-menu-type"><%= user.profile_type || 'individual' %></div>
+                </div>
+            </div>
+
+            <div class="profile-menu-links">
+                <a href="/profile" class="profile-menu-link" role="menuitem">
+                    <span class="profile-menu-link-title">My Profile</span>
+                    <span class="profile-menu-link-subtitle">View your profile, saved items, and activity</span>
+                </a>
+
+                <a href="/updateProfile" class="profile-menu-link" role="menuitem">
+                    <span class="profile-menu-link-title">Edit Profile</span>
+                    <span class="profile-menu-link-subtitle">Update your image, bio, and portfolio</span>
+                </a>
+
+                <a href="/logout" class="profile-menu-link profile-menu-link-danger" role="menuitem">
+                    <span class="profile-menu-link-title">Logout</span>
+                    <span class="profile-menu-link-subtitle">Sign out of OtterGigs</span>
+                </a>
+            </div>
         </div>
-    </div>
+    <% } %>
 </div>
+
 <script src="/js/userMenu.js"></script>

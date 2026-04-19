@@ -28,7 +28,7 @@ const pool = mysql.createPool({
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: "nm2pf20notjcum1m",
-    connectionLimit: 10,
+    connectionLimit: 5,
     waitForConnections: true
 });
 
@@ -254,14 +254,65 @@ app.get('/', async (req, res) => {
         }
     ];
 
-    let search = req.query.search || '';
-    let category = req.query.category || '';
-    let location = req.query.location || '';
-    let urgency = req.query.urgency || '';
-    let beginner = req.query.beginner || '';
+    const communityPhotos = [
+        {
+            title: "Monterey Coastline",
+            label: "Monterey",
+            imageUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            title: "Pacific Grove Streets",
+            label: "Pacific Grove",
+            imageUrl: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            title: "Marina Community Energy",
+            label: "Marina",
+            imageUrl: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            title: "Seaside Creative Spirit",
+            label: "Seaside",
+            imageUrl: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            title: "Carmel Inspiration",
+            label: "Carmel",
+            imageUrl: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            title: "CSUMB Student Community",
+            label: "CSUMB",
+            imageUrl: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80"
+        }
+    ];
+
+    const testimonials = [
+        {
+            quote: "Helped me find my first paid design opportunity with a local group.",
+            name: "CSUMB student creative"
+        },
+        {
+            quote: "A simple way to discover nearby talent without digging through giant freelance sites.",
+            name: "Monterey small business owner"
+        },
+        {
+            quote: "It feels built for real community collaboration, not just transactions.",
+            name: "Local event organizer"
+        }
+    ];
+
+    function shuffleArray(items) {
+        const copy = [...items];
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+    }
 
     try {
-        let sql = `
+        const gigsSql = `
             SELECT g.id, g.title, g.description, g.category, g.looking_for, g.organization_name,
                    g.location, g.location_type, g.budget, g.budget_min, g.budget_max,
                    g.deadline, g.urgency, g.beginner_friendly, g.image_url, g.status,
@@ -269,26 +320,56 @@ app.get('/', async (req, res) => {
             FROM Gig g
             JOIN userGig u ON g.user_id = u.id
             WHERE g.status = 'Open'
-            ORDER BY g.created_at DESC
+            ORDER BY RAND()
             LIMIT 6
         `;
 
-        let sqlParams = [];
+        const [gigs] = await pool.query(gigsSql);
 
-        const [gigs] = await pool.query(sql, sqlParams);
-        const user = await getCurrentUser(req.session.userId);
+        const [recentActivityRows] = await pool.query(`
+            SELECT *
+            FROM (
+                SELECT
+                    g.created_at,
+                    CONCAT('New gig posted: ', g.title) AS text,
+                    g.location AS meta
+                FROM Gig g
+                WHERE g.status = 'Open'
+
+                UNION ALL
+
+                SELECT
+                    p.created_at,
+                    CONCAT('New pitch posted: ', p.title) AS text,
+                    p.location AS meta
+                FROM Pitch p
+                WHERE p.status = 'Open'
+
+                UNION ALL
+
+                SELECT
+                    pr.created_at,
+                    CONCAT(
+                        COALESCE(NULLIF(reviewer.display_name, ''), reviewer.username),
+                        ' reviewed ',
+                        COALESCE(NULLIF(profileUser.display_name, ''), profileUser.username)
+                    ) AS text,
+                    'Community review' AS meta
+                FROM profile_reviews pr
+                JOIN userGig reviewer ON pr.reviewer_user_id = reviewer.id
+                JOIN userGig profileUser ON pr.profile_user_id = profileUser.id
+                WHERE pr.is_visible = 1
+            ) activity
+            ORDER BY created_at DESC
+            LIMIT 5
+        `);
 
         res.render('index', {
             gigs,
-            filters: {
-                search,
-                category,
-                location,
-                urgency,
-                beginner
-            },
-            user,
-            featuredBusinesses
+            featuredBusinesses: shuffleArray(featuredBusinesses),
+            communityPhotos: shuffleArray(communityPhotos),
+            testimonials: shuffleArray(testimonials),
+            recentActivity: recentActivityRows
         });
     } catch (err) {
         console.error('Database error in /:', err);
@@ -411,9 +492,12 @@ app.get('/findGig', requireLogin, async (req, res) => {
             SELECT g.id, g.title, g.description, g.category, g.looking_for, g.organization_name,
                    g.location, g.location_type, g.budget, g.budget_min, g.budget_max,
                    g.deadline, g.urgency, g.beginner_friendly, g.image_url, g.status,
-                   g.user_id, u.display_name, u.profile_image_url
+                   g.user_id, g.created_at,
+                   u.display_name, u.profile_image_url,
+                   COUNT(sg.id) AS save_count
             FROM Gig g
             JOIN userGig u ON g.user_id = u.id
+            LEFT JOIN SavedGig sg ON sg.gig_id = g.id
             WHERE g.status = 'Open'
         `;
 
@@ -452,13 +536,79 @@ app.get('/findGig', requireLogin, async (req, res) => {
             sql += ` AND g.beginner_friendly = 1`;
         }
 
-        sql += ` ORDER BY g.created_at DESC`;
+        sql += `
+            GROUP BY g.id, g.title, g.description, g.category, g.looking_for, g.organization_name,
+                     g.location, g.location_type, g.budget, g.budget_min, g.budget_max,
+                     g.deadline, g.urgency, g.beginner_friendly, g.image_url, g.status,
+                     g.user_id, g.created_at, u.display_name, u.profile_image_url
+            ORDER BY RAND()
+        `;
 
         const [gigs] = await pool.query(sql, sqlParams);
+
+        const [newestRows] = await pool.query(`
+            SELECT g.id, g.title, g.category, g.location, g.image_url, g.created_at,
+                   COUNT(sg.id) AS save_count
+            FROM Gig g
+            LEFT JOIN SavedGig sg ON sg.gig_id = g.id
+            WHERE g.status = 'Open'
+            GROUP BY g.id, g.title, g.category, g.location, g.image_url, g.created_at
+            ORDER BY g.created_at DESC
+            LIMIT 1
+        `);
+
+        const [trendingRows] = await pool.query(`
+            SELECT g.id, g.title, g.category, g.location, g.image_url, g.created_at,
+                   COUNT(sg.id) AS save_count
+            FROM Gig g
+            LEFT JOIN SavedGig sg ON sg.gig_id = g.id
+            WHERE g.status = 'Open'
+              AND sg.created_at >= NOW() - INTERVAL 7 DAY
+            GROUP BY g.id, g.title, g.category, g.location, g.image_url, g.created_at
+            ORDER BY save_count DESC, g.created_at DESC
+            LIMIT 1
+        `);
+
+        const [discoverRows] = await pool.query(`
+            SELECT g.id, g.title, g.category, g.location, g.image_url, g.created_at,
+                   COUNT(sg.id) AS save_count
+            FROM Gig g
+            LEFT JOIN SavedGig sg ON sg.gig_id = g.id
+            WHERE g.status = 'Open'
+            GROUP BY g.id, g.title, g.category, g.location, g.image_url, g.created_at
+            ORDER BY RAND()
+            LIMIT 1
+        `);
+
+        const highlightGigs = [
+            newestRows[0]
+                ? {
+                    ...newestRows[0],
+                    label: 'Newest Gig',
+                    description: 'Just posted to the community.'
+                }
+                : null,
+            trendingRows[0]
+                ? {
+                    ...trendingRows[0],
+                    label: 'Trending Gig',
+                    description: 'Most saved over the last 7 days.'
+                }
+                : null,
+            discoverRows[0]
+                ? {
+                    ...discoverRows[0],
+                    label: 'Discover This Gig',
+                    description: 'A fresh opportunity worth checking out.'
+                }
+                : null
+        ].filter(Boolean);
+
         const user = await getCurrentUser(req.session.userId);
 
         res.render('findGig', {
             gigs,
+            highlightGigs,
             filters: {
                 search,
                 category,
@@ -1127,10 +1277,13 @@ app.get('/findPitch', requireLogin, async (req, res) => {
                    p.contact_email,
                    p.status,
                    p.user_id,
+                   p.created_at,
                    u.display_name,
-                   u.profile_image_url
+                   u.profile_image_url,
+                   COUNT(sp.id) AS save_count
             FROM Pitch p
             JOIN userGig u ON p.user_id = u.id
+            LEFT JOIN SavedPitch sp ON sp.pitch_id = p.id
             WHERE p.status = 'Open'
         `;
 
@@ -1163,13 +1316,79 @@ app.get('/findPitch', requireLogin, async (req, res) => {
             sql += ` AND p.beginner_friendly = 1`;
         }
 
-        sql += ` ORDER BY p.created_at DESC`;
+        sql += `
+            GROUP BY p.id, p.title, p.service_name, p.category_skills, p.bio, p.portfolio,
+                     p.location, p.location_type, p.rate_type, p.rate_min, p.rate_max,
+                     p.availability, p.beginner_friendly, p.image_url, p.contact_email,
+                     p.status, p.user_id, p.created_at, u.display_name, u.profile_image_url
+            ORDER BY RAND()
+        `;
 
         const [pitches] = await pool.query(sql, sqlParams);
+
+        const [newestRows] = await pool.query(`
+            SELECT p.id, p.title, p.category_skills AS category, p.location, p.image_url, p.created_at,
+                   COUNT(sp.id) AS save_count
+            FROM Pitch p
+            LEFT JOIN SavedPitch sp ON sp.pitch_id = p.id
+            WHERE p.status = 'Open'
+            GROUP BY p.id, p.title, p.category_skills, p.location, p.image_url, p.created_at
+            ORDER BY p.created_at DESC
+            LIMIT 1
+        `);
+
+        const [trendingRows] = await pool.query(`
+            SELECT p.id, p.title, p.category_skills AS category, p.location, p.image_url, p.created_at,
+                   COUNT(sp.id) AS save_count
+            FROM Pitch p
+            LEFT JOIN SavedPitch sp ON sp.pitch_id = p.id
+            WHERE p.status = 'Open'
+              AND sp.created_at >= NOW() - INTERVAL 7 DAY
+            GROUP BY p.id, p.title, p.category_skills, p.location, p.image_url, p.created_at
+            ORDER BY save_count DESC, p.created_at DESC
+            LIMIT 1
+        `);
+
+        const [discoverRows] = await pool.query(`
+            SELECT p.id, p.title, p.category_skills AS category, p.location, p.image_url, p.created_at,
+                   COUNT(sp.id) AS save_count
+            FROM Pitch p
+            LEFT JOIN SavedPitch sp ON sp.pitch_id = p.id
+            WHERE p.status = 'Open'
+            GROUP BY p.id, p.title, p.category_skills, p.location, p.image_url, p.created_at
+            ORDER BY RAND()
+            LIMIT 1
+        `);
+
+        const highlightPitches = [
+            newestRows[0]
+                ? {
+                    ...newestRows[0],
+                    label: 'Newest Pitch',
+                    description: 'Recently added by a local creator.'
+                }
+                : null,
+            trendingRows[0]
+                ? {
+                    ...trendingRows[0],
+                    label: 'Trending Pitch',
+                    description: 'Most saved over the last 7 days.'
+                }
+                : null,
+            discoverRows[0]
+                ? {
+                    ...discoverRows[0],
+                    label: 'Discover This Pitch',
+                    description: 'A creator profile worth exploring.'
+                }
+                : null
+        ].filter(Boolean);
+
         const user = await getCurrentUser(req.session.userId);
 
         res.render('findPitch', {
             pitches,
+            highlightPitches,
             filters: {
                 search,
                 category,
@@ -1677,6 +1896,32 @@ app.get('/map', requireLogin, async (req, res) => {
     }
 });
 
+app.get('/api/motivation', requireLogin, async (req, res) => {
+    try {
+        const response = await fetch('https://zenquotes.io/api/random');
+        const data = await response.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+            return res.json({
+                quote: 'Your next opportunity might be one click away.',
+                author: 'OtterGigs'
+            });
+        }
+
+        return res.json({
+            quote: data[0].q || 'Keep showing up. Your work matters.',
+            author: data[0].a || 'Unknown'
+        });
+    } catch (err) {
+        console.error('Quote API error:', err);
+
+        return res.json({
+            quote: 'Your next opportunity might be one click away.',
+            author: 'OtterGigs'
+        });
+    }
+});
+
 app.get('/api/map-points', requireLogin, async (req, res) => {
     const type = (req.query.type || 'gig').toLowerCase();
 
@@ -1701,6 +1946,405 @@ app.get('/api/map-points', requireLogin, async (req, res) => {
     } catch (err) {
         console.error('Database error in /api/map-points:', err);
         res.status(500).json({ error: 'Database error loading map points.' });
+    }
+});
+
+app.get('/api/home-stats', requireApiLogin, async (req, res) => {
+    try {
+        const [[openGigRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM Gig
+            WHERE status = 'Open'
+        `);
+
+        const [[openPitchRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM Pitch
+            WHERE status = 'Open'
+        `);
+
+        const [[completedGigRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM CompletedGig
+        `);
+
+        const [[completedPitchRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM CompletedPitch
+        `);
+
+        const [locationRows] = await pool.query(`
+            SELECT location
+            FROM Gig
+            WHERE status = 'Open'
+            UNION ALL
+            SELECT location
+            FROM Pitch
+            WHERE status = 'Open'
+        `);
+
+        const activeAreas = new Set();
+
+        locationRows.forEach((row) => {
+            const area = normalizeLocationToArea(row.location);
+            if (area) {
+                activeAreas.add(area.key);
+            }
+        });
+
+        const [recentActivity] = await pool.query(`
+            SELECT *
+            FROM (
+                SELECT
+                    cg.completed_at AS created_at,
+                    CONCAT(
+                        COALESCE(NULLIF(done.display_name, ''), done.username),
+                        ' completed gig: ',
+                        g.title
+                    ) AS text,
+                    CONCAT('/gigInfo/', g.id) AS url
+                FROM CompletedGig cg
+                JOIN Gig g ON cg.gig_id = g.id
+                JOIN userGig done ON cg.completed_user_id = done.id
+
+                UNION ALL
+
+                SELECT
+                    cp.completed_at AS created_at,
+                    CONCAT(
+                        COALESCE(NULLIF(done.display_name, ''), done.username),
+                        ' completed pitch: ',
+                        p.title
+                    ) AS text,
+                    CONCAT('/pitchInfo/', p.id) AS url
+                FROM CompletedPitch cp
+                JOIN Pitch p ON cp.pitch_id = p.id
+                JOIN userGig done ON cp.completed_user_id = done.id
+
+                UNION ALL
+
+                SELECT
+                    pr.created_at AS created_at,
+                    CONCAT(
+                        COALESCE(NULLIF(reviewer.display_name, ''), reviewer.username),
+                        ' reviewed ',
+                        COALESCE(NULLIF(profileUser.display_name, ''), profileUser.username)
+                    ) AS text,
+                    CONCAT('/profile/', pr.profile_user_id) AS url
+                FROM profile_reviews pr
+                JOIN userGig reviewer ON pr.reviewer_user_id = reviewer.id
+                JOIN userGig profileUser ON pr.profile_user_id = profileUser.id
+                WHERE pr.is_visible = 1
+            ) activity
+            ORDER BY created_at DESC
+            LIMIT 5
+        `);
+
+        res.json({
+            openGigs: openGigRow.total,
+            openPitches: openPitchRow.total,
+            activeAreas: activeAreas.size,
+            completedWork: completedGigRow.total + completedPitchRow.total,
+            recentActivity
+        });
+    } catch (err) {
+        console.error('Database error in /api/home-stats:', err);
+        res.status(500).json({ error: 'Unable to load home stats.' });
+    }
+});
+
+app.get('/api/home-spotlight', requireApiLogin, async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT
+                u.id,
+                u.username,
+                u.display_name,
+                u.profile_type,
+                u.profile_image_url,
+                u.location,
+                (
+                    SELECT COUNT(*)
+                    FROM Gig g
+                    WHERE g.user_id = u.id
+                      AND g.status = 'Open'
+                ) AS open_gigs,
+                (
+                    SELECT COUNT(*)
+                    FROM Pitch p
+                    WHERE p.user_id = u.id
+                      AND p.status = 'Open'
+                ) AS open_pitches,
+                (
+                    SELECT MAX(created_at)
+                    FROM (
+                        SELECT g.created_at
+                        FROM Gig g
+                        WHERE g.user_id = u.id
+                          AND g.status = 'Open'
+
+                        UNION ALL
+
+                        SELECT p.created_at
+                        FROM Pitch p
+                        WHERE p.user_id = u.id
+                          AND p.status = 'Open'
+                    ) activity_dates
+                ) AS last_activity_at
+            FROM userGig u
+            WHERE u.profile_type = 'business'
+              AND (
+                    EXISTS (
+                        SELECT 1
+                        FROM Gig g
+                        WHERE g.user_id = u.id
+                          AND g.status = 'Open'
+                    )
+                    OR EXISTS (
+                        SELECT 1
+                        FROM Pitch p
+                        WHERE p.user_id = u.id
+                          AND p.status = 'Open'
+                    )
+              )
+            ORDER BY last_activity_at DESC
+            LIMIT 1
+        `);
+
+        let spotlight = rows[0];
+
+        if (!spotlight) {
+            const [fallbackRows] = await pool.query(`
+                SELECT
+                    u.id,
+                    u.username,
+                    u.display_name,
+                    u.profile_type,
+                    u.profile_image_url,
+                    u.location,
+                    (
+                        SELECT COUNT(*)
+                        FROM Gig g
+                        WHERE g.user_id = u.id
+                          AND g.status = 'Open'
+                    ) AS open_gigs,
+                    (
+                        SELECT COUNT(*)
+                        FROM Pitch p
+                        WHERE p.user_id = u.id
+                          AND p.status = 'Open'
+                    ) AS open_pitches
+                FROM userGig u
+                ORDER BY u.created_at DESC
+                LIMIT 1
+            `);
+
+            spotlight = fallbackRows[0];
+        }
+
+        if (!spotlight) {
+            return res.status(404).json({ error: 'No spotlight profile available.' });
+        }
+
+        const name = spotlight.display_name || spotlight.username;
+        const profileTypeLabel = spotlight.profile_type === 'business' ? 'Local business spotlight' : 'Community creator spotlight';
+
+        let summary = `${name} is helping keep the OtterGigs community active.`;
+
+        if (spotlight.open_gigs > 0 && spotlight.open_pitches > 0) {
+            summary = `${name} currently has ${spotlight.open_gigs} open gig${spotlight.open_gigs === 1 ? '' : 's'} and ${spotlight.open_pitches} open pitch${spotlight.open_pitches === 1 ? '' : 'es'} helping build local momentum.`;
+        } else if (spotlight.open_gigs > 0) {
+            summary = `${name} currently has ${spotlight.open_gigs} open gig${spotlight.open_gigs === 1 ? '' : 's'} posted for local creatives.`;
+        } else if (spotlight.open_pitches > 0) {
+            summary = `${name} currently has ${spotlight.open_pitches} active pitch${spotlight.open_pitches === 1 ? '' : 'es'} helping people discover local talent.`;
+        }
+
+        res.json({
+            id: spotlight.id,
+            name,
+            profile_type_label: profileTypeLabel,
+            profile_image_url: spotlight.profile_image_url || '/img/defaultImage.jpg',
+            location: spotlight.location || 'Monterey Bay area',
+            open_gigs: Number(spotlight.open_gigs || 0),
+            open_pitches: Number(spotlight.open_pitches || 0),
+            summary
+        });
+    } catch (err) {
+        console.error('Database error in /api/home-spotlight:', err);
+        res.status(500).json({ error: 'Unable to load spotlight.' });
+    }
+});
+
+app.get('/api/home-pulse', requireApiLogin, async (req, res) => {
+    const type = String(req.query.type || 'gig').toLowerCase() === 'pitch' ? 'pitch' : 'gig';
+
+    try {
+        if (type === 'pitch') {
+            const [items] = await pool.query(`
+                SELECT
+                    id,
+                    title,
+                    category_skills AS category,
+                    location,
+                    beginner_friendly,
+                    created_at
+                FROM Pitch
+                WHERE status = 'Open'
+                ORDER BY created_at DESC
+                LIMIT 6
+            `);
+
+            const [[countRow]] = await pool.query(`
+                SELECT COUNT(*) AS total
+                FROM Pitch
+                WHERE status = 'Open'
+            `);
+
+            const [[beginnerRow]] = await pool.query(`
+                SELECT COUNT(*) AS total
+                FROM Pitch
+                WHERE status = 'Open'
+                  AND beginner_friendly = 1
+            `);
+
+            const [locationRows] = await pool.query(`
+                SELECT location
+                FROM Pitch
+                WHERE status = 'Open'
+            `);
+
+            const areaCounts = {};
+            locationRows.forEach((row) => {
+                const area = normalizeLocationToArea(row.location);
+                if (!area) return;
+                areaCounts[area.label] = (areaCounts[area.label] || 0) + 1;
+            });
+
+            const topArea = Object.entries(areaCounts).sort((a, b) => b[1] - a[1])[0];
+
+            res.json({
+                updates: [
+                    `${countRow.total} open pitches are currently active.`,
+                    `${beginnerRow.total} beginner-friendly pitches are live right now.`,
+                    topArea ? `${topArea[0]} has the most creator activity right now.` : `Local creator activity is spreading across the community.`,
+                    items[0] ? `Newest pitch: ${items[0].title}` : `Fresh pitches will appear here as they are posted.`
+                ],
+                items: items.map((item) => ({
+                    ...item,
+                    url: `/pitchInfo/${item.id}`
+                }))
+            });
+
+            return;
+        }
+
+        const [items] = await pool.query(`
+            SELECT
+                id,
+                title,
+                category,
+                location,
+                beginner_friendly,
+                created_at
+            FROM Gig
+            WHERE status = 'Open'
+            ORDER BY created_at DESC
+            LIMIT 6
+        `);
+
+        const [[countRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM Gig
+            WHERE status = 'Open'
+        `);
+
+        const [[beginnerRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM Gig
+            WHERE status = 'Open'
+              AND beginner_friendly = 1
+        `);
+
+        const [locationRows] = await pool.query(`
+            SELECT location
+            FROM Gig
+            WHERE status = 'Open'
+        `);
+
+        const areaCounts = {};
+        locationRows.forEach((row) => {
+            const area = normalizeLocationToArea(row.location);
+            if (!area) return;
+            areaCounts[area.label] = (areaCounts[area.label] || 0) + 1;
+        });
+
+        const topArea = Object.entries(areaCounts).sort((a, b) => b[1] - a[1])[0];
+
+        res.json({
+            updates: [
+                `${countRow.total} open gigs are currently available.`,
+                `${beginnerRow.total} beginner-friendly gigs are live right now.`,
+                topArea ? `${topArea[0]} has the most gig activity right now.` : `New local opportunities are being posted across the area.`,
+                items[0] ? `Newest gig: ${items[0].title}` : `Fresh gigs will appear here as they are posted.`
+            ],
+            items: items.map((item) => ({
+                ...item,
+                url: `/gigInfo/${item.id}`
+            }))
+        });
+    } catch (err) {
+        console.error('Database error in /api/home-pulse:', err);
+        res.status(500).json({ error: 'Unable to load pulse feed.' });
+    }
+});
+
+app.get('/api/community-impact', async (req, res) => {
+    try {
+        const [[gigRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM Gig
+        `);
+
+        const [[completedGigRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM CompletedGig
+        `);
+
+        const [[completedPitchRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM CompletedPitch
+        `);
+
+        const [[reviewRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM profile_reviews
+            WHERE is_visible = 1
+        `);
+
+        const [locationRows] = await pool.query(`
+            SELECT location FROM Gig
+            UNION ALL
+            SELECT location FROM Pitch
+        `);
+
+        const activeAreas = new Set();
+
+        locationRows.forEach((row) => {
+            const area = normalizeLocationToArea(row.location);
+            if (area) {
+                activeAreas.add(area.key);
+            }
+        });
+
+        res.json({
+            gigsPosted: gigRow.total,
+            collaborationsCompleted: Number(completedGigRow.total || 0) + Number(completedPitchRow.total || 0),
+            activeAreas: activeAreas.size,
+            reviewsShared: reviewRow.total
+        });
+    } catch (err) {
+        console.error('Database error in /api/community-impact:', err);
+        res.status(500).json({ error: 'Unable to load community impact.' });
     }
 });
 
