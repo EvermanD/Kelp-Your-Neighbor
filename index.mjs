@@ -208,8 +208,6 @@ async function getVisibleProfileReviews(profileUserId) {
     return rows;
 }
 
-app.get('/', (req, res) => {
-    res.render('index', {});
 app.get('/', async (req, res) => {
     const featuredBusinesses = [
         {
