@@ -18,6 +18,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let markersLayer = L.layerGroup().addTo(map);
     let activeType = 'gig';
 
+    const { animate } = anime || {};
+
+function animateMarkers() {
+    if (!animate) return;
+
+    animate('.map-count-marker', {
+        scale: [0.65, 1],
+        opacity: [0, 1],
+        duration: 550,
+        delay: (_, i) => i * 90,
+        easing: 'out(3)'
+    });
+}
+
     function escapeHtml(value) {
         return String(value || '')
             .replace(/&/g, '&amp;')
@@ -100,6 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 marker.addTo(markersLayer);
             });
+
+            window.requestAnimationFrame(() => {
+                animateMarkers();
+            });
+
         } catch (error) {
             console.error('Error loading map points:', error);
         }
