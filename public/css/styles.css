@@ -2703,3 +2703,126 @@ a {
     font-weight: 700;
     line-height: 1;
 }
+
+.hero-quickstart-shell {
+    margin-top: 1.75rem;
+    max-width: 72rem;
+}
+
+.hero-quickstart-label {
+    color: rgba(255, 255, 255, 0.84);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.hero-quickstart-copy {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.98rem;
+    max-width: 42rem;
+    line-height: 1.6;
+}
+
+.hero-quickstart-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.hero-quickstart-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-height: 150px;
+    padding: 1.1rem 1.15rem;
+    border-radius: 20px;
+    text-decoration: none;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.hero-quickstart-card:hover,
+.hero-quickstart-card:focus {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 28px rgba(75, 95, 105, 0.14);
+    text-decoration: none;
+}
+
+.hero-quickstart-card-primary {
+    background: #F1E3D3;
+    border: 1px solid rgba(95, 81, 71, 0.08);
+    color: #4E433A;
+}
+
+.hero-quickstart-card-primary:hover,
+.hero-quickstart-card-primary:focus {
+    background: #E9D8C7;
+    color: #4E433A;
+}
+
+.hero-quickstart-card-secondary {
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    color: #FFFFFF;
+}
+
+.hero-quickstart-card-secondary:hover,
+.hero-quickstart-card-secondary:focus {
+    background: rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
+}
+
+.hero-quickstart-card-accent {
+    background: #DCCBB8;
+    border: 1px solid rgba(95, 81, 71, 0.08);
+    color: #4E433A;
+}
+
+.hero-quickstart-card-accent:hover,
+.hero-quickstart-card-accent:focus {
+    background: #D2BEA9;
+    color: #4E433A;
+}
+
+.hero-quickstart-card-outline {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    color: #FFFFFF;
+}
+
+.hero-quickstart-card-outline:hover,
+.hero-quickstart-card-outline:focus {
+    background: rgba(255, 255, 255, 0.16);
+    color: #FFFFFF;
+}
+
+.hero-quickstart-kicker {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.hero-quickstart-title {
+    font-size: 1.18rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.hero-quickstart-meta {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+@media (max-width: 767.98px) {
+    .hero-quickstart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-quickstart-card {
+        min-height: 132px;
+    }
+}
