@@ -452,7 +452,7 @@ app.get('/findGig', requireLogin, async (req, res) => {
             sql += ` AND g.beginner_friendly = 1`;
         }
 
-        sql += ` ORDER BY g.created_at DESC`;
+        sql += ` ORDER BY RAND()`;
 
         const [gigs] = await pool.query(sql, sqlParams);
         const user = await getCurrentUser(req.session.userId);
@@ -1163,7 +1163,7 @@ app.get('/findPitch', requireLogin, async (req, res) => {
             sql += ` AND p.beginner_friendly = 1`;
         }
 
-        sql += ` ORDER BY p.created_at DESC`;
+        sql += ` ORDER BY RAND()`;
 
         const [pitches] = await pool.query(sql, sqlParams);
         const user = await getCurrentUser(req.session.userId);
