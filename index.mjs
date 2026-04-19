@@ -492,9 +492,12 @@ app.get('/findGig', requireLogin, async (req, res) => {
             SELECT g.id, g.title, g.description, g.category, g.looking_for, g.organization_name,
                    g.location, g.location_type, g.budget, g.budget_min, g.budget_max,
                    g.deadline, g.urgency, g.beginner_friendly, g.image_url, g.status,
-                   g.user_id, u.display_name, u.profile_image_url
+                   g.user_id, g.created_at,
+                   u.display_name, u.profile_image_url,
+                   COUNT(sg.id) AS save_count
             FROM Gig g
             JOIN userGig u ON g.user_id = u.id
+            LEFT JOIN SavedGig sg ON sg.gig_id = g.id
             WHERE g.status = 'Open'
         `;
 
@@ -533,13 +536,79 @@ app.get('/findGig', requireLogin, async (req, res) => {
             sql += ` AND g.beginner_friendly = 1`;
         }
 
-        sql += ` ORDER BY RAND()`;
+        sql += `
+            GROUP BY g.id, g.title, g.description, g.category, g.looking_for, g.organization_name,
+                     g.location, g.location_type, g.budget, g.budget_min, g.budget_max,
+                     g.deadline, g.urgency, g.beginner_friendly, g.image_url, g.status,
+                     g.user_id, g.created_at, u.display_name, u.profile_image_url
+            ORDER BY RAND()
+        `;
 
         const [gigs] = await pool.query(sql, sqlParams);
+
+        const [newestRows] = await pool.query(`
+            SELECT g.id, g.title, g.category, g.location, g.image_url, g.created_at,
+                   COUNT(sg.id) AS save_count
+            FROM Gig g
+            LEFT JOIN SavedGig sg ON sg.gig_id = g.id
+            WHERE g.status = 'Open'
+            GROUP BY g.id, g.title, g.category, g.location, g.image_url, g.created_at
+            ORDER BY g.created_at DESC
+            LIMIT 1
+        `);
+
+        const [trendingRows] = await pool.query(`
+            SELECT g.id, g.title, g.category, g.location, g.image_url, g.created_at,
+                   COUNT(sg.id) AS save_count
+            FROM Gig g
+            LEFT JOIN SavedGig sg ON sg.gig_id = g.id
+            WHERE g.status = 'Open'
+              AND sg.created_at >= NOW() - INTERVAL 7 DAY
+            GROUP BY g.id, g.title, g.category, g.location, g.image_url, g.created_at
+            ORDER BY save_count DESC, g.created_at DESC
+            LIMIT 1
+        `);
+
+        const [discoverRows] = await pool.query(`
+            SELECT g.id, g.title, g.category, g.location, g.image_url, g.created_at,
+                   COUNT(sg.id) AS save_count
+            FROM Gig g
+            LEFT JOIN SavedGig sg ON sg.gig_id = g.id
+            WHERE g.status = 'Open'
+            GROUP BY g.id, g.title, g.category, g.location, g.image_url, g.created_at
+            ORDER BY RAND()
+            LIMIT 1
+        `);
+
+        const highlightGigs = [
+            newestRows[0]
+                ? {
+                    ...newestRows[0],
+                    label: 'Newest Gig',
+                    description: 'Just posted to the community.'
+                }
+                : null,
+            trendingRows[0]
+                ? {
+                    ...trendingRows[0],
+                    label: 'Trending Gig',
+                    description: 'Most saved over the last 7 days.'
+                }
+                : null,
+            discoverRows[0]
+                ? {
+                    ...discoverRows[0],
+                    label: 'Discover This Gig',
+                    description: 'A fresh opportunity worth checking out.'
+                }
+                : null
+        ].filter(Boolean);
+
         const user = await getCurrentUser(req.session.userId);
 
         res.render('findGig', {
             gigs,
+            highlightGigs,
             filters: {
                 search,
                 category,
@@ -1208,10 +1277,13 @@ app.get('/findPitch', requireLogin, async (req, res) => {
                    p.contact_email,
                    p.status,
                    p.user_id,
+                   p.created_at,
                    u.display_name,
-                   u.profile_image_url
+                   u.profile_image_url,
+                   COUNT(sp.id) AS save_count
             FROM Pitch p
             JOIN userGig u ON p.user_id = u.id
+            LEFT JOIN SavedPitch sp ON sp.pitch_id = p.id
             WHERE p.status = 'Open'
         `;
 
@@ -1244,13 +1316,79 @@ app.get('/findPitch', requireLogin, async (req, res) => {
             sql += ` AND p.beginner_friendly = 1`;
         }
 
-        sql += ` ORDER BY RAND()`;
+        sql += `
+            GROUP BY p.id, p.title, p.service_name, p.category_skills, p.bio, p.portfolio,
+                     p.location, p.location_type, p.rate_type, p.rate_min, p.rate_max,
+                     p.availability, p.beginner_friendly, p.image_url, p.contact_email,
+                     p.status, p.user_id, p.created_at, u.display_name, u.profile_image_url
+            ORDER BY RAND()
+        `;
 
         const [pitches] = await pool.query(sql, sqlParams);
+
+        const [newestRows] = await pool.query(`
+            SELECT p.id, p.title, p.category_skills AS category, p.location, p.image_url, p.created_at,
+                   COUNT(sp.id) AS save_count
+            FROM Pitch p
+            LEFT JOIN SavedPitch sp ON sp.pitch_id = p.id
+            WHERE p.status = 'Open'
+            GROUP BY p.id, p.title, p.category_skills, p.location, p.image_url, p.created_at
+            ORDER BY p.created_at DESC
+            LIMIT 1
+        `);
+
+        const [trendingRows] = await pool.query(`
+            SELECT p.id, p.title, p.category_skills AS category, p.location, p.image_url, p.created_at,
+                   COUNT(sp.id) AS save_count
+            FROM Pitch p
+            LEFT JOIN SavedPitch sp ON sp.pitch_id = p.id
+            WHERE p.status = 'Open'
+              AND sp.created_at >= NOW() - INTERVAL 7 DAY
+            GROUP BY p.id, p.title, p.category_skills, p.location, p.image_url, p.created_at
+            ORDER BY save_count DESC, p.created_at DESC
+            LIMIT 1
+        `);
+
+        const [discoverRows] = await pool.query(`
+            SELECT p.id, p.title, p.category_skills AS category, p.location, p.image_url, p.created_at,
+                   COUNT(sp.id) AS save_count
+            FROM Pitch p
+            LEFT JOIN SavedPitch sp ON sp.pitch_id = p.id
+            WHERE p.status = 'Open'
+            GROUP BY p.id, p.title, p.category_skills, p.location, p.image_url, p.created_at
+            ORDER BY RAND()
+            LIMIT 1
+        `);
+
+        const highlightPitches = [
+            newestRows[0]
+                ? {
+                    ...newestRows[0],
+                    label: 'Newest Pitch',
+                    description: 'Recently added by a local creator.'
+                }
+                : null,
+            trendingRows[0]
+                ? {
+                    ...trendingRows[0],
+                    label: 'Trending Pitch',
+                    description: 'Most saved over the last 7 days.'
+                }
+                : null,
+            discoverRows[0]
+                ? {
+                    ...discoverRows[0],
+                    label: 'Discover This Pitch',
+                    description: 'A creator profile worth exploring.'
+                }
+                : null
+        ].filter(Boolean);
+
         const user = await getCurrentUser(req.session.userId);
 
         res.render('findPitch', {
             pitches,
+            highlightPitches,
             filters: {
                 search,
                 category,

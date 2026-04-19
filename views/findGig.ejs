@@ -26,6 +26,47 @@
         <p class="mb-0 hero-transition-subtitle">Browse open community opportunities and filter the ones that match your skills.</p>
     </div>
 
+    <% if (highlightGigs && highlightGigs.length > 0) { %>
+        <section class="spotlight-strip mb-4" aria-labelledby="gig-spotlight-title">
+            <div class="spotlight-strip-head">
+                <div>
+                    <p class="spotlight-strip-eyebrow mb-1">Smart highlights</p>
+                    <h2 id="gig-spotlight-title" class="spotlight-strip-title mb-0">What to check first</h2>
+                </div>
+
+                <div class="spotlight-strip-controls">
+                    <button type="button" class="spotlight-strip-control" data-spotlight-prev aria-label="Previous highlight">&larr;</button>
+                    <button type="button" class="spotlight-strip-control" data-spotlight-next aria-label="Next highlight">&rarr;</button>
+                </div>
+            </div>
+
+            <div class="spotlight-strip-carousel" data-spotlight-carousel>
+                <div class="spotlight-strip-track" data-spotlight-track>
+                    <% highlightGigs.forEach((item) => { %>
+                        <article class="spotlight-strip-card" data-spotlight-card>
+                            <img
+                                src="<%= item.image_url && item.image_url.trim() !== '' ? item.image_url : 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80' %>"
+                                alt="<%= item.title %>"
+                                class="spotlight-strip-image"
+                            >
+
+                            <div class="spotlight-strip-overlay"></div>
+
+                            <div class="spotlight-strip-content">
+                                <span class="spotlight-strip-badge"><%= item.label %></span>
+                                <h3 class="spotlight-strip-card-title"><%= item.title %></h3>
+                                <p class="spotlight-strip-meta mb-1"><%= item.category || 'Misc' %> • <%= item.location || 'Local' %></p>
+                                <p class="spotlight-strip-description mb-3"><%= item.description %></p>
+                                <p class="spotlight-strip-saves mb-3"><strong><%= item.save_count || 0 %></strong> save<%= Number(item.save_count || 0) === 1 ? '' : 's' %></p>
+                                <a href="/gigInfo/<%= item.id %>" class="btn btn-sm btn-light">View Gig</a>
+                            </div>
+                        </article>
+                    <% }) %>
+                </div>
+            </div>
+        </section>
+    <% } %>
+
     <div class="card filter-card mb-4">
         <div class="card-body">
             <form action="/findGig" method="GET" class="row g-3">
@@ -117,7 +158,8 @@
                         <p class="card-meta mb-1"><strong>Looking for:</strong> <%= gig.looking_for %></p>
                         <p class="card-meta mb-1"><strong>Location:</strong> <%= gig.location %> <%= gig.location_type ? '(' + gig.location_type + ')' : '' %></p>
                         <p class="card-meta mb-1"><strong>Budget:</strong> <%= gig.budget || 'Not listed' %></p>
-                        <p class="card-meta mb-3"><strong>Deadline:</strong> <%= gig.deadline ? new Date(gig.deadline).toLocaleDateString() : 'N/A' %></p>
+                        <p class="card-meta mb-1"><strong>Deadline:</strong> <%= gig.deadline ? new Date(gig.deadline).toLocaleDateString() : 'N/A' %></p>
+                        <p class="card-meta mb-3"><strong>Saves:</strong> <%= gig.save_count || 0 %></p>
 
                         <div class="card-description-panel mb-3">
                             <p class="mb-0 description-text">
@@ -143,6 +185,69 @@
         <% }) %>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const carousels = document.querySelectorAll("[data-spotlight-carousel]");
+
+    carousels.forEach((carousel) => {
+        const track = carousel.querySelector("[data-spotlight-track]");
+        const cards = Array.from(carousel.querySelectorAll("[data-spotlight-card]"));
+        const section = carousel.closest(".spotlight-strip");
+        const prevButton = section?.querySelector("[data-spotlight-prev]");
+        const nextButton = section?.querySelector("[data-spotlight-next]");
+
+        if (!track || cards.length === 0 || !prevButton || !nextButton) {
+            return;
+        }
+
+        let currentIndex = 0;
+        let autoplayTimer = null;
+
+        function updatePosition() {
+            track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        }
+
+        function goTo(index) {
+            if (index < 0) {
+                currentIndex = cards.length - 1;
+            } else if (index >= cards.length) {
+                currentIndex = 0;
+            } else {
+                currentIndex = index;
+            }
+
+            updatePosition();
+        }
+
+        function startAutoplay() {
+            if (cards.length <= 1) {
+                return;
+            }
+
+            autoplayTimer = window.setInterval(() => {
+                goTo(currentIndex + 1);
+            }, 4200);
+        }
+
+        function stopAutoplay() {
+            if (autoplayTimer) {
+                window.clearInterval(autoplayTimer);
+                autoplayTimer = null;
+            }
+        }
+
+        prevButton.addEventListener("click", () => goTo(currentIndex - 1));
+        nextButton.addEventListener("click", () => goTo(currentIndex + 1));
+
+        section.addEventListener("mouseenter", stopAutoplay);
+        section.addEventListener("mouseleave", startAutoplay);
+
+        updatePosition();
+        startAutoplay();
+    });
+});
+</script>
 
 </body>
 </html>
