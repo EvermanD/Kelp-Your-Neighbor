@@ -15,15 +15,30 @@
 
             <form action="/completeGig/<%= gig.id %>" method="POST" class="row g-3">
                 <div class="col-12">
+                    <label for="gigUserSearch" class="form-label">Search by display name</label>
+                    <input
+                        type="text"
+                        id="gigUserSearch"
+                        class="form-control mb-3"
+                        placeholder="Start typing a display name..."
+                    >
+
                     <label class="form-label">Who completed this gig?</label>
-                    <select name="completed_user_id" class="form-select" required>
+                    <select name="completed_user_id" id="gigCompletedUserSelect" class="form-select" required size="8">
                         <option value="">Choose a user</option>
                         <% users.forEach(person => { %>
-                            <option value="<%= person.id %>">
-                                <%= person.display_name || person.username %> (<%= person.profile_type %>)
+                            <% const visibleName = person.display_name && person.display_name.trim() !== '' ? person.display_name : person.username; %>
+                            <option
+                                value="<%= person.id %>"
+                                data-display-name="<%= visibleName.toLowerCase() %>"
+                            >
+                                <%= visibleName %> (<%= person.profile_type %>)<%= person.saved_this_gig ? ' — Saved this gig' : '' %>
                             </option>
                         <% }) %>
                     </select>
+                    <div class="form-text">
+                        Users who saved this gig are listed first.
+                    </div>
                 </div>
 
                 <div class="col-12">
@@ -39,5 +54,25 @@
         </div>
     </div>
 </div>
+
+<script>
+    const gigUserSearch = document.getElementById('gigUserSearch');
+    const gigCompletedUserSelect = document.getElementById('gigCompletedUserSelect');
+
+    gigUserSearch.addEventListener('input', function () {
+        const searchValue = this.value.trim().toLowerCase();
+        const options = gigCompletedUserSelect.querySelectorAll('option');
+
+        options.forEach((option, index) => {
+            if (index === 0) {
+                option.hidden = false;
+                return;
+            }
+
+            const displayName = option.dataset.displayName || '';
+            option.hidden = searchValue !== '' && !displayName.includes(searchValue);
+        });
+    });
+</script>
 </body>
 </html>
