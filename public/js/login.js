@@ -10,24 +10,29 @@ async function loginUser(event) {
     let password = document.querySelector("input[name=password]").value;
     let submitButton = document.querySelector('#loginForm button[type="submit"]');
 
+    submitButton.disabled = true;
+    submitButton.textContent = "Logging in...";
+
     if (username === "") {
         feedbackDiv.style.display = "block";
         feedbackDiv.textContent = "Error: username cannot be blank";
         feedbackDiv.style.color = "red";
         if (window.showUiToast) window.showUiToast("Username cannot be blank.", "error");
+        submitButton.textContent = "Login";
+        submitButton.disabled = false;
         return;
-    }
 
+    }
     if (password === "") {
         feedbackDiv.style.display = "block";
         feedbackDiv.textContent = "Error: password cannot be blank";
         feedbackDiv.style.color = "red";
         if (window.showUiToast) window.showUiToast("Password cannot be blank.", "error");
+        submitButton.textContent = "Login";
+        submitButton.disabled = false;
         return;
-    }
 
-    submitButton.disabled = true;
-    submitButton.textContent = "Logging in...";
+    }
 
     let formData = new URLSearchParams();
     formData.append("username", username);
