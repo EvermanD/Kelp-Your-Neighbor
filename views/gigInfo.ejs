@@ -4,10 +4,6 @@
     <%- include("partials/head.ejs") %>
     <title>OtterGigs | Gig Info</title>
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
-
         .detail-card {
             border: none;
             border-radius: 22px;
@@ -47,27 +43,9 @@
             object-fit: cover;
             border-radius: 50%;
         }
-
-        .nav-profile-btn {
-            width: 42px;
-            height: 42px;
-            padding: 0;
-            border-radius: 50%;
-            overflow: hidden;
-            border: none;
-            background: transparent;
-        }
-
-        .nav-profile-btn img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 2px solid white;
-        }
     </style>
 </head>
-<body>
+<body class="page-find-gig">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand fw-bold" href="/home">
@@ -92,6 +70,9 @@
         >
 
         <div class="card-body p-4 p-md-5">
+            <% const gigUrgencyLabel = gig.urgency || 'Open'; %>
+            <% const gigUrgencyClass = gig.urgency === 'Urgent' ? 'gig-pill-urgent' : gig.urgency === 'High' ? 'gig-pill-high' : gig.urgency === 'Medium' ? 'gig-pill-medium' : 'gig-pill-low'; %>
+            <% const gigStatusClass = gig.status === 'Open' ? 'gig-pill-low' : gig.status === 'Closed' ? 'gig-pill-medium' : gig.status === 'Completed' ? 'gig-pill-beginner' : 'gig-pill-high'; %>
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                 <div>
                     <h1 class="fw-bold mb-2"><%= gig.title %></h1>
@@ -99,21 +80,14 @@
                 </div>
 
                 <div class="text-md-end">
-                    <span class="info-pill bg-primary text-white"><%= gig.category || 'Misc' %></span>
-
-                    <% if (gig.urgency === 'Urgent') { %>
-                        <span class="info-pill bg-danger text-white"><%= gig.urgency %></span>
-                    <% } else if (gig.urgency === 'High') { %>
-                        <span class="info-pill bg-warning text-dark"><%= gig.urgency %></span>
-                    <% } else { %>
-                        <span class="info-pill bg-secondary text-white"><%= gig.urgency %></span>
-                    <% } %>
+                    <span class="theme-pill info-pill gig-pill-category"><%= gig.category || 'Misc' %></span>
+                    <span class="theme-pill info-pill <%= gigUrgencyClass %>"><%= gigUrgencyLabel %></span>
 
                     <% if (gig.beginner_friendly) { %>
-                        <span class="info-pill bg-success text-white">Beginner Friendly</span>
+                        <span class="theme-pill info-pill gig-pill-beginner">Beginner Friendly</span>
                     <% } %>
 
-                    <span class="info-pill bg-dark text-white"><%= gig.status %></span>
+                    <span class="theme-pill info-pill <%= gigStatusClass %>"><%= gig.status %></span>
                 </div>
             </div>
 
