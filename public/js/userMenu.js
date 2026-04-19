@@ -1,30 +1,95 @@
 (() => {
-    const menuElement = document.getElementById("userMenuCanvas");
+    const trigger = document.getElementById("profileMenuTrigger");
+    const menu = document.getElementById("profileMenuDropdown");
 
-    if (!menuElement || !window.bootstrap?.Offcanvas) {
+    if (!trigger || !menu) {
         return;
     }
 
-    const cleanupBackdrop = () => {
-        if (menuElement.classList.contains("show")) {
-            return;
+    let isOpen = false;
+
+    function positionMenu() {
+        const rect = trigger.getBoundingClientRect();
+        const gap = 10;
+        const menuWidth = Math.min(340, window.innerWidth - 16);
+        let left = rect.left;
+        let top = rect.bottom + gap;
+
+        if (left + menuWidth > window.innerWidth - 8) {
+            left = window.innerWidth - menuWidth - 8;
         }
 
-        document.querySelectorAll(".offcanvas-backdrop").forEach((backdrop) => backdrop.remove());
-        document.body.style.removeProperty("overflow");
-        document.body.style.removeProperty("padding-right");
-    };
-
-    menuElement.addEventListener("hidden.bs.offcanvas", cleanupBackdrop);
-
-    document.addEventListener("click", (event) => {
-        const clickedBackdrop = event.target.closest(".offcanvas-backdrop");
-
-        if (!clickedBackdrop || !menuElement.classList.contains("show")) {
-            return;
+        if (left < 8) {
+            left = 8;
         }
 
-        bootstrap.Offcanvas.getOrCreateInstance(menuElement).hide();
-        window.setTimeout(cleanupBackdrop, 350);
+        menu.style.left = `${left}px`;
+        menu.style.top = `${top}px`;
+    }
+
+    function openMenu() {
+        positionMenu();
+        menu.hidden = false;
+
+        requestAnimationFrame(() => {
+            menu.classList.add("is-open");
+        });
+
+        trigger.setAttribute("aria-expanded", "true");
+        isOpen = true;
+    }
+
+    function closeMenu() {
+        menu.classList.remove("is-open");
+        trigger.setAttribute("aria-expanded", "false");
+        isOpen = false;
+
+        window.setTimeout(() => {
+            if (!isOpen) {
+                menu.hidden = true;
+            }
+        }, 180);
+    }
+
+    function toggleMenu() {
+        if (isOpen) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    }
+
+    trigger.addEventListener("click", (event) => {
+        event.stopPropagation();
+        toggleMenu();
     });
+
+    menu.addEventListener("click", (event) => {
+        event.stopPropagation();
+    });
+
+    document.addEventListener("click", () => {
+        if (isOpen) {
+            closeMenu();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && isOpen) {
+            closeMenu();
+            trigger.focus();
+        }
+    });
+
+    window.addEventListener("resize", () => {
+        if (isOpen) {
+            positionMenu();
+        }
+    });
+
+    window.addEventListener("scroll", () => {
+        if (isOpen) {
+            positionMenu();
+        }
+    }, true);
 })();

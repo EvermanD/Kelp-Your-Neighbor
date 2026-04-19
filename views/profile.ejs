@@ -1143,9 +1143,7 @@
     </div>
 </nav>
 
-<% if (isOwnProfile) { %>
-    <%- include("partials/userMenu.ejs", { user: profileUser }) %>
-<% } %>
+<%- include("partials/userMenu.ejs", { user: user }) %>
 
 <div class="container profile-shell">
     <section class="profile-hero mb-4 mb-lg-5">
