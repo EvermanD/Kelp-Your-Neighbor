@@ -4,48 +4,1142 @@
     <%- include("partials/head.ejs") %>
     <title>OtterGigs | Profile</title>
     <style>
-        body {
-            background: #f8f9fa;
+        :root {
+            --profile-bg: #F2F6FF;
+            --profile-bg-soft: #F8FBFF;
+            --profile-surface: #FFFFFF;
+            --profile-lavender: #7C6CF2;
+            --profile-lavender-deep: #6657E6;
+            --profile-lavender-soft: #EEF0FF;
+            --profile-blue: #A9CCFF;
+            --profile-blue-deep: #74AEEA;
+            --profile-blue-soft: #EAF4FF;
+            --profile-beige: #F3E6D8;
+            --profile-beige-soft: #FBF4EB;
+            --profile-text: #2F3755;
+            --profile-text-soft: #6E7A98;
+            --profile-border: rgba(124, 108, 242, 0.11);
+            --profile-blue-border: rgba(169, 204, 255, 0.42);
+            --profile-shadow: 0 24px 54px rgba(99, 131, 191, 0.13);
+            --profile-shadow-soft: 0 14px 32px rgba(113, 142, 198, 0.10);
         }
 
-        .profile-card,
-        .section-card {
-            border: none;
-            border-radius: 22px;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+        body.page-profile {
+            background:
+                radial-gradient(circle at top left, rgba(169, 204, 255, 0.42), transparent 28%),
+                radial-gradient(circle at top right, rgba(124, 108, 242, 0.12), transparent 32%),
+                linear-gradient(180deg, #FAFCFF 0%, var(--profile-bg) 24%, #F4F3FF 100%);
+            color: var(--profile-text);
+        }
+
+        .page-profile .profile-navbar {
+            background: linear-gradient(135deg, #EAF4FF 0%, #EEF0FF 48%, #FFFFFF 100%);
+            border-bottom: 1px solid rgba(124, 108, 242, 0.09);
+            box-shadow: 0 12px 28px rgba(113, 142, 198, 0.09);
+        }
+
+        .page-profile .navbar-brand {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .page-profile .nav-btn {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(245, 250, 255, 0.92) 100%);
+            border: 1px solid rgba(124, 108, 242, 0.10);
+            border-radius: 999px;
+            box-shadow: 0 8px 18px rgba(113, 142, 198, 0.08);
+            color: var(--profile-text);
+            padding: 0.82rem 1.2rem;
+        }
+
+        .page-profile .nav-btn:hover,
+        .page-profile .nav-btn:focus {
+            background: #FFFFFF;
+            border-color: rgba(124, 108, 242, 0.20);
+            color: var(--profile-lavender-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 24px rgba(113, 142, 198, 0.12);
+        }
+
+        .page-profile .nav-profile-btn {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(234, 244, 255, 0.90));
+            border: 1px solid rgba(124, 108, 242, 0.16);
+            box-shadow: 0 12px 24px rgba(113, 142, 198, 0.10);
+            height: 50px;
+            width: 50px;
+        }
+
+        .page-profile .nav-profile-btn img {
+            border: 2px solid rgba(255, 255, 255, 0.92);
+        }
+
+        .profile-shell {
+            padding-bottom: 5rem;
+            padding-top: 3.5rem;
+            position: relative;
+        }
+
+        .profile-shell::before,
+        .profile-shell::after {
+            border-radius: 50%;
+            content: "";
+            filter: blur(18px);
+            pointer-events: none;
+            position: absolute;
+            z-index: 0;
+        }
+
+        .profile-shell::before {
+            background: rgba(169, 204, 255, 0.42);
+            height: 220px;
+            left: -26px;
+            top: 22px;
+            width: 220px;
+        }
+
+        .profile-shell::after {
+            background: rgba(124, 108, 242, 0.12);
+            height: 240px;
+            right: -10px;
+            top: 126px;
+            width: 240px;
+        }
+
+        .profile-shell > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-hero {
+            background:
+                radial-gradient(circle at top right, rgba(255, 255, 255, 0.58), transparent 32%),
+                linear-gradient(135deg, rgba(234, 244, 255, 0.98) 0%, rgba(242, 246, 255, 0.98) 38%, rgba(238, 240, 255, 0.98) 100%);
+            border: 1px solid rgba(124, 108, 242, 0.10);
+            border-radius: 28px;
+            box-shadow: var(--profile-shadow);
+            overflow: hidden;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .profile-hero::before {
+            background: linear-gradient(135deg, rgba(116, 174, 234, 0.18), rgba(124, 108, 242, 0.14));
+            content: "";
+            inset: 0;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        .profile-hero-grid {
+            align-items: center;
+            display: grid;
+            gap: 1.8rem;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-avatar-wrap {
+            display: flex;
+            justify-content: center;
         }
 
         .profile-avatar {
-            width: 130px;
-            height: 130px;
-            object-fit: cover;
+            background: #FFFFFF;
+            border: 6px solid rgba(255, 255, 255, 0.84);
             border-radius: 50%;
-            border: 4px solid white;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            box-shadow:
+                0 0 0 2px rgba(124, 108, 242, 0.14),
+                0 0 0 10px rgba(169, 204, 255, 0.26),
+                0 18px 38px rgba(113, 142, 198, 0.18);
+            height: 164px;
+            object-fit: cover;
+            width: 164px;
+        }
+
+        .profile-title {
+            font-size: clamp(2.15rem, 4vw, 3.35rem);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            line-height: 1.02;
+            margin-bottom: 0.4rem;
+        }
+
+        .profile-subtitle {
+            color: var(--profile-text-soft);
+            font-size: 1.04rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .profile-bio {
+            color: #55627E;
+            font-size: 1.02rem;
+            line-height: 1.72;
+            margin-bottom: 1rem;
+            max-width: 58ch;
+        }
+
+        .hero-about {
+            margin-bottom: 1.15rem;
+            max-width: 60ch;
+        }
+
+        .hero-about .about-copy {
+            margin-bottom: 0.85rem;
+        }
+
+        .hero-about .contact-card {
+            max-width: 28rem;
+        }
+
+        .profile-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.95rem;
+        }
+
+        .profile-btn-primary,
+        .profile-btn-secondary,
+        .portfolio-nav {
+            align-items: center;
+            border: 0;
+            border-radius: 16px;
+            box-shadow: 0 12px 24px rgba(113, 142, 198, 0.12);
+            display: inline-flex;
+            font-weight: 600;
+            justify-content: center;
+            text-decoration: none;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease, color 0.22s ease;
+        }
+
+        .profile-btn-primary {
+            background: linear-gradient(135deg, var(--profile-lavender) 0%, #8C85FF 100%);
+            color: #FFFFFF;
+            padding: 0.94rem 1.38rem;
+            text-decoration: none;
+        }
+
+        .profile-btn-primary:hover,
+        .profile-btn-primary:focus {
+            background: linear-gradient(135deg, var(--profile-lavender-deep) 0%, #7B74FF 100%);
+            color: #FFFFFF;
+            transform: translateY(-2px);
+            box-shadow: 0 18px 28px rgba(124, 108, 242, 0.18);
+        }
+
+        .profile-btn-secondary {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(234, 244, 255, 0.92) 100%);
+            color: var(--profile-blue-deep);
+            padding: 0.94rem 1.38rem;
+        }
+
+        .profile-btn-secondary:hover,
+        .profile-btn-secondary:focus {
+            background: linear-gradient(180deg, #F5FAFF 0%, #E7F2FF 100%);
+            color: var(--profile-lavender-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 16px 26px rgba(113, 142, 198, 0.14);
+        }
+
+        .profile-summary {
+            display: grid;
+            gap: 0.85rem;
+            min-width: 232px;
+        }
+
+        .summary-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.90) 0%, rgba(247, 251, 255, 0.92) 100%);
+            border: 1px solid rgba(124, 108, 242, 0.08);
+            border-radius: 22px;
+            box-shadow: var(--profile-shadow-soft);
+            padding: 1.08rem 1.15rem 1.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            background: linear-gradient(90deg, rgba(116, 174, 234, 0.36), rgba(124, 108, 242, 0.34));
+            content: "";
+            height: 4px;
+            left: 1rem;
+            position: absolute;
+            right: 1rem;
+            top: 0;
+            border-radius: 999px;
+        }
+
+        .summary-label {
+            color: var(--profile-blue-deep);
+            font-size: 0.84rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            margin-bottom: 0.42rem;
+            text-transform: uppercase;
+        }
+
+        .summary-value {
+            color: var(--profile-text);
+            font-size: 1.78rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            margin-bottom: 0.34rem;
+        }
+
+        .summary-note {
+            color: var(--profile-text-soft);
+            font-size: 0.89rem;
+            line-height: 1.55;
+        }
+
+        .section-card {
+            background: var(--profile-surface);
+            border: 1px solid rgba(124, 108, 242, 0.08);
+            border-radius: 16px;
+            box-shadow: var(--profile-shadow-soft);
+            height: 100%;
+        }
+
+        .section-card .card-body {
+            padding: 1.7rem;
+        }
+
+        .section-heading {
+            align-items: start;
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.25rem;
+        }
+
+        .section-kicker {
+            color: var(--profile-text-soft);
+            font-size: 0.92rem;
+            line-height: 1.55;
+            margin: 0;
+        }
+
+        .section-pill {
+            background: linear-gradient(180deg, var(--profile-lavender-soft) 0%, #F5F3FF 100%);
+            border-radius: 999px;
+            color: var(--profile-lavender-deep);
+            font-size: 0.84rem;
+            font-weight: 600;
+            padding: 0.5rem 0.84rem;
+            box-shadow: 0 8px 18px rgba(124, 108, 242, 0.08);
+            white-space: nowrap;
+        }
+
+        .muted-copy {
+            color: var(--profile-text-soft);
+            margin-bottom: 0;
+        }
+
+        .portfolio-showcase {
+            --portfolio-cards-per-view: 3;
+            --portfolio-carousel-gap: 1.25rem;
+        }
+
+        .portfolio-showcase .card-body {
+            padding: 1.75rem;
+        }
+
+        .portfolio-showcase-header {
+            align-items: end;
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-bottom: 0.9rem;
+        }
+
+        .portfolio-showcase-controls {
+            display: flex;
+            gap: 0.7rem;
+        }
+
+        .portfolio-nav {
+            align-items: center;
+            background: #EAF4FF;
+            border: 1px solid #D5E6FB;
+            border-radius: 999px;
+            color: #5A74A8;
+            display: inline-flex;
+            height: 46px;
+            justify-content: center;
+            padding: 0;
+            width: 46px;
+        }
+
+        .portfolio-nav:hover,
+        .portfolio-nav:focus {
+            background: #DDEBFF;
+            border-color: #C8DCF8;
+            color: var(--profile-lavender-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 16px 24px rgba(113, 142, 198, 0.16);
+        }
+
+        .portfolio-nav:disabled {
+            cursor: default;
+            opacity: 0.45;
+            transform: none;
+            box-shadow: 0 12px 24px rgba(113, 142, 198, 0.08);
+        }
+
+        .portfolio-showcase-note {
+            color: var(--profile-text-soft);
+            font-size: 0.88rem;
+            margin-bottom: 1.15rem;
+        }
+
+        .portfolio-viewport {
+            overflow: hidden;
+        }
+
+        .portfolio-track {
+            display: flex;
+            gap: var(--portfolio-carousel-gap);
+            transition: transform 0.45s ease;
+            will-change: transform;
+        }
+
+        .portfolio-item {
+            flex: 0 0 calc((100% - (var(--portfolio-cards-per-view) - 1) * var(--portfolio-carousel-gap)) / var(--portfolio-cards-per-view));
+        }
+
+        .portfolio-card-button {
+            background: none;
+            border: 0;
+            display: block;
+            padding: 0;
+            text-align: left;
+            width: 100%;
+        }
+
+        .portfolio-card-button:focus-visible {
+            outline: none;
+        }
+
+        .portfolio-item-media {
+            background: var(--profile-surface);
+            border: 1px solid rgba(124, 108, 242, 0.08);
+            border-radius: 20px;
+            box-shadow: var(--profile-shadow-soft);
+            min-height: 320px;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .portfolio-card-button:hover .portfolio-item-media,
+        .portfolio-card-button:focus-visible .portfolio-item-media {
+            box-shadow: 0 18px 32px rgba(113, 142, 198, 0.16);
+            transform: translateY(-4px);
+        }
+
+        .portfolio-card-button:focus-visible .portfolio-item-media {
+            box-shadow:
+                0 0 0 3px rgba(124, 108, 242, 0.18),
+                0 18px 32px rgba(113, 142, 198, 0.16);
+        }
+
+        .portfolio-item-image {
+            display: block;
+            height: 320px;
+            object-fit: cover;
+            transition: transform 0.22s ease;
+            width: 100%;
+        }
+
+        .portfolio-item-overlay {
+            background: linear-gradient(180deg, rgba(22, 31, 46, 0.10) 8%, rgba(22, 31, 46, 0.72) 100%);
+            inset: 0;
+            opacity: 0.46;
+            position: absolute;
+            transition: opacity 0.22s ease;
+        }
+
+        .portfolio-item-content {
+            bottom: 0;
+            color: #FFFFFF;
+            left: 0;
+            padding: 1.15rem;
+            position: absolute;
+            right: 0;
+            transform: translateY(18px);
+            transition: transform 0.22s ease, opacity 0.22s ease;
+            z-index: 1;
+            opacity: 0;
+        }
+
+        .portfolio-card-button:hover .portfolio-item-image,
+        .portfolio-card-button:focus-visible .portfolio-item-image {
+            transform: scale(1.04);
+        }
+
+        .portfolio-card-button:hover .portfolio-item-overlay,
+        .portfolio-card-button:focus-visible .portfolio-item-overlay {
+            opacity: 1;
+        }
+
+        .portfolio-card-button:hover .portfolio-item-content,
+        .portfolio-card-button:focus-visible .portfolio-item-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .portfolio-item-badge {
+            background: rgba(247, 244, 238, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.42);
+            border-radius: 999px;
+            color: #5D6E72;
+            display: inline-flex;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            padding: 0.34rem 0.62rem;
+        }
+
+        .portfolio-item-title {
+            color: #FFFFFF;
+            font-size: 1.18rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            text-shadow: 0 2px 8px rgba(20, 30, 34, 0.28);
+        }
+
+        .portfolio-item-meta {
+            color: rgba(255, 255, 255, 0.9);
+            display: -webkit-box;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            margin-bottom: 0;
+            overflow: hidden;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            text-shadow: 0 2px 8px rgba(20, 30, 34, 0.24);
+        }
+
+        .portfolio-empty {
+            align-items: center;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 100%);
+            border: 1px dashed rgba(124, 108, 242, 0.18);
+            border-radius: 18px;
+            color: var(--profile-text-soft);
+            display: flex;
+            justify-content: center;
+            min-height: 220px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .page-profile.portfolio-lightbox-open {
+            overflow: hidden;
+        }
+
+        .portfolio-lightbox[hidden] {
+            display: none !important;
+        }
+
+        .portfolio-lightbox {
+            align-items: center;
+            display: flex;
+            inset: 0;
+            justify-content: center;
+            padding: 1.25rem;
+            position: fixed;
+            z-index: 1080;
+        }
+
+        .portfolio-lightbox__scrim {
+            background: rgba(17, 24, 39, 0.68);
+            backdrop-filter: blur(6px);
+            inset: 0;
+            position: absolute;
+        }
+
+        .portfolio-lightbox__dialog {
+            background: #FFFFFF;
+            border: 1px solid rgba(124, 108, 242, 0.10);
+            border-radius: 24px;
+            box-shadow: 0 26px 64px rgba(17, 24, 39, 0.22);
+            max-width: min(960px, 100%);
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            z-index: 1;
+        }
+
+        .portfolio-lightbox__close {
+            align-items: center;
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(124, 108, 242, 0.12);
+            border-radius: 999px;
+            color: var(--profile-text);
+            display: inline-flex;
+            font-size: 1.4rem;
+            height: 44px;
+            justify-content: center;
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            width: 44px;
+            z-index: 2;
+        }
+
+        .portfolio-lightbox__close:hover,
+        .portfolio-lightbox__close:focus {
+            background: #FFFFFF;
+            color: var(--profile-lavender-deep);
+        }
+
+        .portfolio-lightbox__frame {
+            background: linear-gradient(180deg, #F5F9FF 0%, #EEF2FF 100%);
+            padding: 1.1rem 1.1rem 0;
+        }
+
+        .portfolio-lightbox__image {
+            border-radius: 18px;
+            display: block;
+            margin: 0 auto;
+            max-height: 68vh;
+            object-fit: contain;
+            width: 100%;
+        }
+
+        .portfolio-lightbox__body {
+            padding: 1.45rem 1.55rem 1.6rem;
+        }
+
+        .portfolio-lightbox__topline {
+            align-items: center;
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-bottom: 0.95rem;
+        }
+
+        .portfolio-lightbox__eyebrow {
+            background: var(--profile-lavender-soft);
+            border-radius: 999px;
+            color: var(--profile-lavender-deep);
+            display: inline-flex;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 0.42rem 0.72rem;
+            text-transform: uppercase;
+        }
+
+        .portfolio-lightbox__controls {
+            display: flex;
+            gap: 0.65rem;
+        }
+
+        .portfolio-lightbox__counter {
+            color: var(--profile-text-soft);
+            font-size: 0.86rem;
+            margin-bottom: 0.55rem;
+        }
+
+        .portfolio-lightbox__title {
+            font-size: clamp(1.4rem, 3vw, 1.9rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.55rem;
+        }
+
+        .portfolio-lightbox__description {
+            color: var(--profile-text-soft);
+            line-height: 1.72;
+            margin-bottom: 0;
+        }
+
+        .reviews-showcase {
+            --reviews-cards-per-view: 3;
+            --reviews-carousel-gap: 1.15rem;
+        }
+
+        .reviews-showcase .card-body {
+            padding: 1.75rem;
+        }
+
+        .reviews-showcase-header {
+            align-items: end;
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-bottom: 0.85rem;
+        }
+
+        .reviews-showcase-controls {
+            display: flex;
+            gap: 0.7rem;
+        }
+
+        .reviews-intro {
+            color: var(--profile-text-soft);
+            font-size: 0.9rem;
+            margin-bottom: 1.1rem;
+        }
+
+        .reviews-sample-label {
+            background: linear-gradient(180deg, var(--profile-lavender-soft) 0%, #F7F5FF 100%);
+            border: 1px solid rgba(124, 108, 242, 0.10);
+            border-radius: 999px;
+            color: var(--profile-lavender-deep);
+            display: inline-flex;
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            margin-bottom: 1rem;
+            padding: 0.38rem 0.68rem;
+            text-transform: uppercase;
+        }
+
+        .review-form-shell {
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 100%);
+            border: 1px solid rgba(124, 108, 242, 0.08);
+            border-radius: 18px;
+            box-shadow: 0 10px 24px rgba(113, 142, 198, 0.08);
+            margin-bottom: 1.35rem;
+            padding: 1.2rem;
+        }
+
+        .review-form-grid {
+            display: grid;
+            gap: 0.95rem;
+        }
+
+        .review-form-shell textarea.form-control {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .review-form-actions {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.85rem;
+            justify-content: space-between;
+        }
+
+        .review-form-note {
+            color: var(--profile-text-soft);
+            font-size: 0.84rem;
+            margin: 0;
+        }
+
+        .review-form-status {
+            border-radius: 14px;
+            display: none;
+            font-size: 0.92rem;
+            margin-bottom: 1rem;
+            padding: 0.85rem 1rem;
+        }
+
+        .review-form-status.is-visible {
+            display: block;
+        }
+
+        .review-form-status.is-success {
+            background: rgba(116, 174, 234, 0.14);
+            border: 1px solid rgba(116, 174, 234, 0.20);
+            color: #365E8C;
+        }
+
+        .review-form-status.is-error {
+            background: rgba(220, 89, 89, 0.10);
+            border: 1px solid rgba(220, 89, 89, 0.16);
+            color: #9B4343;
+        }
+
+        .reviews-empty {
+            align-items: center;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 100%);
+            border: 1px dashed rgba(124, 108, 242, 0.18);
+            border-radius: 18px;
+            color: var(--profile-text-soft);
+            display: flex;
+            justify-content: center;
+            min-height: 180px;
+            padding: 1.4rem;
+            text-align: center;
+        }
+
+        .reviews-carousel[hidden] {
+            display: none !important;
+        }
+
+        .reviews-viewport {
+            overflow: hidden;
+        }
+
+        .reviews-track {
+            display: flex;
+            gap: var(--reviews-carousel-gap);
+            transition: transform 0.45s ease;
+            will-change: transform;
+        }
+
+        .review-item {
+            flex: 0 0 calc((100% - (var(--reviews-cards-per-view) - 1) * var(--reviews-carousel-gap)) / var(--reviews-cards-per-view));
+        }
+
+        .review-card {
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 100%);
+            border: 1px solid rgba(124, 108, 242, 0.08);
+            border-radius: 20px;
+            box-shadow: var(--profile-shadow-soft);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 260px;
+            padding: 1.2rem;
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .review-card:hover {
+            box-shadow: 0 18px 30px rgba(113, 142, 198, 0.14);
+            transform: translateY(-4px);
+        }
+
+        .review-card-head {
+            align-items: center;
+            display: flex;
+            gap: 0.85rem;
+            margin-bottom: 0.95rem;
+        }
+
+        .review-card-avatar {
+            border: 2px solid rgba(255, 255, 255, 0.92);
+            border-radius: 50%;
+            box-shadow: 0 8px 18px rgba(113, 142, 198, 0.12);
+            flex: 0 0 54px;
+            height: 54px;
+            object-fit: cover;
+            width: 54px;
+        }
+
+        .review-card-name {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.18rem;
+        }
+
+        .review-card-date {
+            color: var(--profile-text-soft);
+            font-size: 0.84rem;
+        }
+
+        .review-card-title {
+            color: var(--profile-lavender-deep);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.55rem;
+        }
+
+        .review-card-comment {
+            color: #55627E;
+            flex: 1;
+            line-height: 1.72;
+            margin-bottom: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .review-card-footer {
+            color: var(--profile-text-soft);
+            font-size: 0.84rem;
+            margin-top: 1rem;
+        }
+
+        @media (hover: none), (pointer: coarse) {
+            .portfolio-item-overlay {
+                opacity: 1;
+            }
+
+            .portfolio-item-content {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .about-copy {
+            color: #55627E;
+            font-size: 0.99rem;
+            line-height: 1.72;
+            margin-bottom: 1.35rem;
+        }
+
+        .contact-card {
+            background: linear-gradient(135deg, rgba(251, 244, 235, 0.88) 0%, rgba(255, 255, 255, 0.96) 100%);
+            border: 1px solid rgba(214, 189, 157, 0.30);
+            border-radius: 16px;
+            padding: 1.05rem 1.1rem;
+            box-shadow: 0 10px 20px rgba(163, 151, 137, 0.08);
+        }
+
+        .contact-label {
+            color: #907E69;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+        }
+
+        .contact-value {
+            color: var(--profile-text);
+            margin: 0;
+            word-break: break-word;
+        }
+
+        .entry-stack {
+            display: grid;
+            gap: 0.95rem;
+        }
+
+        .entry-card {
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 100%);
+            border: 1px solid rgba(124, 108, 242, 0.08);
+            border-radius: 16px;
+            padding: 1.02rem 1.05rem;
+            box-shadow: 0 10px 22px rgba(113, 142, 198, 0.07);
+        }
+
+        .entry-topline {
+            align-items: center;
+            display: flex;
+            gap: 0.8rem;
+            justify-content: space-between;
+            margin-bottom: 0.45rem;
+        }
+
+        .entry-link {
+            color: var(--profile-text);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .entry-link:hover,
+        .entry-link:focus {
+            color: var(--profile-lavender-deep);
+        }
+
+        .entry-badge {
+            background: linear-gradient(180deg, var(--profile-blue-soft) 0%, #F3F8FF 100%);
+            border-radius: 999px;
+            color: #4E75A4;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.38rem 0.74rem;
+            white-space: nowrap;
+        }
+
+        .entry-meta {
+            color: var(--profile-text-soft);
+            font-size: 0.9rem;
+            margin-bottom: 0.6rem;
         }
 
         .feedback-box {
-            background: #f8f9fa;
-            border-left: 4px solid #198754;
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
-            margin-top: 0.5rem;
+            background: linear-gradient(135deg, rgba(124, 108, 242, 0.07) 0%, rgba(169, 204, 255, 0.20) 100%);
+            border: 1px solid rgba(124, 108, 242, 0.08);
+            border-radius: 14px;
+            color: #55627E;
+            margin-top: 0.78rem;
+            padding: 0.9rem 1rem;
+        }
+
+        .feedback-box strong {
+            color: var(--profile-lavender-deep);
+        }
+
+        .page-profile .list-group {
+            gap: 0.8rem;
+        }
+
+        .page-profile .list-group-item {
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 100%);
+            border: 1px solid rgba(124, 108, 242, 0.08);
+            border-radius: 16px !important;
+            box-shadow: 0 8px 22px rgba(113, 142, 198, 0.06);
+            padding: 1rem 1.08rem;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background-color 0.22s ease;
+        }
+
+        .page-profile .list-group-item:hover,
+        .page-profile .list-group-item:focus {
+            background: #FFFFFF;
+            border-color: rgba(124, 108, 242, 0.16);
+            box-shadow: 0 16px 28px rgba(113, 142, 198, 0.10);
+            transform: translateY(-2px);
+        }
+
+        .status-badge {
+            background: linear-gradient(180deg, var(--profile-lavender-soft) 0%, #F6F3FF 100%);
+            border-radius: 999px;
+            color: var(--profile-lavender-deep);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            padding: 0.42rem 0.72rem;
+            text-transform: capitalize;
+        }
+
+        .status-badge.status-muted {
+            background: linear-gradient(180deg, var(--profile-beige-soft) 0%, #FFF9F2 100%);
+            color: #8A745D;
+        }
+
+        @media (max-width: 991.98px) {
+            .profile-hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                min-width: 0;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .page-profile .navbar-controls {
+                gap: 0.75rem;
+            }
+
+            .page-profile .nav-actions {
+                gap: 0.55rem;
+                justify-content: flex-start;
+            }
+
+            .page-profile .nav-btn {
+                font-size: 0.88rem;
+                padding: 0.72rem 0.95rem;
+            }
+
+            .profile-shell {
+                padding-top: 2rem;
+            }
+
+            .profile-hero {
+                border-radius: 24px;
+                padding: 1.35rem;
+            }
+
+            .profile-avatar {
+                height: 142px;
+                width: 142px;
+            }
+
+            .profile-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .section-card .card-body {
+                padding: 1.25rem;
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .portfolio-showcase .card-body {
+                padding: 1.35rem;
+            }
+
+            .reviews-showcase .card-body {
+                padding: 1.35rem;
+            }
+
+            .portfolio-showcase-header,
+            .portfolio-lightbox__topline,
+            .reviews-showcase-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .portfolio-showcase-controls,
+            .reviews-showcase-controls {
+                width: 100%;
+            }
+
+            .portfolio-item-media,
+            .portfolio-item-image {
+                min-height: 280px;
+                height: 280px;
+            }
+
+            .portfolio-lightbox {
+                padding: 0.9rem;
+            }
+
+            .portfolio-lightbox__frame {
+                padding: 0.9rem 0.9rem 0;
+            }
+
+            .portfolio-lightbox__body {
+                padding: 1.2rem;
+            }
+
+            .review-form-actions {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .entry-topline {
+                align-items: flex-start;
+                flex-direction: column;
+            }
         }
     </style>
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<body class="page-profile" data-profile-user-id="<%= profileUser.id %>" data-can-review="<%= !isOwnProfile %>" data-is-own-profile="<%= isOwnProfile %>">
+<%
+    const displayName = profileUser.display_name || profileUser.username;
+    const portfolioImages = [
+        profileUser.portfolio_image_1,
+        profileUser.portfolio_image_2,
+        profileUser.portfolio_image_3
+    ].filter(img => img && img.trim() !== "");
+    const portfolioSourceText = (profileUser.about
+        || profileUser.bio
+        || `${displayName} shares selected work and recent creative collaborations on OtterGigs.`)
+        .replace(/\s+/g, " ")
+        .trim();
+    const portfolioShortText = portfolioSourceText.length > 96
+        ? `${portfolioSourceText.slice(0, 93).trim()}...`
+        : portfolioSourceText;
+    const portfolioItems = portfolioImages.map((img, index) => ({
+        image: img,
+        title: `Selected Work ${String(index + 1).padStart(2, "0")}`,
+        shortDescription: portfolioShortText,
+        fullDescription: `${displayName}${profileUser.location ? ` from ${profileUser.location}` : ""} shares this featured portfolio piece as part of a curated OtterGigs showcase. ${portfolioSourceText}`
+    }));
+    const completedGigCount = completedGigs ? completedGigs.length : 0;
+    const completedPitchCount = completedPitches ? completedPitches.length : 0;
+    const activePostingCount = (postedGigs ? postedGigs.length : 0) + (postedPitches ? postedPitches.length : 0);
+%>
+<nav class="navbar navbar-expand-lg profile-navbar">
     <div class="container">
+        <div class="navbar-controls">
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: typeof user !== "undefined" && user ? user.profile_image_url : null }) %>
+            <%- include("partials/navActions.ejs") %>
+        </div>
+
         <a class="navbar-brand fw-bold" href="/home">
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
         </a>
-
-        <div class="navbar-controls">
-            <%- include("partials/navActions.ejs") %>
-            <% if (isOwnProfile) { %>
-                <%- include("partials/navProfileButton.ejs", { profileImageUrl: profileUser && profileUser.profile_image_url }) %>
-            <% } %>
-        </div>
     </div>
 </nav>
 
@@ -53,88 +1147,158 @@
     <%- include("partials/userMenu.ejs", { user: profileUser }) %>
 <% } %>
 
-<div class="container py-5">
-    <div class="card profile-card mb-4">
-        <div class="card-body p-4 p-md-5">
-            <div class="row align-items-center g-4">
-                <div class="col-md-auto text-center">
-                    <img
-                        src="<%= profileUser.profile_image_url && profileUser.profile_image_url.trim() !== '' ? profileUser.profile_image_url : 'https://via.placeholder.com/150x150?text=Profile' %>"
-                        alt="Profile"
-                        class="profile-avatar"
-                    >
-                </div>
-
-                <div class="col">
-                    <h1 class="fw-bold mb-1"><%= profileUser.display_name || profileUser.username %></h1>
-                    <p class="text-muted text-capitalize mb-2"><%= profileUser.profile_type || 'individual' %></p>
-                    <p class="mb-2"><%= profileUser.bio || 'No bio added yet.' %></p>
-                    <p class="text-muted mb-3"><%= profileUser.location || 'Location not added' %></p>
-
-                    <% if (isOwnProfile) { %>
-                        <a href="/updateProfile" class="btn btn-primary">Edit Profile</a>
-                    <% } %>
-                </div>
+<div class="container profile-shell">
+    <section class="profile-hero mb-4 mb-lg-5">
+        <div class="profile-hero-grid">
+            <div class="profile-avatar-wrap">
+                <img
+                    src="<%= profileUser.profile_image_url && profileUser.profile_image_url.trim() !== '' ? profileUser.profile_image_url : 'https://via.placeholder.com/240x240?text=Profile' %>"
+                    alt="Profile"
+                    class="profile-avatar"
+                >
             </div>
-        </div>
-    </div>
 
-    <div class="row g-4">
-        <div class="col-lg-6">
-            <div class="card section-card h-100">
-                <div class="card-body p-4">
-                    <h3 class="fw-bold mb-3">About</h3>
-                    <p class="text-muted"><%= profileUser.about || 'No about section added yet.' %></p>
+            <div>
+                <h1 class="profile-title"><%= displayName %></h1>
+                <p class="profile-subtitle text-capitalize">
+                    <%= profileUser.profile_type || 'individual' %>
+                    <% if (profileUser.location) { %>
+                        <span class="mx-1">&middot;</span><%= profileUser.location %>
+                    <% } %>
+                </p>
+                <p class="profile-bio"><%= profileUser.bio || 'No bio added yet.' %></p>
+
+                <div class="hero-about">
+                    <p class="about-copy"><%= profileUser.about || 'No about section added yet.' %></p>
 
                     <% if (profileUser.contact_email) { %>
-                        <p class="mb-1"><strong>Contact:</strong> <%= profileUser.contact_email %></p>
+                        <div class="contact-card">
+                            <div class="contact-label">Contact Email</div>
+                            <p class="contact-value"><%= profileUser.contact_email %></p>
+                        </div>
+                    <% } %>
+                </div>
+
+                <div class="profile-actions">
+                    <% if (isOwnProfile) { %>
+                        <a href="/updateProfile" class="profile-btn-primary">Edit Profile</a>
+                    <% } %>
+                    <% if (profileUser.contact_email) { %>
+                        <a href="mailto:<%= profileUser.contact_email %>" class="profile-btn-secondary">Email Me</a>
                     <% } %>
                 </div>
             </div>
+
+            <div class="profile-summary">
+                <div class="summary-card">
+                    <div class="summary-label">Completed Gigs</div>
+                    <div class="summary-value"><%= completedGigCount %></div>
+                    <div class="summary-note">Verified gig work on the platform</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Completed Pitches</div>
+                    <div class="summary-value"><%= completedPitchCount %></div>
+                    <div class="summary-note">Finished collaborations and creative work</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Current Listings</div>
+                    <div class="summary-value"><%= activePostingCount %></div>
+                    <div class="summary-note">Posted gigs and pitches available now</div>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div class="col-lg-6">
-            <div class="card section-card h-100">
-                <div class="card-body p-4">
-                    <h3 class="fw-bold mb-3">Portfolio Images</h3>
-                    <div class="row g-3">
-                        <% const portfolioImages = [profileUser.portfolio_image_1, profileUser.portfolio_image_2, profileUser.portfolio_image_3].filter(Boolean); %>
+    <section class="card section-card portfolio-showcase mb-4 mb-lg-5" aria-labelledby="portfolio-title" data-portfolio-section>
+        <div class="card-body">
+            <div class="portfolio-showcase-header">
+                <div>
+                    <h2 id="portfolio-title" class="section-title mb-2">Check Out My Work!</h2>
+                </div>
 
-                        <% if (portfolioImages.length === 0) { %>
-                            <p class="text-muted mb-0">No portfolio images added yet.</p>
-                        <% } else { %>
-                            <% portfolioImages.forEach(img => { %>
-                                <div class="col-4">
-                                    <img src="<%= img %>" class="img-fluid rounded-3 border" style="height: 120px; width: 100%; object-fit: cover;" alt="Portfolio image">
-                                </div>
-                            <% }) %>
-                        <% } %>
+                <% if (portfolioItems.length > 0) { %>
+                    <div class="portfolio-showcase-controls" aria-label="Portfolio carousel controls">
+                        <button type="button" class="portfolio-nav" data-portfolio-prev aria-label="Show previous portfolio items">
+                            <span aria-hidden="true">&larr;</span>
+                        </button>
+                        <button type="button" class="portfolio-nav" data-portfolio-next aria-label="Show next portfolio items">
+                            <span aria-hidden="true">&rarr;</span>
+                        </button>
+                    </div>
+                <% } else { %>
+                    <span class="section-pill">No Images Yet</span>
+                <% } %>
+            </div>
+
+            <% if (portfolioItems.length > 0) { %>
+
+                <div class="portfolio-viewport">
+                    <div class="portfolio-track" data-portfolio-track>
+                        <% portfolioItems.forEach((item, index) => { %>
+                            <article class="portfolio-item" data-portfolio-card>
+                                <button
+                                    type="button"
+                                    class="portfolio-card-button"
+                                    data-portfolio-open
+                                    data-portfolio-index="<%= index %>"
+                                    data-portfolio-image="<%= item.image %>"
+                                    data-portfolio-title="<%= item.title %>"
+                                    data-portfolio-description="<%= item.fullDescription %>"
+                                    aria-label="Open <%= item.title %>"
+                                >
+                                    <div class="portfolio-item-media">
+                                        <img src="<%= item.image %>" alt="<%= item.title %>" class="portfolio-item-image">
+                                        <div class="portfolio-item-overlay"></div>
+
+                                        <div class="portfolio-item-content">
+                                            <span class="portfolio-item-badge">Featured Work</span>
+                                            <h3 class="portfolio-item-title"><%= item.title %></h3>
+                                            <p class="portfolio-item-meta"><%= item.shortDescription %></p>
+                                        </div>
+                                    </div>
+                                </button>
+                            </article>
+                        <% }) %>
                     </div>
                 </div>
-            </div>
+            <% } else { %>
+                <div class="portfolio-empty">Portfolio images will appear here once featured work is added to this profile.</div>
+            <% } %>
         </div>
+    </section>
 
+    <div class="row g-4 g-xl-5">
         <div class="col-lg-6">
             <div class="card section-card h-100">
-                <div class="card-body p-4">
-                    <h3 class="fw-bold mb-3">Completed Gigs</h3>
+                <div class="card-body">
+                    <div class="section-heading">
+                        <div>
+                            <h2 class="section-title">Completed Gigs</h2>
+                            <p class="section-kicker">Verified platform work and collaborator feedback.</p>
+                        </div>
+                        <span class="section-pill"><%= completedGigCount %> total</span>
+                    </div>
 
                     <% if (!completedGigs || completedGigs.length === 0) { %>
-                        <p class="text-muted mb-0">No completed gigs verified yet.</p>
+                        <p class="muted-copy">No completed gigs verified yet.</p>
                     <% } else { %>
-                        <% completedGigs.forEach(item => { %>
-                            <div class="border rounded-4 p-3 mb-3">
-                                <a href="/gigInfo/<%= item.gig_id %>" class="fw-semibold text-decoration-none"><%= item.title %></a>
-                                <div><small class="text-muted"><%= item.category || 'Misc' %></small></div>
-                                <div><small class="text-muted">Verified by <%= item.poster_name || item.poster_username %></small></div>
-                                <% if (item.feedback) { %>
-                                    <div class="feedback-box">
-                                        <strong>Feedback:</strong>
-                                        <div><%= item.feedback %></div>
+                        <div class="entry-stack">
+                            <% completedGigs.forEach(item => { %>
+                                <div class="entry-card">
+                                    <div class="entry-topline">
+                                        <a href="/gigInfo/<%= item.gig_id %>" class="entry-link"><%= item.title %></a>
+                                        <span class="entry-badge"><%= item.category || 'Misc' %></span>
                                     </div>
-                                <% } %>
-                            </div>
-                        <% }) %>
+                                    <div class="entry-meta">Verified by <%= item.poster_name || item.poster_username %></div>
+                                    <% if (item.feedback) { %>
+                                        <div class="feedback-box">
+                                            <strong>Feedback:</strong>
+                                            <div><%= item.feedback %></div>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            <% }) %>
+                        </div>
                     <% } %>
                 </div>
             </div>
@@ -142,25 +1306,35 @@
 
         <div class="col-lg-6">
             <div class="card section-card h-100">
-                <div class="card-body p-4">
-                    <h3 class="fw-bold mb-3">Completed Pitches</h3>
+                <div class="card-body">
+                    <div class="section-heading">
+                        <div>
+                            <h2 class="section-title">Completed Pitches</h2>
+                            <p class="section-kicker">Finished pitch work with trusted confirmations.</p>
+                        </div>
+                        <span class="section-pill"><%= completedPitchCount %> total</span>
+                    </div>
 
                     <% if (!completedPitches || completedPitches.length === 0) { %>
-                        <p class="text-muted mb-0">No completed pitches verified yet.</p>
+                        <p class="muted-copy">No completed pitches verified yet.</p>
                     <% } else { %>
-                        <% completedPitches.forEach(item => { %>
-                            <div class="border rounded-4 p-3 mb-3">
-                                <a href="/pitchInfo/<%= item.pitch_id %>" class="fw-semibold text-decoration-none"><%= item.title %></a>
-                                <div><small class="text-muted"><%= item.category || 'Misc' %></small></div>
-                                <div><small class="text-muted">Verified by <%= item.poster_name || item.poster_username %></small></div>
-                                <% if (item.feedback) { %>
-                                    <div class="feedback-box">
-                                        <strong>Feedback:</strong>
-                                        <div><%= item.feedback %></div>
+                        <div class="entry-stack">
+                            <% completedPitches.forEach(item => { %>
+                                <div class="entry-card">
+                                    <div class="entry-topline">
+                                        <a href="/pitchInfo/<%= item.pitch_id %>" class="entry-link"><%= item.title %></a>
+                                        <span class="entry-badge"><%= item.category || 'Misc' %></span>
                                     </div>
-                                <% } %>
-                            </div>
-                        <% }) %>
+                                    <div class="entry-meta">Verified by <%= item.poster_name || item.poster_username %></div>
+                                    <% if (item.feedback) { %>
+                                        <div class="feedback-box">
+                                            <strong>Feedback:</strong>
+                                            <div><%= item.feedback %></div>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            <% }) %>
+                        </div>
                     <% } %>
                 </div>
             </div>
@@ -168,20 +1342,26 @@
 
         <div class="col-lg-6">
             <div class="card section-card h-100">
-                <div class="card-body p-4">
-                    <h3 class="fw-bold mb-3">Posted Gigs</h3>
+                <div class="card-body">
+                    <div class="section-heading">
+                        <div>
+                            <h2 class="section-title">Posted Gigs</h2>
+                            <p class="section-kicker">Open opportunities currently listed on the profile.</p>
+                        </div>
+                        <span class="section-pill"><%= postedGigs ? postedGigs.length : 0 %> listed</span>
+                    </div>
 
                     <% if (!postedGigs || postedGigs.length === 0) { %>
-                        <p class="text-muted mb-0">No posted gigs yet.</p>
+                        <p class="muted-copy">No posted gigs yet.</p>
                     <% } else { %>
                         <div class="list-group">
                             <% postedGigs.forEach(gig => { %>
-                                <a href="/gigInfo/<%= gig.id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <a href="/gigInfo/<%= gig.id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3">
                                     <div>
                                         <div class="fw-semibold"><%= gig.title %></div>
                                         <small class="text-muted"><%= gig.category || 'Misc' %></small>
                                     </div>
-                                    <span class="badge bg-dark"><%= gig.status %></span>
+                                    <span class="status-badge"><%= gig.status %></span>
                                 </a>
                             <% }) %>
                         </div>
@@ -192,20 +1372,26 @@
 
         <div class="col-lg-6">
             <div class="card section-card h-100">
-                <div class="card-body p-4">
-                    <h3 class="fw-bold mb-3">Saved Gigs</h3>
+                <div class="card-body">
+                    <div class="section-heading">
+                        <div>
+                            <h2 class="section-title">Saved Gigs</h2>
+                            <p class="section-kicker">Pinned opportunities worth coming back to.</p>
+                        </div>
+                        <span class="section-pill"><%= savedGigs ? savedGigs.length : 0 %> saved</span>
+                    </div>
 
                     <% if (!savedGigs || savedGigs.length === 0) { %>
-                        <p class="text-muted mb-0">No saved gigs yet.</p>
+                        <p class="muted-copy">No saved gigs yet.</p>
                     <% } else { %>
                         <div class="list-group">
                             <% savedGigs.forEach(gig => { %>
-                                <a href="/gigInfo/<%= gig.id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <a href="/gigInfo/<%= gig.id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3">
                                     <div>
                                         <div class="fw-semibold"><%= gig.title %></div>
                                         <small class="text-muted"><%= gig.category || 'Misc' %></small>
                                     </div>
-                                    <span class="badge bg-secondary"><%= gig.status %></span>
+                                    <span class="status-badge status-muted"><%= gig.status %></span>
                                 </a>
                             <% }) %>
                         </div>
@@ -216,20 +1402,26 @@
 
         <div class="col-lg-6">
             <div class="card section-card h-100">
-                <div class="card-body p-4">
-                    <h3 class="fw-bold mb-3">Posted Pitches</h3>
+                <div class="card-body">
+                    <div class="section-heading">
+                        <div>
+                            <h2 class="section-title">Posted Pitches</h2>
+                            <p class="section-kicker">Live pitch requests and collaborations seeking replies.</p>
+                        </div>
+                        <span class="section-pill"><%= postedPitches ? postedPitches.length : 0 %> listed</span>
+                    </div>
 
                     <% if (!postedPitches || postedPitches.length === 0) { %>
-                        <p class="text-muted mb-0">No posted pitches yet.</p>
+                        <p class="muted-copy">No posted pitches yet.</p>
                     <% } else { %>
                         <div class="list-group">
                             <% postedPitches.forEach(pitch => { %>
-                                <a href="/pitchInfo/<%= pitch.id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <a href="/pitchInfo/<%= pitch.id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3">
                                     <div>
                                         <div class="fw-semibold"><%= pitch.title %></div>
                                         <small class="text-muted"><%= pitch.category || 'Misc' %></small>
                                     </div>
-                                    <span class="badge bg-dark"><%= pitch.status %></span>
+                                    <span class="status-badge"><%= pitch.status %></span>
                                 </a>
                             <% }) %>
                         </div>
@@ -240,20 +1432,26 @@
 
         <div class="col-lg-6">
             <div class="card section-card h-100">
-                <div class="card-body p-4">
-                    <h3 class="fw-bold mb-3">Saved Pitches</h3>
+                <div class="card-body">
+                    <div class="section-heading">
+                        <div>
+                            <h2 class="section-title">Saved Pitches</h2>
+                            <p class="section-kicker">Saved ideas and leads ready for a second look.</p>
+                        </div>
+                        <span class="section-pill"><%= savedPitches ? savedPitches.length : 0 %> saved</span>
+                    </div>
 
                     <% if (!savedPitches || savedPitches.length === 0) { %>
-                        <p class="text-muted mb-0">No saved pitches yet.</p>
+                        <p class="muted-copy">No saved pitches yet.</p>
                     <% } else { %>
                         <div class="list-group">
                             <% savedPitches.forEach(pitch => { %>
-                                <a href="/pitchInfo/<%= pitch.id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <a href="/pitchInfo/<%= pitch.id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3">
                                     <div>
                                         <div class="fw-semibold"><%= pitch.title %></div>
                                         <small class="text-muted"><%= pitch.category || 'Misc' %></small>
                                     </div>
-                                    <span class="badge bg-secondary"><%= pitch.status %></span>
+                                    <span class="status-badge status-muted"><%= pitch.status %></span>
                                 </a>
                             <% }) %>
                         </div>
@@ -262,7 +1460,104 @@
             </div>
         </div>
     </div>
+
+    <section class="card section-card reviews-showcase mt-4 mt-lg-5" aria-labelledby="reviews-title" data-reviews-section>
+        <div class="card-body">
+            <div class="reviews-showcase-header">
+                <div>
+                    <h2 id="reviews-title" class="section-title mb-2">Reviews</h2>
+                    <p class="section-kicker mb-0">Written feedback from people who have worked with this profile through OtterGigs.</p>
+                </div>
+
+                <div class="reviews-showcase-controls" aria-label="Reviews carousel controls">
+                    <button type="button" class="portfolio-nav" data-reviews-prev aria-label="Show previous reviews">
+                        <span aria-hidden="true">&larr;</span>
+                    </button>
+                    <button type="button" class="portfolio-nav" data-reviews-next aria-label="Show next reviews">
+                        <span aria-hidden="true">&rarr;</span>
+                    </button>
+                </div>
+            </div>
+
+            <p class="reviews-intro">Reviews are shown as short written comments with no ratings.</p>
+            <div class="reviews-sample-label" data-sample-reviews-label hidden>Sample Reviews</div>
+
+            <% if (!isOwnProfile) { %>
+                <div class="review-form-shell">
+                    <div class="review-form-status" data-review-status aria-live="polite"></div>
+
+                    <form class="review-form-grid" data-review-form>
+                        <div>
+                            <label for="review-title" class="form-label">Title</label>
+                            <input id="review-title" name="title" type="text" class="form-control" maxlength="120" placeholder="Optional headline for your review">
+                        </div>
+
+                        <div>
+                            <label for="review-comment" class="form-label">Comment</label>
+                            <textarea id="review-comment" name="comment" class="form-control" required maxlength="2000" placeholder="Share your experience working with this profile."></textarea>
+                        </div>
+
+                        <div class="review-form-actions">
+                            <p class="review-form-note">Your review will update if you submit another one for the same profile.</p>
+                            <button type="submit" class="profile-btn-primary" data-review-submit>Submit Review</button>
+                        </div>
+                    </form>
+                </div>
+            <% } %>
+
+            <div class="reviews-empty" data-reviews-empty>No reviews yet.</div>
+
+            <div class="reviews-carousel" data-reviews-carousel hidden>
+                <div class="reviews-viewport">
+                    <div class="reviews-track" data-reviews-track></div>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 
+<% if (portfolioItems.length > 0) { %>
+    <div class="portfolio-lightbox" data-portfolio-lightbox hidden>
+        <div class="portfolio-lightbox__scrim" data-portfolio-close></div>
+
+        <div
+            class="portfolio-lightbox__dialog"
+            data-portfolio-lightbox-dialog
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="portfolio-lightbox-title"
+            tabindex="-1"
+        >
+            <button type="button" class="portfolio-lightbox__close" data-portfolio-close aria-label="Close portfolio preview">&times;</button>
+
+            <div class="portfolio-lightbox__frame">
+                <img src="" alt="" class="portfolio-lightbox__image" data-portfolio-lightbox-image>
+            </div>
+
+            <div class="portfolio-lightbox__body">
+                <div class="portfolio-lightbox__topline">
+                    <span class="portfolio-lightbox__eyebrow">Portfolio</span>
+
+                    <% if (portfolioItems.length > 1) { %>
+                        <div class="portfolio-lightbox__controls" aria-label="Portfolio lightbox controls">
+                            <button type="button" class="portfolio-nav" data-portfolio-modal-prev aria-label="Show previous portfolio image">
+                                <span aria-hidden="true">&larr;</span>
+                            </button>
+                            <button type="button" class="portfolio-nav" data-portfolio-modal-next aria-label="Show next portfolio image">
+                                <span aria-hidden="true">&rarr;</span>
+                            </button>
+                        </div>
+                    <% } %>
+                </div>
+
+                <div class="portfolio-lightbox__counter" data-portfolio-lightbox-counter></div>
+                <h3 id="portfolio-lightbox-title" class="portfolio-lightbox__title" data-portfolio-lightbox-title></h3>
+                <p class="portfolio-lightbox__description" data-portfolio-lightbox-description></p>
+            </div>
+        </div>
+    </div>
+<% } %>
+
+<script src="/js/profilePage.js"></script>
 </body>
 </html>

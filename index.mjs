@@ -39,6 +39,140 @@ function requireLogin(req, res, next) {
     next();
 }
 
+const MONTEREY_AREA_COORDINATES = {
+    marina: {
+        key: 'marina',
+        label: 'Marina',
+        lat: 36.6844,
+        lng: -121.8022
+    },
+    monterey: {
+        key: 'monterey',
+        label: 'Monterey',
+        lat: 36.6002,
+        lng: -121.8947
+    },
+    seaside: {
+        key: 'seaside',
+        label: 'Seaside',
+        lat: 36.6111,
+        lng: -121.8516
+    },
+    salinas: {
+        key: 'salinas',
+        label: 'Salinas',
+        lat: 36.6777,
+        lng: -121.6555
+    },
+    pacific_grove: {
+        key: 'pacific_grove',
+        label: 'Pacific Grove',
+        lat: 36.6177,
+        lng: -121.9166
+    },
+    sand_city: {
+        key: 'sand_city',
+        label: 'Sand City',
+        lat: 36.6170,
+        lng: -121.8463
+    },
+    carmel: {
+        key: 'carmel',
+        label: 'Carmel',
+        lat: 36.5552,
+        lng: -121.9233
+    },
+    csumb: {
+        key: 'csumb',
+        label: 'CSUMB',
+        lat: 36.6533,
+        lng: -121.7989
+    }
+};
+
+function normalizeLocationToArea(locationText = '') {
+    const value = String(locationText).trim().toLowerCase();
+
+    if (!value) return null;
+
+    if (value.includes('csumb') || value.includes('campus') || value.includes('cal state monterey bay')) {
+        return MONTEREY_AREA_COORDINATES.csumb;
+    }
+
+    if (value.includes('marina')) {
+        return MONTEREY_AREA_COORDINATES.marina;
+    }
+
+    if (value.includes('monterey')) {
+        return MONTEREY_AREA_COORDINATES.monterey;
+    }
+
+    if (value.includes('seaside')) {
+        return MONTEREY_AREA_COORDINATES.seaside;
+    }
+
+    if (value.includes('salinas')) {
+        return MONTEREY_AREA_COORDINATES.salinas;
+    }
+
+    if (value.includes('pacific grove')) {
+        return MONTEREY_AREA_COORDINATES.pacific_grove;
+    }
+
+    if (value.includes('sand city')) {
+        return MONTEREY_AREA_COORDINATES.sand_city;
+    }
+
+    if (value.includes('carmel')) {
+        return MONTEREY_AREA_COORDINATES.carmel;
+    }
+
+    return null;
+}
+
+function groupMapRows(rows, type) {
+    const grouped = {};
+
+    for (const row of rows) {
+        const area = normalizeLocationToArea(row.location);
+
+        if (!area) {
+            continue;
+        }
+
+        if (!grouped[area.key]) {
+            grouped[area.key] = {
+                areaKey: area.key,
+                label: area.label,
+                lat: area.lat,
+                lng: area.lng,
+                count: 0,
+                type,
+                filterLocation: area.label,
+                items: []
+            };
+        }
+
+        grouped[area.key].count += 1;
+        grouped[area.key].items.push({
+            id: row.id,
+            title: row.title,
+            location: row.location,
+            category: row.category || '',
+            url: type === 'gig' ? `/gigInfo/${row.id}` : `/pitchInfo/${row.id}`
+        });
+    }
+
+    return Object.values(grouped).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+}
+
+function requireApiLogin(req, res, next) {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Authentication required.' });
+    }
+    next();
+}
+
 async function getCurrentUser(userId) {
     const sql = `
         SELECT id, username, display_name, profile_type, bio, about,
@@ -51,6 +185,31 @@ async function getCurrentUser(userId) {
     return rows.length > 0 ? rows[0] : null;
 }
 
+async function getVisibleProfileReviews(profileUserId) {
+    const sql = `
+        SELECT
+            pr.id,
+            pr.profile_user_id,
+            pr.reviewer_user_id,
+            pr.title,
+            pr.comment,
+            pr.created_at,
+            u.display_name,
+            u.username,
+            u.profile_image_url
+        FROM profile_reviews pr
+        JOIN userGig u ON pr.reviewer_user_id = u.id
+        WHERE pr.profile_user_id = ?
+          AND pr.is_visible = 1
+        ORDER BY pr.created_at DESC
+    `;
+
+    const [rows] = await pool.query(sql, [profileUserId]);
+    return rows;
+}
+
+app.get('/', (req, res) => {
+    res.render('index', {});
 app.get('/', async (req, res) => {
     const featuredBusinesses = [
         {
@@ -168,9 +327,9 @@ app.post('/signup', async (req, res) => {
             return res.json({ error: "Error: username already exists" });
         }
 
-        sql = `INSERT INTO userGig (username, password, is_admin)
-               VALUES (?, ?, ?)`;
-        sqlParams = [username, password, 0];
+        sql = `INSERT INTO userGig (username, password, is_admin, profile_image_url)
+               VALUES (?, ?, ?, ?)`;
+        sqlParams = [username, password, 0, '/img/defaultImage.jpg'];
 
         await pool.query(sql, sqlParams);
 
@@ -586,6 +745,8 @@ app.post('/updateGig/:id', requireLogin, async (req, res) => {
 
 app.get('/profile', requireLogin, async (req, res) => {
     try {
+        const user = await getCurrentUser(req.session.userId);
+
         const [users] = await pool.query(
             `SELECT *
              FROM userGig
@@ -670,6 +831,7 @@ app.get('/profile', requireLogin, async (req, res) => {
         );
 
         res.render('profile', {
+            user,
             profileUser: users[0],
             postedGigs,
             savedGigs,
@@ -688,6 +850,7 @@ app.get('/profile', requireLogin, async (req, res) => {
 app.get('/profile/:id', requireLogin, async (req, res) => {
     try {
         const profileId = req.params.id;
+        const user = await getCurrentUser(req.session.userId);
 
         const [users] = await pool.query(
             `SELECT *
@@ -759,6 +922,7 @@ app.get('/profile/:id', requireLogin, async (req, res) => {
         );
 
         res.render('profile', {
+            user,
             profileUser: users[0],
             postedGigs,
             savedGigs: [],
@@ -774,8 +938,103 @@ app.get('/profile/:id', requireLogin, async (req, res) => {
     }
 });
 
+app.get('/api/reviews/:profile_user_id', requireApiLogin, async (req, res) => {
+    const profileUserId = Number(req.params.profile_user_id);
+
+    if (!Number.isInteger(profileUserId) || profileUserId <= 0) {
+        return res.status(400).json({ error: 'Invalid profile user id.' });
+    }
+
+    try {
+        const reviews = await getVisibleProfileReviews(profileUserId);
+        res.json({ reviews });
+    } catch (err) {
+        console.error('Database error in GET /api/reviews/:profile_user_id:', err);
+        res.status(500).json({ error: 'Database error loading reviews.' });
+    }
+});
+
+app.post('/api/reviews', requireApiLogin, async (req, res) => {
+    const profileUserId = Number(req.body.profile_user_id);
+    const reviewerUserId = req.session.userId;
+    const rawTitle = typeof req.body.title === 'string' ? req.body.title : '';
+    const rawComment = typeof req.body.comment === 'string' ? req.body.comment : '';
+    const title = rawTitle.trim();
+    const comment = rawComment.trim();
+
+    if (!Number.isInteger(profileUserId) || profileUserId <= 0) {
+        return res.status(400).json({ error: 'Invalid profile user id.' });
+    }
+
+    if (!comment) {
+        return res.status(400).json({ error: 'Comment is required.' });
+    }
+
+    if (profileUserId === reviewerUserId) {
+        return res.status(400).json({ error: 'You cannot review your own profile.' });
+    }
+
+    try {
+        const [profileRows] = await pool.query(
+            `SELECT id
+             FROM userGig
+             WHERE id = ?`,
+            [profileUserId]
+        );
+
+        if (profileRows.length === 0) {
+            return res.status(404).json({ error: 'Profile not found.' });
+        }
+
+        const [existingRows] = await pool.query(
+            `SELECT id
+             FROM profile_reviews
+             WHERE profile_user_id = ?
+               AND reviewer_user_id = ?
+             LIMIT 1`,
+            [profileUserId, reviewerUserId]
+        );
+
+        let mode = 'created';
+
+        if (existingRows.length > 0) {
+            await pool.query(
+                `UPDATE profile_reviews
+                 SET title = ?,
+                     comment = ?,
+                     is_visible = 1,
+                     created_at = NOW()
+                 WHERE id = ?`,
+                [title || null, comment, existingRows[0].id]
+            );
+            mode = 'updated';
+        } else {
+            await pool.query(
+                `INSERT INTO profile_reviews
+                    (profile_user_id, reviewer_user_id, title, comment, is_visible, created_at)
+                 VALUES (?, ?, ?, ?, 1, NOW())`,
+                [profileUserId, reviewerUserId, title || null, comment]
+            );
+        }
+
+        const reviews = await getVisibleProfileReviews(profileUserId);
+
+        res.json({
+            success: true,
+            mode,
+            message: mode === 'updated' ? 'Review updated successfully.' : 'Review submitted successfully.',
+            reviews
+        });
+    } catch (err) {
+        console.error('Database error in POST /api/reviews:', err);
+        res.status(500).json({ error: 'Database error saving review.' });
+    }
+});
+
 app.get('/updateProfile', requireLogin, async (req, res) => {
     try {
+        const user = await getCurrentUser(req.session.userId);
+
         const [rows] = await pool.query(
             `SELECT *
              FROM userGig
@@ -784,6 +1043,7 @@ app.get('/updateProfile', requireLogin, async (req, res) => {
         );
 
         res.render('updateProfile', {
+            user,
             profileUser: rows[0]
         });
     } catch (err) {
@@ -1247,11 +1507,22 @@ app.get('/completeGig/:id', requireLogin, async (req, res) => {
         }
 
         const [users] = await pool.query(
-            `SELECT id, username, display_name, profile_type
-             FROM userGig
-             WHERE id != ?
-             ORDER BY COALESCE(display_name, username) ASC`,
-            [req.session.userId]
+            `SELECT
+                u.id,
+                u.username,
+                u.display_name,
+                u.profile_type,
+                CASE WHEN sg.id IS NOT NULL THEN 1 ELSE 0 END AS saved_this_gig,
+                sg.created_at AS saved_at
+             FROM userGig u
+             LEFT JOIN SavedGig sg
+                ON sg.user_id = u.id
+               AND sg.gig_id = ?
+             WHERE u.id != ?
+             ORDER BY
+                saved_this_gig DESC,
+                COALESCE(NULLIF(u.display_name, ''), u.username) ASC`,
+            [gigId, req.session.userId]
         );
 
         const user = await getCurrentUser(req.session.userId);
@@ -1324,11 +1595,19 @@ app.get('/completePitch/:id', requireLogin, async (req, res) => {
         }
 
         const [users] = await pool.query(
-            `SELECT id, username, display_name, profile_type
-             FROM userGig
-             WHERE id != ?
-             ORDER BY COALESCE(display_name, username) ASC`,
-            [req.session.userId]
+            `SELECT u.id,
+                    u.username,
+                    u.display_name,
+                    u.profile_type,
+                    CASE WHEN sp.user_id IS NOT NULL THEN 1 ELSE 0 END AS saved_this_pitch
+             FROM userGig u
+             LEFT JOIN SavedPitch sp
+                    ON sp.user_id = u.id
+                   AND sp.pitch_id = ?
+             WHERE u.id != ?
+             ORDER BY saved_this_pitch DESC,
+                      COALESCE(NULLIF(TRIM(u.display_name), ''), u.username) ASC`,
+            [pitchId, req.session.userId]
         );
 
         const user = await getCurrentUser(req.session.userId);
@@ -1382,6 +1661,46 @@ app.post('/completePitch/:id', requireLogin, async (req, res) => {
     } catch (err) {
         console.error('Database error in POST /completePitch/:id:', err);
         res.status(500).send('Database error completing pitch.');
+    }
+});
+
+app.get('/map', requireLogin, async (req, res) => {
+    try {
+        const user = await getCurrentUser(req.session.userId);
+
+        res.render('mapView', {
+            user
+        });
+    } catch (err) {
+        console.error('Database error in /map:', err);
+        res.status(500).send('Database error loading map page.');
+    }
+});
+
+app.get('/api/map-points', requireLogin, async (req, res) => {
+    const type = (req.query.type || 'gig').toLowerCase();
+
+    try {
+        if (type === 'pitch') {
+            const [rows] = await pool.query(
+                `SELECT id, title, category_skills AS category, location
+                 FROM Pitch
+                 WHERE status = 'Open'`
+            );
+
+            return res.json(groupMapRows(rows, 'pitch'));
+        }
+
+        const [rows] = await pool.query(
+            `SELECT id, title, category, location
+             FROM Gig
+             WHERE status = 'Open'`
+        );
+
+        return res.json(groupMapRows(rows, 'gig'));
+    } catch (err) {
+        console.error('Database error in /api/map-points:', err);
+        res.status(500).json({ error: 'Database error loading map points.' });
     }
 });
 

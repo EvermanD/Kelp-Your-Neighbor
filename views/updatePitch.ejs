@@ -13,19 +13,63 @@
             border-radius: 22px;
             box-shadow: 0 10px 24px rgba(0,0,0,0.08);
         }
+
+        .location-card {
+            background: linear-gradient(180deg, #f8fcff 0%, #eef7fb 100%);
+            border: 1px solid rgba(22, 50, 79, 0.08);
+            border-radius: 18px;
+            padding: 1rem;
+        }
+
+        .location-card-title {
+            font-weight: 700;
+            color: #16324f;
+            margin-bottom: 0.25rem;
+        }
+
+        .location-card-text {
+            color: #5b7083;
+            font-size: 0.95rem;
+            margin-bottom: 0;
+        }
+
+        .location-select,
+        .location-type-select {
+            min-height: 48px;
+            border-radius: 14px;
+        }
+
+        .location-hint-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .location-hint-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            background: #ffffff;
+            border: 1px solid rgba(22, 50, 79, 0.10);
+            color: #244b68;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
+        <div class="navbar-controls">
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
+            <%- include("partials/navActions.ejs") %>
+        </div>
+
         <a class="navbar-brand fw-bold" href="/home">
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
         </a>
-
-        <div class="navbar-controls">
-            <%- include("partials/navActions.ejs") %>
-            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
-        </div>
     </div>
 </nav>
 
@@ -67,20 +111,51 @@
                     </select>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label">Location</label>
-                    <input type="text" name="location" class="form-control" value="<%= pitch.location || '' %>">
+                <div class="col-12">
+                    <div class="location-card">
+                        <div class="mb-3">
+                            <h5 class="location-card-title">Update pitch location</h5>
+                            <p class="location-card-text">
+                                Standardized locations make your pitch easier to discover in filters and on the map.
+                            </p>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-7">
+                                <label class="form-label">Area</label>
+                                <select name="location" class="form-select location-select" required>
+                                    <option value="">Choose an area</option>
+                                    <option value="CSUMB" <%= pitch.location === 'CSUMB' ? 'selected' : '' %>>CSUMB</option>
+                                    <option value="Marina" <%= pitch.location === 'Marina' ? 'selected' : '' %>>Marina</option>
+                                    <option value="Monterey" <%= pitch.location === 'Monterey' ? 'selected' : '' %>>Monterey</option>
+                                    <option value="Seaside" <%= pitch.location === 'Seaside' ? 'selected' : '' %>>Seaside</option>
+                                    <option value="Salinas" <%= pitch.location === 'Salinas' ? 'selected' : '' %>>Salinas</option>
+                                    <option value="Pacific Grove" <%= pitch.location === 'Pacific Grove' ? 'selected' : '' %>>Pacific Grove</option>
+                                    <option value="Sand City" <%= pitch.location === 'Sand City' ? 'selected' : '' %>>Sand City</option>
+                                    <option value="Carmel" <%= pitch.location === 'Carmel' ? 'selected' : '' %>>Carmel</option>
+                                    <option value="Other Monterey County" <%= pitch.location === 'Other Monterey County' ? 'selected' : '' %>>Other Monterey County</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-5">
+                                <label class="form-label">Location Type</label>
+                                <select name="location_type" class="form-select location-type-select">
+                                    <option value="On-site" <%= pitch.location_type === 'On-site' ? 'selected' : '' %>>On-site</option>
+                                    <option value="Remote" <%= pitch.location_type === 'Remote' ? 'selected' : '' %>>Remote</option>
+                                    <option value="Hybrid" <%= pitch.location_type === 'Hybrid' ? 'selected' : '' %>>Hybrid</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="location-hint-list">
+                            <span class="location-hint-pill">Map Ready</span>
+                            <span class="location-hint-pill">Cleaner Data</span>
+                            <span class="location-hint-pill">Better UX</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label">Location Type</label>
-                    <select name="location_type" class="form-select">
-                        <option value="On-site" <%= pitch.location_type === 'On-site' ? 'selected' : '' %>>On-site</option>
-                        <option value="Remote" <%= pitch.location_type === 'Remote' ? 'selected' : '' %>>Remote</option>
-                        <option value="Hybrid" <%= pitch.location_type === 'Hybrid' ? 'selected' : '' %>>Hybrid</option>
-                    </select>
-                </div>
-
+                <!-- RATE + AVAILABILITY -->
                 <div class="col-md-4">
                     <label class="form-label">Rate Type</label>
                     <select name="rate_type" class="form-select">
@@ -105,6 +180,7 @@
                     <input type="text" name="availability" class="form-control" value="<%= pitch.availability || '' %>">
                 </div>
 
+                <!-- CONTACT + MEDIA -->
                 <div class="col-md-6">
                     <label class="form-label">Contact Email</label>
                     <input type="email" name="contact_email" class="form-control" value="<%= pitch.contact_email || '' %>">
@@ -120,6 +196,7 @@
                     <input type="text" name="image_url" class="form-control" value="<%= pitch.image_url || '' %>">
                 </div>
 
+                <!-- STATUS -->
                 <div class="col-md-6">
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
@@ -130,15 +207,18 @@
                     </select>
                 </div>
 
+                <!-- BEGINNER -->
                 <div class="col-md-6 d-flex align-items-end">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="beginner_friendly" value="1" id="beginnerFriendly" <%= pitch.beginner_friendly ? 'checked' : '' %>>
+                        <input class="form-check-input" type="checkbox" name="beginner_friendly" value="1" id="beginnerFriendly"
+                               <%= pitch.beginner_friendly ? 'checked' : '' %>>
                         <label class="form-check-label" for="beginnerFriendly">
                             Beginner Friendly
                         </label>
                     </div>
                 </div>
 
+                <!-- SUBMIT -->
                 <div class="col-12 d-flex gap-2">
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                     <a href="/pitchInfo/<%= pitch.id %>" class="btn btn-outline-secondary">Cancel</a>
