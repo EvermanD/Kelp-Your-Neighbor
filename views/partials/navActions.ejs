@@ -1,7 +1,23 @@
-<div class="nav-actions">
-    <a href="/findGig" class="nav-btn">Find Gig</a>
-    <a href="/findPitch" class="nav-btn">Find Pitch</a>
-    <a href="/map" class="nav-btn">Map</a>
-    <a href="/postGig" class="nav-btn">Post Gig</a>
-    <a href="/postPitch" class="nav-btn">Post Pitch</a>
+<div class="nav-actions d-flex align-items-center gap-2">
+    <a href="/home" class="nav-btn">Home</a>
+
+    <div class="dropdown">
+        <button class="nav-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Find
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/findGig">Find Gig</a></li>
+            <li><a class="dropdown-item" href="/findPitch">Find Pitch</a></li>
+        </ul>
+    </div>
+
+    <div class="dropdown">
+        <button class="nav-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Post
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/postGig">Post Gig</a></li>
+            <li><a class="dropdown-item" href="/postPitch">Post Pitch</a></li>
+        </ul>
+    </div>
 </div>
