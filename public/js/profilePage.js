@@ -556,3 +556,4 @@ function initReviewsSection(profileUserId, canReview, isOwnProfile) {
         }
     });
 }
+}
