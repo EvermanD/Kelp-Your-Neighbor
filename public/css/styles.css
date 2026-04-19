@@ -12,6 +12,12 @@
     --radius-card: 20px;
     --radius-control: 12px;
     --radius-pill: 999px;
+    --hero-transition-duration: 440ms;
+    --hero-transition-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@view-transition {
+    navigation: auto;
 }
 
 html {
@@ -1503,4 +1509,90 @@ a {
     color: #244b68;
     font-size: 0.85rem;
     font-weight: 600;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .hero-transition-card {
+        view-transition-name: hero-card-shared;
+    }
+
+    .hero-transition-title {
+        view-transition-name: hero-title-shared;
+    }
+
+    .hero-transition-subtitle {
+        view-transition-name: hero-subtitle-shared;
+    }
+
+    ::view-transition-old(hero-card-shared),
+    ::view-transition-new(hero-card-shared),
+    ::view-transition-old(hero-title-shared),
+    ::view-transition-new(hero-title-shared),
+    ::view-transition-old(hero-subtitle-shared),
+    ::view-transition-new(hero-subtitle-shared) {
+        animation-duration: var(--hero-transition-duration);
+        animation-timing-function: var(--hero-transition-ease);
+    }
+
+    ::view-transition-old(hero-card-shared),
+    ::view-transition-old(hero-title-shared),
+    ::view-transition-old(hero-subtitle-shared) {
+        animation-name: hero-transition-fade-out-up;
+    }
+
+    ::view-transition-new(hero-card-shared),
+    ::view-transition-new(hero-title-shared),
+    ::view-transition-new(hero-subtitle-shared) {
+        animation-name: hero-transition-fade-in-up;
+    }
+
+    body.hero-transition-fallback-active .hero-transition-card {
+        animation: hero-transition-fade-in-up var(--hero-transition-duration) var(--hero-transition-ease) both;
+    }
+
+    body.hero-transition-fallback-active .hero-transition-title {
+        animation: hero-transition-fade-in-up 420ms var(--hero-transition-ease) both;
+    }
+
+    body.hero-transition-fallback-active .hero-transition-subtitle {
+        animation: hero-transition-fade-in-up 440ms var(--hero-transition-ease) both;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-transition-card,
+    .hero-transition-title,
+    .hero-transition-subtitle {
+        view-transition-name: none;
+    }
+
+    body.hero-transition-fallback-active .hero-transition-card,
+    body.hero-transition-fallback-active .hero-transition-title,
+    body.hero-transition-fallback-active .hero-transition-subtitle {
+        animation: none;
+    }
+}
+
+@keyframes hero-transition-fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes hero-transition-fade-out-up {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
 }
