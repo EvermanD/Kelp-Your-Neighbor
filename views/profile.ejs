@@ -1132,16 +1132,14 @@
 %>
 <nav class="navbar navbar-expand-lg profile-navbar">
     <div class="container">
+        <div class="navbar-controls">
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: typeof user !== "undefined" && user ? user.profile_image_url : null }) %>
+            <%- include("partials/navActions.ejs") %>
+        </div>
+
         <a class="navbar-brand fw-bold" href="/home">
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
         </a>
-
-        <div class="navbar-controls">
-            <%- include("partials/navActions.ejs") %>
-            <% if (isOwnProfile) { %>
-                <%- include("partials/navProfileButton.ejs", { profileImageUrl: profileUser && profileUser.profile_image_url }) %>
-            <% } %>
-        </div>
     </div>
 </nav>
 
@@ -1474,6 +1472,7 @@
                 </div>
             </div>
 
+    
             <div class="reviews-sample-label" data-sample-reviews-label hidden>Sample Reviews</div>
 
             <% if (!isOwnProfile) { %>

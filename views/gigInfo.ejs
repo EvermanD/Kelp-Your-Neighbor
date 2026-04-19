@@ -43,19 +43,26 @@
             object-fit: cover;
             border-radius: 50%;
         }
+
+        .detail-sidebar {
+            background: rgba(252, 252, 250, 0.74);
+            border-radius: 22px;
+            border: 1px solid rgba(110, 147, 160, 0.18);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.04);
+        }
     </style>
 </head>
-<body class="page-find-gig">
+<body class="page-detail page-theme-gig">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
+        <div class="navbar-controls">
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: typeof user !== "undefined" && user ? user.profile_image_url : null }) %>
+            <%- include("partials/navActions.ejs") %>
+        </div>
+
         <a class="navbar-brand fw-bold" href="/home">
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
         </a>
-
-        <div class="navbar-controls">
-            <%- include("partials/navActions.ejs") %>
-            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
-        </div>
     </div>
 </nav>
 
@@ -72,7 +79,7 @@
         <div class="card-body p-4 p-md-5">
             <% const gigUrgencyLabel = gig.urgency || 'Open'; %>
             <% const gigUrgencyClass = gig.urgency === 'Urgent' ? 'gig-pill-urgent' : gig.urgency === 'High' ? 'gig-pill-high' : gig.urgency === 'Medium' ? 'gig-pill-medium' : 'gig-pill-low'; %>
-            <% const gigStatusClass = gig.status === 'Open' ? 'gig-pill-low' : gig.status === 'Closed' ? 'gig-pill-medium' : gig.status === 'Completed' ? 'gig-pill-beginner' : 'gig-pill-high'; %>
+            <% const gigStatusClass = gig.status === 'New' ? 'gig-pill-status-new' : gig.status === 'Filled' ? 'gig-pill-status-filled' : gig.status === 'Completed' ? 'gig-pill-status-completed' : gig.status === 'Closed' ? 'gig-pill-status-closed' : 'gig-pill-status-open'; %>
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                 <div>
                     <h1 class="fw-bold mb-2"><%= gig.title %></h1>
@@ -80,14 +87,14 @@
                 </div>
 
                 <div class="text-md-end">
-                    <span class="theme-pill info-pill gig-pill-category"><%= gig.category || 'Misc' %></span>
-                    <span class="theme-pill info-pill <%= gigUrgencyClass %>"><%= gigUrgencyLabel %></span>
+                    <span class="info-pill theme-pill gig-pill-category"><%= gig.category || 'Misc' %></span>
+                    <span class="info-pill theme-pill <%= gigUrgencyClass %>"><%= gigUrgencyLabel %></span>
 
                     <% if (gig.beginner_friendly) { %>
-                        <span class="theme-pill info-pill gig-pill-beginner">Beginner Friendly</span>
+                        <span class="info-pill theme-pill gig-pill-beginner">Beginner Friendly</span>
                     <% } %>
 
-                    <span class="theme-pill info-pill <%= gigStatusClass %>"><%= gig.status %></span>
+                    <span class="info-pill theme-pill <%= gigStatusClass %>"><%= gig.status %></span>
                 </div>
             </div>
 
@@ -117,7 +124,7 @@
                 </div>
 
                 <div class="col-lg-4">
-                    <div class="bg-light rounded-4 p-4 border">
+                    <div class="detail-sidebar p-4">
                         <h4 class="fw-bold mb-3">Gig Details</h4>
 
                         <p><strong>Looking For:</strong><br><span class="text-muted"><%= gig.looking_for %></span></p>

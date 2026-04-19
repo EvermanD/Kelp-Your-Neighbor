@@ -7,14 +7,14 @@
 <body class="page-find-pitch">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
+        <div class="navbar-controls">
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
+            <%- include("partials/navActions.ejs") %>
+        </div>
+
         <a class="navbar-brand fw-bold" href="/home">
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
         </a>
-
-        <div class="navbar-controls">
-            <%- include("partials/navActions.ejs") %>
-            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
-        </div>
     </div>
 </nav>
 
@@ -79,7 +79,11 @@
     <div class="row g-4 pitches-grid">
         <% pitches.forEach(pitch => { %>
             <div class="col-md-6 col-lg-4">
-                <div class="card pitch-card">
+                <div
+                    class="card pitch-card h-100"
+                    onclick="if (!event.target.closest('a, button')) window.location.href='/pitchInfo/<%= pitch.id %>';"
+                    style="cursor: pointer;"
+                >
                     <img
                         src="<%= pitch.image_url && pitch.image_url.trim() !== '' ? pitch.image_url : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80' %>"
                         alt="<%= pitch.title %>"

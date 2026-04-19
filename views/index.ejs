@@ -2,29 +2,167 @@
 <html lang="en">
 <head>
     <%- include("partials/head.ejs") %>
+    <title>OtterGigs | Welcome</title>
 </head>
-<body>
+<body class="page-home">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/home">
+            <img src="/img/logo.png" alt="OtterGigs" class="site-logo"/>
+        </a>
+    </div>
+</nav>
 
+<div class="row">
+
+</div>
 <div class="container mt-5">
-    <h1>OtterGig!</h1>
-    <div id="feedbackDiv" class="mb-2"></div>
-
-    <form id="loginForm" action="/login" method="POST" class="mt-4">
-        <div class="mb-3">
-            <label for="username">Username:</label>
-            <input type="text" name="username" id="username" class="form-control">
+    <div class="row">
+        <div class="col-8 local-businesses-shell">
+            <h1>Welcome to OtterGigs!</h1>
+            <p class="lead mb-2">
+                OtterGigs is a fast, hyperlocal gig board for the Monterey area designed to connect students and
+                creative talent with real opportunities right in their community.
+                Whether it’s a campus club needing a logo, a café looking for an artist, or a student seeking a
+                photographer,
+                OtterGigs makes it easy to post, discover, and respond to short-term creative gigs without the friction
+                of traditional freelance platforms.
+            </p>
         </div>
+        <div class="col">
+            <div class="card p-4 local-businesses-shell">
+                <h3 class="card-title">Login</h3>
 
-        <div class="mb-3">
-            <label for="password">Password:</label>
-            <input type="password" name="password" id="password" class="form-control">
+                <div id="feedbackDiv" class="mb-2"></div>
+
+                <form id="loginForm" action="/login" method="POST" class="mt-3">
+                    <div class="mb-3">
+                        <label for="username">Username:</label>
+                        <input type="text" name="username" id="username" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password">Password:</label>
+                        <input type="password" name="password" id="password" class="form-control">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <a href="/signup" class="btn btn-secondary">Sign Up</a>
+                </form>
+            </div>
         </div>
+    </div>
 
-        <button type="submit" class="btn btn-primary">Login</button>
-        <a href="/signup" class="btn btn-secondary">Sign Up</a>
-    </form>
+    <div class="row mt-5">
+        <section class="local-businesses-section" aria-labelledby="local-businesses-title">
+            <div class="local-businesses-shell">
+                <div class="local-businesses-header">
+                    <div>
+                        <p class="local-businesses-eyebrow mb-2">Community Spotlight</p>
+                        <h2 id="local-businesses-title" class="local-businesses-title mb-2">Explore Local Businesses</h2>
+                        <p class="local-businesses-subtitle mb-0">
+                            Discover local spots from Monterey, Pacific Grove, Marina, Seaside, and Carmel.
+                        </p>
+                    </div>
+
+                    <div class="local-businesses-controls" aria-label="Business carousel controls">
+                        <button type="button" class="local-businesses-control" data-carousel-prev aria-label="Show previous businesses">
+                            <span aria-hidden="true">&larr;</span>
+                        </button>
+                        <button type="button" class="local-businesses-control" data-carousel-next aria-label="Show next businesses">
+                            <span aria-hidden="true">&rarr;</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="local-businesses-carousel" data-business-carousel>
+                    <div class="local-businesses-viewport">
+                        <div class="local-businesses-track" data-carousel-track>
+                            <% featuredBusinesses.forEach((business) => { %>
+                                <article class="local-business-card" data-carousel-card>
+                                    <div class="local-business-card__media">
+                                        <img src="<%= business.imageUrl %>" alt="<%= business.name %>" class="local-business-card__image">
+                                        <div class="local-business-card__overlay"></div>
+
+                                        <div class="local-business-card__content">
+                                            <span class="local-business-card__badge">Sample local spot</span>
+                                            <h3 class="local-business-card__title"><%= business.name %></h3>
+                                            <p class="local-business-card__meta mb-0"><%= business.city %> • <%= business.type %></p>
+                                        </div>
+                                    </div>
+                                </article>
+                            <% }) %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="local-businesses-shell my-5">
+        <div class="row">
+            <div class="col">
+                <h2>Looking for freelance work?</h2>
+                <p class="lead">Here's some of what's available:</p>
+            </div>
+        </div>
+        <div class="row g-4 gigs-grid">
+            <% gigs.forEach(gig => { %>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card gig-card">
+                        <img
+                                src="<%= gig.image_url && gig.image_url.trim() !== '' ? gig.image_url : 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80' %>"
+                                alt="<%= gig.title %>"
+                                class="gig-image"
+                        >
+
+                        <div class="card-body d-flex flex-column">
+                            <% const gigUrgencyLabel = gig.urgency || 'Open'; %>
+                            <% const gigUrgencyClass = gig.urgency === 'Urgent' ? 'gig-pill-urgent' : gig.urgency === 'High' ? 'gig-pill-high' : gig.urgency === 'Medium' ? 'gig-pill-medium' : 'gig-pill-low'; %>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="theme-pill gig-pill-category"><%= gig.category || 'Misc' %></span>
+                                <span class="theme-pill <%= gigUrgencyClass %>"><%= gigUrgencyLabel %></span>
+                                <% if (gig.beginner_friendly) { %>
+                                    <span class="theme-pill gig-pill-beginner">Beginner Friendly</span>
+                                <% } %>
+                            </div>
+
+                            <h4 class="card-title fw-bold mb-3"><%= gig.title %></h4>
+
+                            <p class="card-meta mb-1"><strong>Looking for:</strong> <%= gig.looking_for %></p>
+                            <p class="card-meta mb-1">
+                                <strong>Location:</strong> <%= gig.location %> <%= gig.location_type ? '(' + gig.location_type + ')' : '' %>
+                            </p>
+                            <p class="card-meta mb-1"><strong>Budget:</strong> <%= gig.budget || 'Not listed' %></p>
+                            <p class="card-meta mb-3">
+                                <strong>Deadline:</strong> <%= gig.deadline ? new Date(gig.deadline).toLocaleDateString() : 'N/A' %>
+                            </p>
+
+                            <div class="card-description-panel mb-3">
+                                <p class="mb-0 description-text">
+                                    <%= gig.description.length > 120 ? gig.description.substring(0, 120) + '...' : gig.description %>
+                                </p>
+                            </div>
+
+                            <div class="mt-auto d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                                <a href="/profile/<%= gig.user_id %>" class="poster-chip">
+                                    <img
+                                            src="<%= gig.profile_image_url && gig.profile_image_url.trim() !== '' ? gig.profile_image_url : 'https://via.placeholder.com/40x40?text=U' %>"
+                                            alt="Poster"
+                                            class="poster-avatar"
+                                    >
+                                    <small class="fw-semibold"><%= gig.display_name || gig.organization_name || 'User' %></small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
 </div>
 
+<script src="/js/homeCarousel.js"></script>
 <script src="js/login.js"></script>
 </body>
 </html>

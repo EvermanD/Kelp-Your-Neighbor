@@ -39,6 +39,133 @@ function requireLogin(req, res, next) {
     next();
 }
 
+const MONTEREY_AREA_COORDINATES = {
+    marina: {
+        key: 'marina',
+        label: 'Marina',
+        lat: 36.6844,
+        lng: -121.8022
+    },
+    monterey: {
+        key: 'monterey',
+        label: 'Monterey',
+        lat: 36.6002,
+        lng: -121.8947
+    },
+    seaside: {
+        key: 'seaside',
+        label: 'Seaside',
+        lat: 36.6111,
+        lng: -121.8516
+    },
+    salinas: {
+        key: 'salinas',
+        label: 'Salinas',
+        lat: 36.6777,
+        lng: -121.6555
+    },
+    pacific_grove: {
+        key: 'pacific_grove',
+        label: 'Pacific Grove',
+        lat: 36.6177,
+        lng: -121.9166
+    },
+    sand_city: {
+        key: 'sand_city',
+        label: 'Sand City',
+        lat: 36.6170,
+        lng: -121.8463
+    },
+    carmel: {
+        key: 'carmel',
+        label: 'Carmel',
+        lat: 36.5552,
+        lng: -121.9233
+    },
+    csumb: {
+        key: 'csumb',
+        label: 'CSUMB',
+        lat: 36.6533,
+        lng: -121.7989
+    }
+};
+
+function normalizeLocationToArea(locationText = '') {
+    const value = String(locationText).trim().toLowerCase();
+
+    if (!value) return null;
+
+    if (value.includes('csumb') || value.includes('campus') || value.includes('cal state monterey bay')) {
+        return MONTEREY_AREA_COORDINATES.csumb;
+    }
+
+    if (value.includes('marina')) {
+        return MONTEREY_AREA_COORDINATES.marina;
+    }
+
+    if (value.includes('monterey')) {
+        return MONTEREY_AREA_COORDINATES.monterey;
+    }
+
+    if (value.includes('seaside')) {
+        return MONTEREY_AREA_COORDINATES.seaside;
+    }
+
+    if (value.includes('salinas')) {
+        return MONTEREY_AREA_COORDINATES.salinas;
+    }
+
+    if (value.includes('pacific grove')) {
+        return MONTEREY_AREA_COORDINATES.pacific_grove;
+    }
+
+    if (value.includes('sand city')) {
+        return MONTEREY_AREA_COORDINATES.sand_city;
+    }
+
+    if (value.includes('carmel')) {
+        return MONTEREY_AREA_COORDINATES.carmel;
+    }
+
+    return null;
+}
+
+function groupMapRows(rows, type) {
+    const grouped = {};
+
+    for (const row of rows) {
+        const area = normalizeLocationToArea(row.location);
+
+        if (!area) {
+            continue;
+        }
+
+        if (!grouped[area.key]) {
+            grouped[area.key] = {
+                areaKey: area.key,
+                label: area.label,
+                lat: area.lat,
+                lng: area.lng,
+                count: 0,
+                type,
+                filterLocation: area.label,
+                items: []
+            };
+        }
+
+        grouped[area.key].count += 1;
+        grouped[area.key].items.push({
+            id: row.id,
+            title: row.title,
+            location: row.location,
+            category: row.category || '',
+            url: type === 'gig' ? `/gigInfo/${row.id}` : `/pitchInfo/${row.id}`
+        });
+    }
+
+    return Object.values(grouped).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+}
+
 function requireApiLogin(req, res, next) {
     if (!req.session.userId) {
         return res.status(401).json({ error: 'Authentication required.' });
@@ -81,8 +208,92 @@ async function getVisibleProfileReviews(profileUserId) {
     return rows;
 }
 
-app.get('/', (req, res) => {
-    res.render('index', {});
+app.get('/', async (req, res) => {
+    const featuredBusinesses = [
+        {
+            name: "Cypress Coast Coffee",
+            city: "Monterey",
+            type: "Sample coffee shop",
+            imageUrl: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Lighthouse Letterpress",
+            city: "Pacific Grove",
+            type: "Sample bookstore",
+            imageUrl: "https://images.unsplash.com/photo-1526243741027-444d633d7365?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Marina Salt & Butter",
+            city: "Marina",
+            type: "Sample bakery",
+            imageUrl: "https://images.unsplash.com/photo-1517433670267-08bbd4be890f?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Sandbar Social Kitchen",
+            city: "Seaside",
+            type: "Sample restaurant",
+            imageUrl: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Carmel Tide Gallery",
+            city: "Carmel",
+            type: "Sample art gallery",
+            imageUrl: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Wharf & Bloom Boutique",
+            city: "Monterey",
+            type: "Sample boutique",
+            imageUrl: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Ocean Porch Market",
+            city: "Pacific Grove",
+            type: "Sample neighborhood cafe",
+            imageUrl: "https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=1200&q=80"
+        }
+    ];
+
+    let search = req.query.search || '';
+    let category = req.query.category || '';
+    let location = req.query.location || '';
+    let urgency = req.query.urgency || '';
+    let beginner = req.query.beginner || '';
+
+    try {
+        let sql = `
+            SELECT g.id, g.title, g.description, g.category, g.looking_for, g.organization_name,
+                   g.location, g.location_type, g.budget, g.budget_min, g.budget_max,
+                   g.deadline, g.urgency, g.beginner_friendly, g.image_url, g.status,
+                   g.user_id, u.display_name, u.profile_image_url
+            FROM Gig g
+            JOIN userGig u ON g.user_id = u.id
+            WHERE g.status = 'Open'
+            ORDER BY g.created_at DESC
+            LIMIT 6
+        `;
+
+        let sqlParams = [];
+
+        const [gigs] = await pool.query(sql, sqlParams);
+        const user = await getCurrentUser(req.session.userId);
+
+        res.render('index', {
+            gigs,
+            filters: {
+                search,
+                category,
+                location,
+                urgency,
+                beginner
+            },
+            user,
+            featuredBusinesses
+        });
+    } catch (err) {
+        console.error('Database error in /:', err);
+        res.status(500).send('Database error loading gigs.');
+    }
 });
 
 app.get('/signup', (req, res) => {
@@ -114,9 +325,9 @@ app.post('/signup', async (req, res) => {
             return res.json({ error: "Error: username already exists" });
         }
 
-        sql = `INSERT INTO userGig (username, password, is_admin)
-               VALUES (?, ?, ?)`;
-        sqlParams = [username, password, 0];
+        sql = `INSERT INTO userGig (username, password, is_admin, profile_image_url)
+               VALUES (?, ?, ?, ?)`;
+        sqlParams = [username, password, 0, '/img/defaultImage.jpg'];
 
         await pool.query(sql, sqlParams);
 
@@ -301,6 +512,7 @@ app.get('/gigInfo/:id', requireLogin, async (req, res) => {
             gig,
             isSaved: savedRows.length > 0,
             isOwner: req.session.userId === gig.user_id,
+            theme: 'gig',
             user
         });
     } catch (err) {
@@ -532,6 +744,8 @@ app.post('/updateGig/:id', requireLogin, async (req, res) => {
 
 app.get('/profile', requireLogin, async (req, res) => {
     try {
+        const user = await getCurrentUser(req.session.userId);
+
         const [users] = await pool.query(
             `SELECT *
              FROM userGig
@@ -616,6 +830,7 @@ app.get('/profile', requireLogin, async (req, res) => {
         );
 
         res.render('profile', {
+            user,
             profileUser: users[0],
             postedGigs,
             savedGigs,
@@ -634,6 +849,7 @@ app.get('/profile', requireLogin, async (req, res) => {
 app.get('/profile/:id', requireLogin, async (req, res) => {
     try {
         const profileId = req.params.id;
+        const user = await getCurrentUser(req.session.userId);
 
         const [users] = await pool.query(
             `SELECT *
@@ -705,6 +921,7 @@ app.get('/profile/:id', requireLogin, async (req, res) => {
         );
 
         res.render('profile', {
+            user,
             profileUser: users[0],
             postedGigs,
             savedGigs: [],
@@ -815,6 +1032,8 @@ app.post('/api/reviews', requireApiLogin, async (req, res) => {
 
 app.get('/updateProfile', requireLogin, async (req, res) => {
     try {
+        const user = await getCurrentUser(req.session.userId);
+
         const [rows] = await pool.query(
             `SELECT *
              FROM userGig
@@ -823,6 +1042,7 @@ app.get('/updateProfile', requireLogin, async (req, res) => {
         );
 
         res.render('updateProfile', {
+            user,
             profileUser: rows[0]
         });
     } catch (err) {
@@ -1019,6 +1239,7 @@ app.get('/pitchInfo/:id', requireLogin, async (req, res) => {
             pitch,
             isSaved: savedRows.length > 0,
             isOwner: req.session.userId === pitch.user_id,
+            theme: 'pitch',
             user
         });
     } catch (err) {
@@ -1286,11 +1507,22 @@ app.get('/completeGig/:id', requireLogin, async (req, res) => {
         }
 
         const [users] = await pool.query(
-            `SELECT id, username, display_name, profile_type
-             FROM userGig
-             WHERE id != ?
-             ORDER BY COALESCE(display_name, username) ASC`,
-            [req.session.userId]
+            `SELECT
+                u.id,
+                u.username,
+                u.display_name,
+                u.profile_type,
+                CASE WHEN sg.id IS NOT NULL THEN 1 ELSE 0 END AS saved_this_gig,
+                sg.created_at AS saved_at
+             FROM userGig u
+             LEFT JOIN SavedGig sg
+                ON sg.user_id = u.id
+               AND sg.gig_id = ?
+             WHERE u.id != ?
+             ORDER BY
+                saved_this_gig DESC,
+                COALESCE(NULLIF(u.display_name, ''), u.username) ASC`,
+            [gigId, req.session.userId]
         );
 
         const user = await getCurrentUser(req.session.userId);
@@ -1363,11 +1595,19 @@ app.get('/completePitch/:id', requireLogin, async (req, res) => {
         }
 
         const [users] = await pool.query(
-            `SELECT id, username, display_name, profile_type
-             FROM userGig
-             WHERE id != ?
-             ORDER BY COALESCE(display_name, username) ASC`,
-            [req.session.userId]
+            `SELECT u.id,
+                    u.username,
+                    u.display_name,
+                    u.profile_type,
+                    CASE WHEN sp.user_id IS NOT NULL THEN 1 ELSE 0 END AS saved_this_pitch
+             FROM userGig u
+             LEFT JOIN SavedPitch sp
+                    ON sp.user_id = u.id
+                   AND sp.pitch_id = ?
+             WHERE u.id != ?
+             ORDER BY saved_this_pitch DESC,
+                      COALESCE(NULLIF(TRIM(u.display_name), ''), u.username) ASC`,
+            [pitchId, req.session.userId]
         );
 
         const user = await getCurrentUser(req.session.userId);
@@ -1421,6 +1661,46 @@ app.post('/completePitch/:id', requireLogin, async (req, res) => {
     } catch (err) {
         console.error('Database error in POST /completePitch/:id:', err);
         res.status(500).send('Database error completing pitch.');
+    }
+});
+
+app.get('/map', requireLogin, async (req, res) => {
+    try {
+        const user = await getCurrentUser(req.session.userId);
+
+        res.render('mapView', {
+            user
+        });
+    } catch (err) {
+        console.error('Database error in /map:', err);
+        res.status(500).send('Database error loading map page.');
+    }
+});
+
+app.get('/api/map-points', requireLogin, async (req, res) => {
+    const type = (req.query.type || 'gig').toLowerCase();
+
+    try {
+        if (type === 'pitch') {
+            const [rows] = await pool.query(
+                `SELECT id, title, category_skills AS category, location
+                 FROM Pitch
+                 WHERE status = 'Open'`
+            );
+
+            return res.json(groupMapRows(rows, 'pitch'));
+        }
+
+        const [rows] = await pool.query(
+            `SELECT id, title, category, location
+             FROM Gig
+             WHERE status = 'Open'`
+        );
+
+        return res.json(groupMapRows(rows, 'gig'));
+    } catch (err) {
+        console.error('Database error in /api/map-points:', err);
+        res.status(500).json({ error: 'Database error loading map points.' });
     }
 });
 

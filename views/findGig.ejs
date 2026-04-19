@@ -7,14 +7,14 @@
 <body class="page-find-gig">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
+        <div class="navbar-controls">
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
+            <%- include("partials/navActions.ejs") %>
+        </div>
+
         <a class="navbar-brand fw-bold" href="/home">
             <img src="/img/logo.png" alt="OtterGigs" class="site-logo" />
         </a>
-
-        <div class="navbar-controls">
-            <%- include("partials/navActions.ejs") %>
-            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
-        </div>
     </div>
 </nav>
 
@@ -90,7 +90,11 @@
     <div class="row g-4 gigs-grid">
         <% gigs.forEach(gig => { %>
             <div class="col-md-6 col-lg-4">
-                <div class="card gig-card">
+                <div
+                    class="card gig-card h-100"
+                    onclick="if (!event.target.closest('a, button')) window.location.href='/gigInfo/<%= gig.id %>';"
+                    style="cursor: pointer;"
+                >
                     <img
                         src="<%= gig.image_url && gig.image_url.trim() !== '' ? gig.image_url : 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80' %>"
                         alt="<%= gig.title %>"
