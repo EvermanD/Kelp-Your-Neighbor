@@ -145,14 +145,14 @@
                             </div>
 
                             <div class="mt-auto d-flex justify-content-between align-items-center gap-2 flex-wrap">
-                                <a href="/profile/<%= gig.user_id %>" class="poster-chip">
+                                <div class="poster-chip">
                                     <img
                                             src="<%= gig.profile_image_url && gig.profile_image_url.trim() !== '' ? gig.profile_image_url : 'https://via.placeholder.com/40x40?text=U' %>"
                                             alt="Poster"
                                             class="poster-avatar"
                                     >
                                     <small class="fw-semibold"><%= gig.display_name || gig.organization_name || 'User' %></small>
-                                </a>
+                                </div>
                             </div>
                         </div>
                     </div>
