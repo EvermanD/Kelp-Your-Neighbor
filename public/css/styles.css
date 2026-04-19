@@ -432,13 +432,21 @@ a {
     border-radius: var(--radius-section);
     box-shadow: var(--shadow-card);
     color: #fff;
-    margin-bottom: 2rem;
     overflow: hidden;
     position: relative;
 }
 
-.page-find-gig .page-header,
-.page-find-pitch .page-header {
+.page-section-shell {
+    padding-bottom: 1.5rem;
+    padding-top: 1.5rem;
+}
+
+.page-home .hero-card {
+    margin-bottom: 2rem;
+}
+
+.page-hero-spacing {
+    margin-bottom: 2rem;
     padding: 2.25rem;
 }
 
@@ -754,9 +762,7 @@ a {
     border-radius: var(--radius-section);
     box-shadow: var(--shadow-card);
     color: #fff;
-    margin-bottom: 2rem;
     overflow: hidden;
-    padding: 2.25rem;
     position: relative;
 }
 
@@ -1207,10 +1213,7 @@ a {
     }
 
     .page-home .hero-card .card-body,
-    .page-find-gig .page-header,
-    .page-find-pitch .page-header,
-    .page-post-gig .page-form-hero,
-    .page-post-pitch .page-form-hero {
+    .page-hero-spacing {
         padding: 2rem !important;
     }
 
@@ -1226,10 +1229,7 @@ a {
 
 @media (max-width: 767.98px) {
     .page-home .hero-card .card-body,
-    .page-find-gig .page-header,
-    .page-find-pitch .page-header,
-    .page-post-gig .page-form-hero,
-    .page-post-pitch .page-form-hero,
+    .page-hero-spacing,
     .page-find-gig .filter-card .card-body,
     .page-find-pitch .filter-card .card-body {
         padding: 1.5rem !important;
