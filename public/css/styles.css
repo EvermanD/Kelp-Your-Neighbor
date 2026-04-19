@@ -392,9 +392,31 @@ a {
     --form-group-bg: #F6EFE6;
 }
 
+.page-map-view {
+    --page-bg:
+        radial-gradient(circle at top left, rgba(144, 187, 220, 0.34), transparent 26%),
+        radial-gradient(circle at top right, rgba(82, 121, 164, 0.18), transparent 30%),
+        linear-gradient(180deg, #EDF5FB 0%, #E2EFF9 100%);
+    --navbar-bg: #AFCDE0;
+    --hero-gradient: linear-gradient(135deg, #5F8FBE 0%, #7EAED2 52%, #A7C9E2 100%);
+    --nav-text: #2F4F68;
+    --filter-bg: rgba(248, 252, 255, 0.9);
+    --filter-border: #D1E1EC;
+    --page-button: #6B98C3;
+    --page-button-hover: #5E89B4;
+    --page-button-muted-bg: #E7F0F7;
+    --page-button-muted-text: #4E6E88;
+    --page-card-border: #D8E6F0;
+    --page-card-title: #24425B;
+    --page-card-meta: #607B91;
+    --page-desc-bg: #EAF3FA;
+    --page-desc-text: #5A7388;
+}
+
 .page-home,
 .page-find-gig,
 .page-find-pitch,
+.page-map-view,
 .page-theme-gig,
 .page-theme-pitch,
 .page-post-gig,
@@ -410,6 +432,7 @@ a {
 .page-home .navbar.navbar-dark.bg-dark,
 .page-find-gig .navbar.navbar-dark.bg-dark,
 .page-find-pitch .navbar.navbar-dark.bg-dark,
+.page-map-view .navbar.navbar-dark.bg-dark,
 .page-theme-gig .navbar.navbar-dark.bg-dark,
 .page-theme-pitch .navbar.navbar-dark.bg-dark,
 .page-post-gig .navbar.navbar-dark.bg-dark,
@@ -423,6 +446,7 @@ a {
 .page-home .navbar .navbar-brand,
 .page-find-gig .navbar .navbar-brand,
 .page-find-pitch .navbar .navbar-brand,
+.page-map-view .navbar .navbar-brand,
 .page-theme-gig .navbar .navbar-brand,
 .page-theme-pitch .navbar .navbar-brand,
 .page-post-gig .navbar .navbar-brand,
@@ -437,6 +461,7 @@ a {
 .page-home .navbar .btn-outline-light,
 .page-find-gig .navbar .btn-outline-light,
 .page-find-pitch .navbar .btn-outline-light,
+.page-map-view .navbar .btn-outline-light,
 .page-theme-gig .navbar .btn-outline-light,
 .page-theme-pitch .navbar .btn-outline-light,
 .page-post-gig .navbar .btn-outline-light,
@@ -449,6 +474,7 @@ a {
 .page-home .nav-btn,
 .page-find-gig .nav-btn,
 .page-find-pitch .nav-btn,
+.page-map-view .nav-btn,
 .page-theme-gig .nav-btn,
 .page-theme-pitch .nav-btn,
 .page-post-gig .nav-btn,
@@ -464,6 +490,8 @@ a {
 .page-find-gig .navbar .btn-outline-light:focus,
 .page-find-pitch .navbar .btn-outline-light:hover,
 .page-find-pitch .navbar .btn-outline-light:focus,
+.page-map-view .navbar .btn-outline-light:hover,
+.page-map-view .navbar .btn-outline-light:focus,
 .page-theme-gig .navbar .btn-outline-light:hover,
 .page-theme-gig .navbar .btn-outline-light:focus,
 .page-theme-pitch .navbar .btn-outline-light:hover,
@@ -483,6 +511,8 @@ a {
 .page-find-gig .nav-btn:focus,
 .page-find-pitch .nav-btn:hover,
 .page-find-pitch .nav-btn:focus,
+.page-map-view .nav-btn:hover,
+.page-map-view .nav-btn:focus,
 .page-theme-gig .nav-btn:hover,
 .page-theme-gig .nav-btn:focus,
 .page-theme-pitch .nav-btn:hover,
@@ -499,6 +529,7 @@ a {
 .page-home .nav-profile-btn,
 .page-find-gig .nav-profile-btn,
 .page-find-pitch .nav-profile-btn,
+.page-map-view .nav-profile-btn,
 .page-theme-gig .nav-profile-btn,
 .page-theme-pitch .nav-profile-btn {
     background: rgba(252, 252, 250, 0.18);
@@ -514,6 +545,7 @@ a {
 .page-home .nav-profile-btn img,
 .page-find-gig .nav-profile-btn img,
 .page-find-pitch .nav-profile-btn img,
+.page-map-view .nav-profile-btn img,
 .page-theme-gig .nav-profile-btn img,
 .page-theme-pitch .nav-profile-btn img {
     border: 2px solid rgba(252, 252, 250, 0.75);
@@ -525,7 +557,8 @@ a {
 
 .page-home .hero-card,
 .page-find-gig .page-header,
-.page-find-pitch .page-header {
+.page-find-pitch .page-header,
+.page-map-view .page-header {
     background: var(--hero-gradient);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: var(--radius-section);
@@ -551,7 +584,8 @@ a {
 
 .page-home .hero-card::before,
 .page-find-gig .page-header::before,
-.page-find-pitch .page-header::before {
+.page-find-pitch .page-header::before,
+.page-map-view .page-header::before {
     background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.22), transparent 45%);
     content: "";
     inset: 0;
@@ -560,7 +594,8 @@ a {
 
 .page-home .hero-card .card-body,
 .page-find-gig .page-header > *,
-.page-find-pitch .page-header > * {
+.page-find-pitch .page-header > *,
+.page-map-view .page-header > * {
     position: relative;
     z-index: 1;
 }
@@ -571,7 +606,8 @@ a {
 
 .page-home .hero-card .display-6,
 .page-find-gig .page-header h1,
-.page-find-pitch .page-header h1 {
+.page-find-pitch .page-header h1,
+.page-map-view .page-header h1 {
     color: #fff;
     font-size: clamp(1.875rem, 4vw, 3rem);
     font-weight: 700;
@@ -580,7 +616,8 @@ a {
 
 .page-home .hero-card p,
 .page-find-gig .page-header p,
-.page-find-pitch .page-header p {
+.page-find-pitch .page-header p,
+.page-map-view .page-header p {
     color: rgba(255, 255, 255, 0.92);
 }
 
@@ -672,6 +709,43 @@ a {
     border-radius: 24px;
     box-shadow: var(--shadow-card);
     padding: 1.75rem;
+}
+
+.page-home .landing-auth-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.page-home .landing-auth-login,
+.page-home .landing-auth-signup {
+    min-width: 132px;
+}
+
+.page-home .landing-auth-login {
+    background: #7EAFC0;
+    border-color: #7EAFC0;
+    color: #FFFFFF;
+}
+
+.page-home .landing-auth-login:hover,
+.page-home .landing-auth-login:focus {
+    background: #6C9BAB;
+    border-color: #6C9BAB;
+    color: #FFFFFF;
+}
+
+.page-home .landing-auth-signup {
+    background: #F1E3D3;
+    border-color: #E4D3C1;
+    color: #5F5147;
+}
+
+.page-home .landing-auth-signup:hover,
+.page-home .landing-auth-signup:focus {
+    background: #E7D6C4;
+    border-color: #DAC7B4;
+    color: #584B42;
 }
 
 .page-home .local-businesses-header {
@@ -1019,7 +1093,8 @@ a {
 }
 
 .page-find-gig .filter-card,
-.page-find-pitch .filter-card {
+.page-find-pitch .filter-card,
+.page-map-view .map-panel-card {
     background: var(--filter-bg);
     border: 1px solid var(--filter-border);
     border-radius: var(--radius-section);
@@ -1027,7 +1102,8 @@ a {
 }
 
 .page-find-gig .filter-card .card-body,
-.page-find-pitch .filter-card .card-body {
+.page-find-pitch .filter-card .card-body,
+.page-map-view .map-panel-card .card-body {
     padding: 1.55rem;
 }
 
@@ -1488,6 +1564,7 @@ a {
     .page-home .hero-card .display-6,
     .page-find-gig .page-header h1,
     .page-find-pitch .page-header h1,
+    .page-map-view .page-header h1,
     .page-post-gig .page-form-hero h1,
     .page-post-pitch .page-form-hero h1 {
         font-size: 1.875rem;
@@ -1520,18 +1597,29 @@ a {
 }
 
 .page-map-view {
-    background: linear-gradient(180deg, #f7fbff 0%, #eef6fb 100%);
     min-height: 100vh;
 }
 
-.map-panel-card {
-    background: rgba(255, 255, 255, 0.96);
+.page-map-view .map-panel-card {
+    overflow: hidden;
+}
+
+.page-map-view .map-panel-card h4 {
+    color: var(--page-card-title);
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.page-map-view .map-panel-card p {
+    color: var(--page-card-meta);
 }
 
 .local-map-frame {
     width: 100%;
     height: 580px;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: linear-gradient(180deg, #F6FBFE 0%, #EBF4FB 100%);
+    border: 1px solid rgba(73, 107, 138, 0.14);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
     overflow: hidden;
 }
 
@@ -1545,20 +1633,20 @@ a {
     border-radius: 999px;
     padding: 0.7rem 1.1rem;
     font-weight: 600;
-    border: 1px solid #c9d8e6;
-    background: #ffffff;
-    color: #16324f;
+    border: 1px solid #C9DBE8;
+    background: #F8FCFF;
+    color: #375971;
     transition: all 0.2s ease;
 }
 
 .btn-map-toggle:hover {
-    background: #f2f8fc;
-    color: #16324f;
+    background: #EEF5FB;
+    color: #2F4F68;
 }
 
 .btn-map-toggle.active {
-    background: #16324f;
-    border-color: #16324f;
+    background: linear-gradient(135deg, #5F8FBE 0%, #729FC7 100%);
+    border-color: transparent;
     color: #ffffff;
 }
 
@@ -1573,8 +1661,9 @@ a {
     align-items: center;
     border-radius: 999px;
     padding: 0.45rem 0.85rem;
-    background: #edf6fb;
-    color: #244b68;
+    background: #EAF3FA;
+    border: 1px solid #D8E6F0;
+    color: #4E6E88;
     font-size: 0.9rem;
     font-weight: 600;
 }
