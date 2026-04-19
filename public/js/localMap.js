@@ -58,7 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="map-popup-content">
                 <h6 class="fw-bold mb-2">${escapeHtml(point.label)}</h6>
                 <p class="mb-2">
-                    <strong>${point.count}</strong> open ${point.type === 'pitch' ? 'pitch' : 'gig'}${point.count === 1 ? '' : 's'}
+                    <strong>${point.count}</strong> open ${
+                        point.type === 'pitch'
+                            ? (point.count === 1 ? 'pitch' : 'pitches')
+                            : (point.count === 1 ? 'gig' : 'gigs')
+                    }
                 </p>
 
                 ${topItems ? `<ul class="ps-3 mb-2">${topItems}</ul>` : '<p class="mb-2">No listings to preview.</p>'}
