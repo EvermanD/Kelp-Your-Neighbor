@@ -130,6 +130,17 @@ a {
     /* margin-left: auto; */
 }
 
+.nav-btn.dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.nav-btn.dropdown-toggle::after {
+    margin-left: 0;
+}
+
 .nav-btn {
     background: rgba(255, 255, 255, 0.14);
     border: 1px solid rgba(255, 255, 255, 0.28);
@@ -366,7 +377,7 @@ a {
 .page-find-pitch .nav-btn,
 .page-post-gig .nav-btn,
 .page-post-pitch .nav-btn {
-    background: rgba(252, 252, 250, 0.2);
+    background: rgba(79, 163, 196, 0.250);
     border-color: rgba(77, 99, 108, 0.18);
     color: var(--nav-text);
 }
