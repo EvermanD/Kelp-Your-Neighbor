@@ -5,9 +5,10 @@
     <title>OtterGigs | Gig Info</title>
     <style>
         .detail-card {
-            border: none;
-            border-radius: 22px;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+            background: var(--color-surface-white);
+            border: 1px solid var(--color-border-soft);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-card);
             overflow: hidden;
         }
 
@@ -15,13 +16,13 @@
             width: 100%;
             max-height: 420px;
             object-fit: cover;
-            background-color: #e9ecef;
+            background-color: var(--color-surface-soft);
         }
 
         .info-pill {
             display: inline-block;
             padding: 0.45rem 0.75rem;
-            border-radius: 999px;
+            border-radius: var(--radius-pill);
             margin-right: 0.4rem;
             margin-bottom: 0.4rem;
             font-size: 0.85rem;
@@ -42,13 +43,6 @@
             height: 70px;
             object-fit: cover;
             border-radius: 50%;
-        }
-
-        .detail-sidebar {
-            background: rgba(252, 252, 250, 0.74);
-            border-radius: 22px;
-            border: 1px solid rgba(110, 147, 160, 0.18);
-            box-shadow: 0 10px 24px rgba(0,0,0,0.04);
         }
     </style>
 </head>
@@ -108,7 +102,7 @@
                     <div class="mt-4">
                         <h4 class="fw-bold mb-3">Poster</h4>
                         <a href="/profile/<%= gig.user_id %>" class="poster-link">
-                            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-4 border">
+                            <div class="d-flex align-items-center gap-3 p-3 detail-subcard">
                                 <img
                                     src="<%= gig.profile_image_url && gig.profile_image_url.trim() !== '' ? gig.profile_image_url : 'https://via.placeholder.com/80x80?text=U' %>"
                                     alt="Poster"
@@ -140,24 +134,24 @@
                         <p><strong>Event Date:</strong><br><span class="text-muted"><%= gig.event_date ? new Date(gig.event_date).toLocaleDateString() : 'N/A' %></span></p>
                         <p><strong>Contact Email:</strong><br><span class="text-muted"><%= gig.contact_email || 'Not listed' %></span></p>
 
-                        <div class="d-grid gap-2 mt-4">
+                        <div class="detail-action-stack">
                             <% if (!isSaved) { %>
                                 <form action="/saveGig/<%= gig.id %>" method="POST">
-                                    <button type="submit" class="btn btn-primary w-100">Save Gig</button>
+                                    <button type="submit" class="btn detail-action-btn detail-action-btn-primary">Save Gig</button>
                                 </form>
                             <% } else { %>
                                 <form action="/unsaveGig/<%= gig.id %>" method="POST">
-                                    <button type="submit" class="btn btn-outline-danger w-100">Remove Saved Gig</button>
+                                    <button type="submit" class="btn detail-action-btn detail-action-btn-danger">Remove Saved Gig</button>
                                 </form>
                             <% } %>
 
-                            <a href="mailto:<%= gig.contact_email %>?subject=Interested in: <%= gig.title %>" class="btn btn-outline-dark">
+                            <a href="mailto:<%= gig.contact_email %>?subject=Interested in: <%= gig.title %>" class="btn detail-action-btn detail-action-btn-secondary">
                                 Contact Poster
                             </a>
 
                             <% if (isOwner) { %>
-                                <a href="/updateGig/<%= gig.id %>" class="btn btn-warning">Update Gig</a>
-                                <a href="/completeGig/<%= gig.id %>" class="btn btn-success">Mark Completed + Feedback</a>
+                                <a href="/updateGig/<%= gig.id %>" class="btn detail-action-btn detail-action-btn-accent">Update Gig</a>
+                                <a href="/completeGig/<%= gig.id %>" class="btn detail-action-btn detail-action-btn-success">Mark Completed + Feedback</a>
                             <% } %>
                         </div>
 
