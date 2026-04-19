@@ -2211,3 +2211,304 @@ a {
         padding: 0.9rem;
     }
 }
+
+.landing-hero-shell {
+    background: linear-gradient(135deg, #8FBFD0 0%, #A9D6D2 52%, #DCCBB8 100%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 28px;
+    box-shadow: var(--shadow-card);
+    color: #fff;
+    padding: 2rem;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.landing-hero-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.24), transparent 42%);
+}
+
+.landing-hero-shell > * {
+    position: relative;
+    z-index: 1;
+}
+
+.landing-eyebrow {
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.landing-hero-title {
+    color: #fff;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.08;
+    max-width: 14ch;
+}
+
+.landing-hero-copy {
+    color: rgba(255, 255, 255, 0.93);
+    font-size: 1rem;
+    max-width: 52rem;
+    line-height: 1.7;
+}
+
+.landing-hero-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+}
+
+.landing-hero-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.48rem 0.8rem;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    color: #fff;
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.landing-section-head {
+    max-width: 46rem;
+}
+
+.landing-section-title {
+    color: var(--color-text-primary);
+    font-size: clamp(1.55rem, 2.5vw, 2.15rem);
+    font-weight: 700;
+}
+
+.landing-section-copy {
+    color: var(--color-text-secondary);
+    line-height: 1.65;
+}
+
+.landing-photo-shell,
+.landing-opportunity-shell {
+    background: linear-gradient(180deg, rgba(252, 252, 250, 0.95), rgba(247, 246, 242, 0.98));
+    border: 1px solid #E4E2DA;
+    border-radius: 28px;
+    box-shadow: var(--shadow-card);
+    padding: 1.6rem;
+}
+
+.landing-photo-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.landing-photo-card {
+    position: relative;
+    min-height: 240px;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+}
+
+.landing-photo-image {
+    width: 100%;
+    height: 100%;
+    min-height: 240px;
+    object-fit: cover;
+    display: block;
+}
+
+.landing-photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(21, 34, 39, 0.08) 12%, rgba(21, 34, 39, 0.64) 100%);
+}
+
+.landing-photo-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    padding: 1rem;
+    color: #fff;
+}
+
+.landing-photo-label {
+    display: inline-flex;
+    border-radius: 999px;
+    padding: 0.32rem 0.62rem;
+    background: rgba(247, 244, 238, 0.9);
+    color: #5D6E72;
+    font-size: 0.74rem;
+    font-weight: 700;
+    margin-bottom: 0.65rem;
+}
+
+.landing-photo-title {
+    color: #fff;
+    font-size: 1.12rem;
+    font-weight: 600;
+    margin-bottom: 0;
+    text-shadow: 0 2px 8px rgba(20, 30, 34, 0.24);
+}
+
+.landing-benefits-row {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.landing-benefit-card {
+    background: #FCFCFA;
+    border: 1px solid #E7E1D7;
+    border-radius: 20px;
+    box-shadow: var(--shadow-soft);
+    padding: 1rem;
+}
+
+.landing-benefit-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.45rem;
+}
+
+.landing-benefit-card p {
+    color: var(--color-text-secondary);
+    font-size: 0.93rem;
+    margin-bottom: 0;
+    line-height: 1.55;
+}
+
+.landing-gig-card {
+    background: #FCFCFA;
+}
+
+.landing-side-stack {
+    display: grid;
+    gap: 1rem;
+}
+
+.landing-activity-card,
+.landing-testimonial-card {
+    background: #FCFCFA;
+    border: 1px solid #E7E1D7;
+    border-radius: 22px;
+    box-shadow: var(--shadow-soft);
+    padding: 1.2rem;
+}
+
+.landing-side-title {
+    color: var(--color-text-primary);
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.landing-activity-list {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.landing-activity-item {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    background: #fff;
+    border: 1px solid #ECE7DE;
+    border-radius: 16px;
+    padding: 0.85rem 0.9rem;
+}
+
+.landing-activity-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #8FBFD0;
+    margin-top: 0.4rem;
+    flex: 0 0 auto;
+}
+
+.landing-activity-text {
+    color: var(--color-text-primary);
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.landing-activity-meta {
+    color: var(--color-text-secondary);
+    font-size: 0.86rem;
+    margin-top: 0.15rem;
+}
+
+.landing-testimonial-rotator {
+    position: relative;
+    min-height: 165px;
+}
+
+.landing-testimonial-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    pointer-events: none;
+}
+
+.landing-testimonial-slide.is-active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.landing-testimonial-quote {
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.7;
+    margin-bottom: 0.8rem;
+}
+
+.landing-testimonial-name {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+@media (max-width: 991.98px) {
+    .landing-photo-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .landing-benefits-row {
+        grid-template-columns: 1fr;
+    }
+
+    .landing-testimonial-rotator {
+        min-height: 140px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .landing-hero-shell,
+    .landing-photo-shell,
+    .landing-opportunity-shell {
+        padding: 1.2rem;
+    }
+
+    .landing-photo-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .landing-hero-title {
+        max-width: none;
+    }
+
+    .landing-testimonial-rotator {
+        min-height: 170px;
+    }
+}

@@ -254,14 +254,65 @@ app.get('/', async (req, res) => {
         }
     ];
 
-    let search = req.query.search || '';
-    let category = req.query.category || '';
-    let location = req.query.location || '';
-    let urgency = req.query.urgency || '';
-    let beginner = req.query.beginner || '';
+    const communityPhotos = [
+        {
+            title: "Monterey Coastline",
+            label: "Monterey",
+            imageUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            title: "Pacific Grove Streets",
+            label: "Pacific Grove",
+            imageUrl: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            title: "Marina Community Energy",
+            label: "Marina",
+            imageUrl: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            title: "Seaside Creative Spirit",
+            label: "Seaside",
+            imageUrl: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            title: "Carmel Inspiration",
+            label: "Carmel",
+            imageUrl: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            title: "CSUMB Student Community",
+            label: "CSUMB",
+            imageUrl: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80"
+        }
+    ];
+
+    const testimonials = [
+        {
+            quote: "Helped me find my first paid design opportunity with a local group.",
+            name: "CSUMB student creative"
+        },
+        {
+            quote: "A simple way to discover nearby talent without digging through giant freelance sites.",
+            name: "Monterey small business owner"
+        },
+        {
+            quote: "It feels built for real community collaboration, not just transactions.",
+            name: "Local event organizer"
+        }
+    ];
+
+    function shuffleArray(items) {
+        const copy = [...items];
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+    }
 
     try {
-        let sql = `
+        const gigsSql = `
             SELECT g.id, g.title, g.description, g.category, g.looking_for, g.organization_name,
                    g.location, g.location_type, g.budget, g.budget_min, g.budget_max,
                    g.deadline, g.urgency, g.beginner_friendly, g.image_url, g.status,
@@ -269,26 +320,56 @@ app.get('/', async (req, res) => {
             FROM Gig g
             JOIN userGig u ON g.user_id = u.id
             WHERE g.status = 'Open'
-            ORDER BY g.created_at DESC
+            ORDER BY RAND()
             LIMIT 6
         `;
 
-        let sqlParams = [];
+        const [gigs] = await pool.query(gigsSql);
 
-        const [gigs] = await pool.query(sql, sqlParams);
-        const user = await getCurrentUser(req.session.userId);
+        const [recentActivityRows] = await pool.query(`
+            SELECT *
+            FROM (
+                SELECT
+                    g.created_at,
+                    CONCAT('New gig posted: ', g.title) AS text,
+                    g.location AS meta
+                FROM Gig g
+                WHERE g.status = 'Open'
+
+                UNION ALL
+
+                SELECT
+                    p.created_at,
+                    CONCAT('New pitch posted: ', p.title) AS text,
+                    p.location AS meta
+                FROM Pitch p
+                WHERE p.status = 'Open'
+
+                UNION ALL
+
+                SELECT
+                    pr.created_at,
+                    CONCAT(
+                        COALESCE(NULLIF(reviewer.display_name, ''), reviewer.username),
+                        ' reviewed ',
+                        COALESCE(NULLIF(profileUser.display_name, ''), profileUser.username)
+                    ) AS text,
+                    'Community review' AS meta
+                FROM profile_reviews pr
+                JOIN userGig reviewer ON pr.reviewer_user_id = reviewer.id
+                JOIN userGig profileUser ON pr.profile_user_id = profileUser.id
+                WHERE pr.is_visible = 1
+            ) activity
+            ORDER BY created_at DESC
+            LIMIT 5
+        `);
 
         res.render('index', {
             gigs,
-            filters: {
-                search,
-                category,
-                location,
-                urgency,
-                beginner
-            },
-            user,
-            featuredBusinesses
+            featuredBusinesses: shuffleArray(featuredBusinesses),
+            communityPhotos: shuffleArray(communityPhotos),
+            testimonials: shuffleArray(testimonials),
+            recentActivity: recentActivityRows
         });
     } catch (err) {
         console.error('Database error in /:', err);

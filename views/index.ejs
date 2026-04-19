@@ -13,24 +13,27 @@
     </div>
 </nav>
 
-<div class="row">
-
-</div>
 <div class="container mt-5">
-    <div class="row">
-        <div class="col-8 local-businesses-shell">
-            <h1>Welcome to OtterGigs!</h1>
-            <p class="lead mb-2">
-                OtterGigs is a fast, hyperlocal gig board for the Monterey area designed to connect students and
-                creative talent with real opportunities right in their community.
-                Whether it’s a campus club needing a logo, a café looking for an artist, or a student seeking a
-                photographer,
-                OtterGigs makes it easy to post, discover, and respond to short-term creative gigs without the friction
-                of traditional freelance platforms.
-            </p>
+    <div class="row g-4 align-items-stretch">
+        <div class="col-lg-8">
+            <section class="landing-hero-shell h-100">
+                <p class="landing-eyebrow mb-2">Monterey Bay creative community</p>
+                <h1 class="landing-hero-title mb-3">Local talent, real opportunities, and community momentum in one place</h1>
+                <p class="landing-hero-copy mb-4">
+                    OtterGigs helps students, creatives, clubs, and local businesses connect through short-term work that actually feels local.
+                    From logos and murals to photography, flyers, and event help, this is where community creativity finds its next gig.
+                </p>
+
+                <div class="landing-hero-pill-row">
+                    <span class="landing-hero-pill">Hyperlocal</span>
+                    <span class="landing-hero-pill">Beginner-friendly</span>
+                    <span class="landing-hero-pill">Built for students + local businesses</span>
+                </div>
+            </section>
         </div>
-        <div class="col">
-            <div class="card p-4 local-businesses-shell">
+
+        <div class="col-lg-4">
+            <div class="card p-4 local-businesses-shell h-100">
                 <h3 class="card-title">Login</h3>
 
                 <div id="feedbackDiv" class="mb-2"></div>
@@ -99,70 +102,174 @@
         </section>
     </div>
 
-    <div class="local-businesses-shell my-5">
-        <div class="row">
-            <div class="col">
-                <h2>Looking for freelance work?</h2>
-                <p class="lead">Here's some of what's available:</p>
-            </div>
+    <section class="landing-photo-shell mb-5" aria-labelledby="landing-photo-title">
+        <div class="landing-section-head mb-4">
+            <p class="local-businesses-eyebrow mb-2">From around the community</p>
+            <h2 id="landing-photo-title" class="landing-section-title mb-2">The places and people this platform is built for</h2>
+            <p class="landing-section-copy mb-0">
+                Monterey Bay is full of local businesses, student organizations, artists, and creators. OtterGigs is designed to help them find each other faster.
+            </p>
         </div>
-        <div class="row g-4 gigs-grid">
-            <% gigs.forEach(gig => { %>
-                <div class="col-md-6 col-lg-4">
-                    <div class="card gig-card">
-                        <img
-                                src="<%= gig.image_url && gig.image_url.trim() !== '' ? gig.image_url : 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80' %>"
-                                alt="<%= gig.title %>"
-                                class="gig-image"
-                        >
 
-                        <div class="card-body d-flex flex-column">
-                            <% const gigUrgencyLabel = gig.urgency || 'Open'; %>
-                            <% const gigUrgencyClass = gig.urgency === 'Urgent' ? 'gig-pill-urgent' : gig.urgency === 'High' ? 'gig-pill-high' : gig.urgency === 'Medium' ? 'gig-pill-medium' : 'gig-pill-low'; %>
-                            <div class="d-flex flex-wrap gap-2 mb-3">
-                                <span class="theme-pill gig-pill-category"><%= gig.category || 'Misc' %></span>
-                                <span class="theme-pill <%= gigUrgencyClass %>"><%= gigUrgencyLabel %></span>
-                                <% if (gig.beginner_friendly) { %>
-                                    <span class="theme-pill gig-pill-beginner">Beginner Friendly</span>
-                                <% } %>
-                            </div>
+        <div class="landing-photo-grid">
+            <% communityPhotos.forEach((photo) => { %>
+                <article class="landing-photo-card">
+                    <img src="<%= photo.imageUrl %>" alt="<%= photo.title %>" class="landing-photo-image">
+                    <div class="landing-photo-overlay"></div>
+                    <div class="landing-photo-content">
+                        <span class="landing-photo-label"><%= photo.label %></span>
+                        <h3 class="landing-photo-title"><%= photo.title %></h3>
+                    </div>
+                </article>
+            <% }) %>
+        </div>
+    </section>
 
-                            <h4 class="card-title fw-bold mb-3"><%= gig.title %></h4>
+    <section class="landing-opportunity-shell my-5" aria-labelledby="landing-opportunity-title">
+        <div class="row g-4 align-items-start">
+            <div class="col-lg-7">
+                <div class="landing-section-head mb-4">
+                    <p class="local-businesses-eyebrow mb-2">Freelance work, reimagined locally</p>
+                    <h2 id="landing-opportunity-title" class="landing-section-title mb-2">Turn your skills into your next local gig</h2>
+                    <p class="landing-section-copy mb-0">
+                        Build your portfolio, collaborate with nearby businesses and organizations, and discover beginner-friendly opportunities without the noise of giant freelance platforms.
+                    </p>
+                </div>
 
-                            <p class="card-meta mb-1"><strong>Looking for:</strong> <%= gig.looking_for %></p>
-                            <p class="card-meta mb-1">
-                                <strong>Location:</strong> <%= gig.location %> <%= gig.location_type ? '(' + gig.location_type + ')' : '' %>
-                            </p>
-                            <p class="card-meta mb-1"><strong>Budget:</strong> <%= gig.budget || 'Not listed' %></p>
-                            <p class="card-meta mb-3">
-                                <strong>Deadline:</strong> <%= gig.deadline ? new Date(gig.deadline).toLocaleDateString() : 'N/A' %>
-                            </p>
+                <div class="landing-benefits-row mb-4">
+                    <article class="landing-benefit-card">
+                        <h3>Build experience</h3>
+                        <p>Get real portfolio work from people and groups in your community.</p>
+                    </article>
 
-                            <div class="card-description-panel mb-3">
-                                <p class="mb-0 description-text">
-                                    <%= gig.description.length > 120 ? gig.description.substring(0, 120) + '...' : gig.description %>
-                                </p>
-                            </div>
+                    <article class="landing-benefit-card">
+                        <h3>Find nearby clients</h3>
+                        <p>Connect with local businesses, clubs, and students looking for help right now.</p>
+                    </article>
 
-                            <div class="mt-auto d-flex justify-content-between align-items-center gap-2 flex-wrap">
-                                <div class="poster-chip">
-                                    <img
-                                            src="<%= gig.profile_image_url && gig.profile_image_url.trim() !== '' ? gig.profile_image_url : 'https://via.placeholder.com/40x40?text=U' %>"
-                                            alt="Poster"
-                                            class="poster-avatar"
-                                    >
-                                    <small class="fw-semibold"><%= gig.display_name || gig.organization_name || 'User' %></small>
+                    <article class="landing-benefit-card">
+                        <h3>Start small, grow fast</h3>
+                        <p>Explore beginner-friendly gigs that make it easier to land your first opportunity.</p>
+                    </article>
+                </div>
+
+                <div class="row g-4 gigs-grid">
+                    <% gigs.forEach(gig => { %>
+                        <div class="col-md-6 col-lg-6">
+                            <div class="card gig-card landing-gig-card">
+                                <img
+                                    src="<%= gig.image_url && gig.image_url.trim() !== '' ? gig.image_url : 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80' %>"
+                                    alt="<%= gig.title %>"
+                                    class="gig-image"
+                                >
+
+                                <div class="card-body d-flex flex-column">
+                                    <% const gigUrgencyLabel = gig.urgency || 'Open'; %>
+                                    <% const gigUrgencyClass = gig.urgency === 'Urgent' ? 'gig-pill-urgent' : gig.urgency === 'High' ? 'gig-pill-high' : gig.urgency === 'Medium' ? 'gig-pill-medium' : 'gig-pill-low'; %>
+
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        <span class="theme-pill gig-pill-category"><%= gig.category || 'Misc' %></span>
+                                        <span class="theme-pill <%= gigUrgencyClass %>"><%= gigUrgencyLabel %></span>
+                                        <% if (gig.beginner_friendly) { %>
+                                            <span class="theme-pill gig-pill-beginner">Beginner Friendly</span>
+                                        <% } %>
+                                    </div>
+
+                                    <h4 class="card-title fw-bold mb-3"><%= gig.title %></h4>
+
+                                    <p class="card-meta mb-1"><strong>Looking for:</strong> <%= gig.looking_for %></p>
+                                    <p class="card-meta mb-1">
+                                        <strong>Location:</strong> <%= gig.location %> <%= gig.location_type ? '(' + gig.location_type + ')' : '' %>
+                                    </p>
+                                    <p class="card-meta mb-1"><strong>Budget:</strong> <%= gig.budget || 'Not listed' %></p>
+                                    <p class="card-meta mb-3">
+                                        <strong>Deadline:</strong> <%= gig.deadline ? new Date(gig.deadline).toLocaleDateString() : 'N/A' %>
+                                    </p>
+
+                                    <div class="card-description-panel mb-3">
+                                        <p class="mb-0 description-text">
+                                            <%= gig.description.length > 110 ? gig.description.substring(0, 110) + '...' : gig.description %>
+                                        </p>
+                                    </div>
+
+                                    <div class="mt-auto d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                                        <div class="poster-chip">
+                                            <img
+                                                src="<%= gig.profile_image_url && gig.profile_image_url.trim() !== '' ? gig.profile_image_url : 'https://via.placeholder.com/40x40?text=U' %>"
+                                                alt="Poster"
+                                                class="poster-avatar"
+                                            >
+                                            <small class="fw-semibold"><%= gig.display_name || gig.organization_name || 'User' %></small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    <% }) %>
                 </div>
-            <% }) %>
+            </div>
+
+            <div class="col-lg-5">
+                <aside class="landing-side-stack">
+                    <section class="landing-activity-card">
+                        <p class="local-businesses-eyebrow mb-2">What’s happening right now</p>
+                        <h3 class="landing-side-title mb-3">Fresh community activity</h3>
+
+                        <div class="landing-activity-list">
+                            <% if (recentActivity && recentActivity.length > 0) { %>
+                                <% recentActivity.forEach((item) => { %>
+                                    <article class="landing-activity-item">
+                                        <span class="landing-activity-dot"></span>
+                                        <div>
+                                            <div class="landing-activity-text"><%= item.text %></div>
+                                            <div class="landing-activity-meta"><%= item.meta || 'OtterGigs community' %></div>
+                                        </div>
+                                    </article>
+                                <% }) %>
+                            <% } else { %>
+                                <p class="mb-0 text-muted">New gigs, pitches, and reviews will appear here.</p>
+                            <% } %>
+                        </div>
+                    </section>
+
+                    <section class="landing-testimonial-card" aria-labelledby="landing-testimonial-title">
+                        <p class="local-businesses-eyebrow mb-2">Community voices</p>
+                        <h3 id="landing-testimonial-title" class="landing-side-title mb-3">Why people would use OtterGigs</h3>
+
+                        <div class="landing-testimonial-rotator" data-testimonial-rotator>
+                            <% testimonials.forEach((testimonial, index) => { %>
+                                <article class="landing-testimonial-slide <%= index === 0 ? 'is-active' : '' %>" data-testimonial-slide>
+                                    <p class="landing-testimonial-quote">“<%= testimonial.quote %>”</p>
+                                    <p class="landing-testimonial-name mb-0">— <%= testimonial.name %></p>
+                                </article>
+                            <% }) %>
+                        </div>
+                    </section>
+                </aside>
+            </div>
         </div>
-    </div>
+    </section>
 </div>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const slides = Array.from(document.querySelectorAll("[data-testimonial-slide]"));
+
+    if (slides.length <= 1) {
+        return;
+    }
+
+    let activeIndex = 0;
+
+    window.setInterval(() => {
+        slides[activeIndex].classList.remove("is-active");
+        activeIndex = (activeIndex + 1) % slides.length;
+        slides[activeIndex].classList.add("is-active");
+    }, 3600);
+});
+</script>
+
 <script src="/js/homeCarousel.js"></script>
-<script src="js/login.js"></script>
+<script src="/js/login.js"></script>
 </body>
 </html>
