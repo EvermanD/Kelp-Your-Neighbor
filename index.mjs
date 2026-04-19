@@ -84,9 +84,9 @@ app.post('/signup', async (req, res) => {
             return res.json({ error: "Error: username already exists" });
         }
 
-        sql = `INSERT INTO userGig (username, password, is_admin)
-               VALUES (?, ?, ?)`;
-        sqlParams = [username, password, 0];
+        sql = `INSERT INTO userGig (username, password, is_admin, profile_image_url)
+               VALUES (?, ?, ?, ?)`;
+        sqlParams = [username, password, 0, '/img/defaultImage.jpg'];
 
         await pool.query(sql, sqlParams);
 
@@ -1163,11 +1163,22 @@ app.get('/completeGig/:id', requireLogin, async (req, res) => {
         }
 
         const [users] = await pool.query(
-            `SELECT id, username, display_name, profile_type
-             FROM userGig
-             WHERE id != ?
-             ORDER BY COALESCE(display_name, username) ASC`,
-            [req.session.userId]
+            `SELECT
+                u.id,
+                u.username,
+                u.display_name,
+                u.profile_type,
+                CASE WHEN sg.id IS NOT NULL THEN 1 ELSE 0 END AS saved_this_gig,
+                sg.created_at AS saved_at
+             FROM userGig u
+             LEFT JOIN SavedGig sg
+                ON sg.user_id = u.id
+               AND sg.gig_id = ?
+             WHERE u.id != ?
+             ORDER BY
+                saved_this_gig DESC,
+                COALESCE(NULLIF(u.display_name, ''), u.username) ASC`,
+            [gigId, req.session.userId]
         );
 
         const user = await getCurrentUser(req.session.userId);
@@ -1240,11 +1251,19 @@ app.get('/completePitch/:id', requireLogin, async (req, res) => {
         }
 
         const [users] = await pool.query(
-            `SELECT id, username, display_name, profile_type
-             FROM userGig
-             WHERE id != ?
-             ORDER BY COALESCE(display_name, username) ASC`,
-            [req.session.userId]
+            `SELECT u.id,
+                    u.username,
+                    u.display_name,
+                    u.profile_type,
+                    CASE WHEN sp.user_id IS NOT NULL THEN 1 ELSE 0 END AS saved_this_pitch
+             FROM userGig u
+             LEFT JOIN SavedPitch sp
+                    ON sp.user_id = u.id
+                   AND sp.pitch_id = ?
+             WHERE u.id != ?
+             ORDER BY saved_this_pitch DESC,
+                      COALESCE(NULLIF(TRIM(u.display_name), ''), u.username) ASC`,
+            [pitchId, req.session.userId]
         );
 
         const user = await getCurrentUser(req.session.userId);
