@@ -2298,6 +2298,56 @@ app.get('/api/home-pulse', requireApiLogin, async (req, res) => {
     }
 });
 
+app.get('/api/community-impact', async (req, res) => {
+    try {
+        const [[gigRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM Gig
+        `);
+
+        const [[completedGigRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM CompletedGig
+        `);
+
+        const [[completedPitchRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM CompletedPitch
+        `);
+
+        const [[reviewRow]] = await pool.query(`
+            SELECT COUNT(*) AS total
+            FROM profile_reviews
+            WHERE is_visible = 1
+        `);
+
+        const [locationRows] = await pool.query(`
+            SELECT location FROM Gig
+            UNION ALL
+            SELECT location FROM Pitch
+        `);
+
+        const activeAreas = new Set();
+
+        locationRows.forEach((row) => {
+            const area = normalizeLocationToArea(row.location);
+            if (area) {
+                activeAreas.add(area.key);
+            }
+        });
+
+        res.json({
+            gigsPosted: gigRow.total,
+            collaborationsCompleted: Number(completedGigRow.total || 0) + Number(completedPitchRow.total || 0),
+            activeAreas: activeAreas.size,
+            reviewsShared: reviewRow.total
+        });
+    } catch (err) {
+        console.error('Database error in /api/community-impact:', err);
+        res.status(500).json({ error: 'Unable to load community impact.' });
+    }
+});
+
 app.get('/myGig', (req, res) => {
     res.render('myGig', {
         title: 'My Gig',

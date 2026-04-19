@@ -2659,3 +2659,47 @@ a {
         height: 280px;
     }
 }
+
+.map-insight-banner {
+    background: linear-gradient(135deg, #EDF6FA 0%, #F7F4EE 100%);
+    border: 1px solid #D9E6E8;
+    border-radius: 18px;
+    color: #48656D;
+    font-weight: 600;
+    line-height: 1.55;
+    padding: 0.95rem 1rem;
+    box-shadow: var(--shadow-soft);
+}
+
+.impact-metrics-shell {
+    background: linear-gradient(180deg, rgba(252, 252, 250, 0.95), rgba(247, 246, 242, 0.98));
+    border: 1px solid #E4E2DA;
+    border-radius: 24px;
+    box-shadow: var(--shadow-card);
+    padding: 1.5rem;
+}
+
+.impact-metric-card {
+    background: #FCFCFA;
+    border: 1px solid #E4E2DA;
+    border-radius: 18px;
+    box-shadow: var(--shadow-soft);
+    padding: 1rem 1.05rem;
+    height: 100%;
+}
+
+.impact-metric-label {
+    color: #6C8B93;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+}
+
+.impact-metric-value {
+    color: var(--color-text-primary);
+    font-size: clamp(1.7rem, 4vw, 2.35rem);
+    font-weight: 700;
+    line-height: 1;
+}
