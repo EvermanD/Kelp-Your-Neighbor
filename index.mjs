@@ -532,6 +532,8 @@ app.post('/updateGig/:id', requireLogin, async (req, res) => {
 
 app.get('/profile', requireLogin, async (req, res) => {
     try {
+        const user = await getCurrentUser(req.session.userId);
+
         const [users] = await pool.query(
             `SELECT *
              FROM userGig
@@ -616,6 +618,7 @@ app.get('/profile', requireLogin, async (req, res) => {
         );
 
         res.render('profile', {
+            user,
             profileUser: users[0],
             postedGigs,
             savedGigs,
@@ -634,6 +637,7 @@ app.get('/profile', requireLogin, async (req, res) => {
 app.get('/profile/:id', requireLogin, async (req, res) => {
     try {
         const profileId = req.params.id;
+        const user = await getCurrentUser(req.session.userId);
 
         const [users] = await pool.query(
             `SELECT *
@@ -705,6 +709,7 @@ app.get('/profile/:id', requireLogin, async (req, res) => {
         );
 
         res.render('profile', {
+            user,
             profileUser: users[0],
             postedGigs,
             savedGigs: [],
@@ -815,6 +820,8 @@ app.post('/api/reviews', requireApiLogin, async (req, res) => {
 
 app.get('/updateProfile', requireLogin, async (req, res) => {
     try {
+        const user = await getCurrentUser(req.session.userId);
+
         const [rows] = await pool.query(
             `SELECT *
              FROM userGig
@@ -823,6 +830,7 @@ app.get('/updateProfile', requireLogin, async (req, res) => {
         );
 
         res.render('updateProfile', {
+            user,
             profileUser: rows[0]
         });
     } catch (err) {
