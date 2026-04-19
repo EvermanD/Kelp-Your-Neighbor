@@ -711,6 +711,43 @@ a {
     padding: 1.75rem;
 }
 
+.page-home .landing-auth-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.page-home .landing-auth-login,
+.page-home .landing-auth-signup {
+    min-width: 132px;
+}
+
+.page-home .landing-auth-login {
+    background: #7EAFC0;
+    border-color: #7EAFC0;
+    color: #FFFFFF;
+}
+
+.page-home .landing-auth-login:hover,
+.page-home .landing-auth-login:focus {
+    background: #6C9BAB;
+    border-color: #6C9BAB;
+    color: #FFFFFF;
+}
+
+.page-home .landing-auth-signup {
+    background: #F1E3D3;
+    border-color: #E4D3C1;
+    color: #5F5147;
+}
+
+.page-home .landing-auth-signup:hover,
+.page-home .landing-auth-signup:focus {
+    background: #E7D6C4;
+    border-color: #DAC7B4;
+    color: #584B42;
+}
+
 .page-home .local-businesses-header {
     align-items: end;
     display: flex;
