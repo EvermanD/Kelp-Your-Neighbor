@@ -67,44 +67,11 @@ app.get('/', async (req, res) => {
             FROM Gig g
             JOIN userGig u ON g.user_id = u.id
             WHERE g.status = 'Open'
+            ORDER BY g.created_at DESC
+            LIMIT 6
         `;
 
         let sqlParams = [];
-
-        if (search.trim() !== '') {
-            sql += `
-                AND (
-                    g.title LIKE ?
-                    OR g.description LIKE ?
-                    OR g.category LIKE ?
-                    OR g.looking_for LIKE ?
-                    OR g.organization_name LIKE ?
-                )
-            `;
-            let searchTerm = `%${search}%`;
-            sqlParams.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
-        }
-
-        if (category.trim() !== '') {
-            sql += ` AND g.category = ?`;
-            sqlParams.push(category);
-        }
-
-        if (location.trim() !== '') {
-            sql += ` AND g.location LIKE ?`;
-            sqlParams.push(`%${location}%`);
-        }
-
-        if (urgency.trim() !== '') {
-            sql += ` AND g.urgency = ?`;
-            sqlParams.push(urgency);
-        }
-
-        if (beginner === '1') {
-            sql += ` AND g.beginner_friendly = 1`;
-        }
-
-        sql += ` ORDER BY g.created_at DESC LIMIT 6`;
 
         const [gigs] = await pool.query(sql, sqlParams);
         const user = await getCurrentUser(req.session.userId);
