@@ -503,50 +503,57 @@ function initReviewsSection(profileUserId, canReview, isOwnProfile) {
     }
 
     if (form && canReview) {
-        form.addEventListener("submit", async function (event) {
-            event.preventDefault();
-            clearStatus();
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        clearStatus();
 
-            var formData = new FormData(form);
-            var title = typeof formData.get("title") === "string" ? formData.get("title").trim() : "";
-            var comment = typeof formData.get("comment") === "string" ? formData.get("comment").trim() : "";
+        var formData = new FormData(form);
+        var title = typeof formData.get("title") === "string" ? formData.get("title").trim() : "";
+        var comment = typeof formData.get("comment") === "string" ? formData.get("comment").trim() : "";
 
-            if (!comment) {
-                showStatus("Comment is required.", "error");
-                return;
+        if (!comment) {
+            showStatus("Comment is required.", "error");
+            return;
+        }
+
+        submitButton.disabled = true;
+
+        try {
+            var response = await fetch("/api/reviews", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                body: JSON.stringify({
+                    profile_user_id: profileUserId,
+                    title: title,
+                    comment: comment
+                })
+            });
+
+            var contentType = response.headers.get("content-type") || "";
+            var data;
+
+            if (contentType.includes("application/json")) {
+                data = await response.json();
+            } else {
+                var text = await response.text();
+                throw new Error("Expected JSON but got: " + text.slice(0, 120));
             }
 
-            submitButton.disabled = true;
-
-            try {
-                var response = await fetch("/api/reviews", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Accept: "application/json"
-                    },
-                    body: JSON.stringify({
-                        profile_user_id: profileUserId,
-                        title: title,
-                        comment: comment
-                    })
-                });
-                var data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || "Unable to save review.");
-                }
-
-                renderReviews(Array.isArray(data.reviews) ? data.reviews : []);
-                form.reset();
-                showStatus(data.message || "Review submitted successfully.", "success");
-            } catch (error) {
-                showStatus(error.message || "Unable to save review.", "error");
-            } finally {
-                submitButton.disabled = false;
+            if (!response.ok) {
+                throw new Error(data.error || "Unable to save review.");
             }
-        });
-    }
 
-    loadReviews();
+            renderReviews(Array.isArray(data.reviews) ? data.reviews : []);
+            form.reset();
+            showStatus(data.message || "Review submitted successfully.", "success");
+        } catch (error) {
+            showStatus(error.message || "Unable to save review.", "error");
+        } finally {
+            submitButton.disabled = false;
+        }
+    });
+}
 }
