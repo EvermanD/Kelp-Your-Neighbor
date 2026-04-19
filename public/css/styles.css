@@ -1370,3 +1370,47 @@ a {
         height: 460px;
     }
 }
+
+.location-card {
+    background: linear-gradient(180deg, #f8fcff 0%, #eef7fb 100%);
+    border: 1px solid rgba(22, 50, 79, 0.08);
+    border-radius: 18px;
+    padding: 1rem;
+}
+
+.location-card-title {
+    font-weight: 700;
+    color: #16324f;
+    margin-bottom: 0.25rem;
+}
+
+.location-card-text {
+    color: #5b7083;
+    font-size: 0.95rem;
+    margin-bottom: 0;
+}
+
+.location-select,
+.location-type-select {
+    min-height: 48px;
+    border-radius: 14px;
+}
+
+.location-hint-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.location-hint-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid rgba(22, 50, 79, 0.10);
+    color: #244b68;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
