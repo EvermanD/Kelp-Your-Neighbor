@@ -1750,3 +1750,31 @@ a {
         transform: translateY(-8px);
     }
 }
+
+.motivation-box {
+    margin-top: 1.25rem;
+    padding: 1rem 1rem 0.95rem;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #f7fbff 0%, #edf6fb 100%);
+    border: 1px solid rgba(22, 50, 79, 0.08);
+}
+
+.motivation-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6a7f91;
+}
+
+.motivation-quote {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: #244b68;
+    font-weight: 600;
+}
+
+.motivation-author {
+    font-size: 0.9rem;
+    color: #6a7f91;
+}
