@@ -39,6 +39,13 @@ function requireLogin(req, res, next) {
     next();
 }
 
+function requireApiLogin(req, res, next) {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Authentication required.' });
+    }
+    next();
+}
+
 async function getCurrentUser(userId) {
     const sql = `
         SELECT id, username, display_name, profile_type, bio, about,
@@ -49,6 +56,29 @@ async function getCurrentUser(userId) {
     `;
     const [rows] = await pool.query(sql, [userId]);
     return rows.length > 0 ? rows[0] : null;
+}
+
+async function getVisibleProfileReviews(profileUserId) {
+    const sql = `
+        SELECT
+            pr.id,
+            pr.profile_user_id,
+            pr.reviewer_user_id,
+            pr.title,
+            pr.comment,
+            pr.created_at,
+            u.display_name,
+            u.username,
+            u.profile_image_url
+        FROM profile_reviews pr
+        JOIN userGig u ON pr.reviewer_user_id = u.id
+        WHERE pr.profile_user_id = ?
+          AND pr.is_visible = 1
+        ORDER BY pr.created_at DESC
+    `;
+
+    const [rows] = await pool.query(sql, [profileUserId]);
+    return rows;
 }
 
 app.get('/', (req, res) => {
@@ -687,6 +717,99 @@ app.get('/profile/:id', requireLogin, async (req, res) => {
     } catch (err) {
         console.error('Database error in /profile/:id:', err);
         res.status(500).send('Database error loading public profile.');
+    }
+});
+
+app.get('/api/reviews/:profile_user_id', requireApiLogin, async (req, res) => {
+    const profileUserId = Number(req.params.profile_user_id);
+
+    if (!Number.isInteger(profileUserId) || profileUserId <= 0) {
+        return res.status(400).json({ error: 'Invalid profile user id.' });
+    }
+
+    try {
+        const reviews = await getVisibleProfileReviews(profileUserId);
+        res.json({ reviews });
+    } catch (err) {
+        console.error('Database error in GET /api/reviews/:profile_user_id:', err);
+        res.status(500).json({ error: 'Database error loading reviews.' });
+    }
+});
+
+app.post('/api/reviews', requireApiLogin, async (req, res) => {
+    const profileUserId = Number(req.body.profile_user_id);
+    const reviewerUserId = req.session.userId;
+    const rawTitle = typeof req.body.title === 'string' ? req.body.title : '';
+    const rawComment = typeof req.body.comment === 'string' ? req.body.comment : '';
+    const title = rawTitle.trim();
+    const comment = rawComment.trim();
+
+    if (!Number.isInteger(profileUserId) || profileUserId <= 0) {
+        return res.status(400).json({ error: 'Invalid profile user id.' });
+    }
+
+    if (!comment) {
+        return res.status(400).json({ error: 'Comment is required.' });
+    }
+
+    if (profileUserId === reviewerUserId) {
+        return res.status(400).json({ error: 'You cannot review your own profile.' });
+    }
+
+    try {
+        const [profileRows] = await pool.query(
+            `SELECT id
+             FROM userGig
+             WHERE id = ?`,
+            [profileUserId]
+        );
+
+        if (profileRows.length === 0) {
+            return res.status(404).json({ error: 'Profile not found.' });
+        }
+
+        const [existingRows] = await pool.query(
+            `SELECT id
+             FROM profile_reviews
+             WHERE profile_user_id = ?
+               AND reviewer_user_id = ?
+             LIMIT 1`,
+            [profileUserId, reviewerUserId]
+        );
+
+        let mode = 'created';
+
+        if (existingRows.length > 0) {
+            await pool.query(
+                `UPDATE profile_reviews
+                 SET title = ?,
+                     comment = ?,
+                     is_visible = 1,
+                     created_at = NOW()
+                 WHERE id = ?`,
+                [title || null, comment, existingRows[0].id]
+            );
+            mode = 'updated';
+        } else {
+            await pool.query(
+                `INSERT INTO profile_reviews
+                    (profile_user_id, reviewer_user_id, title, comment, is_visible, created_at)
+                 VALUES (?, ?, ?, ?, 1, NOW())`,
+                [profileUserId, reviewerUserId, title || null, comment]
+            );
+        }
+
+        const reviews = await getVisibleProfileReviews(profileUserId);
+
+        res.json({
+            success: true,
+            mode,
+            message: mode === 'updated' ? 'Review updated successfully.' : 'Review submitted successfully.',
+            reviews
+        });
+    } catch (err) {
+        console.error('Database error in POST /api/reviews:', err);
+        res.status(500).json({ error: 'Database error saving review.' });
     }
 });
 
