@@ -208,8 +208,92 @@ async function getVisibleProfileReviews(profileUserId) {
     return rows;
 }
 
-app.get('/', (req, res) => {
-    res.render('index', {});
+app.get('/', async (req, res) => {
+    const featuredBusinesses = [
+        {
+            name: "Cypress Coast Coffee",
+            city: "Monterey",
+            type: "Sample coffee shop",
+            imageUrl: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Lighthouse Letterpress",
+            city: "Pacific Grove",
+            type: "Sample bookstore",
+            imageUrl: "https://images.unsplash.com/photo-1526243741027-444d633d7365?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Marina Salt & Butter",
+            city: "Marina",
+            type: "Sample bakery",
+            imageUrl: "https://images.unsplash.com/photo-1517433670267-08bbd4be890f?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Sandbar Social Kitchen",
+            city: "Seaside",
+            type: "Sample restaurant",
+            imageUrl: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Carmel Tide Gallery",
+            city: "Carmel",
+            type: "Sample art gallery",
+            imageUrl: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Wharf & Bloom Boutique",
+            city: "Monterey",
+            type: "Sample boutique",
+            imageUrl: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            name: "Ocean Porch Market",
+            city: "Pacific Grove",
+            type: "Sample neighborhood cafe",
+            imageUrl: "https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=1200&q=80"
+        }
+    ];
+
+    let search = req.query.search || '';
+    let category = req.query.category || '';
+    let location = req.query.location || '';
+    let urgency = req.query.urgency || '';
+    let beginner = req.query.beginner || '';
+
+    try {
+        let sql = `
+            SELECT g.id, g.title, g.description, g.category, g.looking_for, g.organization_name,
+                   g.location, g.location_type, g.budget, g.budget_min, g.budget_max,
+                   g.deadline, g.urgency, g.beginner_friendly, g.image_url, g.status,
+                   g.user_id, u.display_name, u.profile_image_url
+            FROM Gig g
+            JOIN userGig u ON g.user_id = u.id
+            WHERE g.status = 'Open'
+            ORDER BY g.created_at DESC
+            LIMIT 6
+        `;
+
+        let sqlParams = [];
+
+        const [gigs] = await pool.query(sql, sqlParams);
+        const user = await getCurrentUser(req.session.userId);
+
+        res.render('index', {
+            gigs,
+            filters: {
+                search,
+                category,
+                location,
+                urgency,
+                beginner
+            },
+            user,
+            featuredBusinesses
+        });
+    } catch (err) {
+        console.error('Database error in /:', err);
+        res.status(500).send('Database error loading gigs.');
+    }
 });
 
 app.get('/signup', (req, res) => {
@@ -428,6 +512,7 @@ app.get('/gigInfo/:id', requireLogin, async (req, res) => {
             gig,
             isSaved: savedRows.length > 0,
             isOwner: req.session.userId === gig.user_id,
+            theme: 'gig',
             user
         });
     } catch (err) {
@@ -659,6 +744,8 @@ app.post('/updateGig/:id', requireLogin, async (req, res) => {
 
 app.get('/profile', requireLogin, async (req, res) => {
     try {
+        const user = await getCurrentUser(req.session.userId);
+
         const [users] = await pool.query(
             `SELECT *
              FROM userGig
@@ -743,6 +830,7 @@ app.get('/profile', requireLogin, async (req, res) => {
         );
 
         res.render('profile', {
+            user,
             profileUser: users[0],
             postedGigs,
             savedGigs,
@@ -761,6 +849,7 @@ app.get('/profile', requireLogin, async (req, res) => {
 app.get('/profile/:id', requireLogin, async (req, res) => {
     try {
         const profileId = req.params.id;
+        const user = await getCurrentUser(req.session.userId);
 
         const [users] = await pool.query(
             `SELECT *
@@ -832,6 +921,7 @@ app.get('/profile/:id', requireLogin, async (req, res) => {
         );
 
         res.render('profile', {
+            user,
             profileUser: users[0],
             postedGigs,
             savedGigs: [],
@@ -942,6 +1032,8 @@ app.post('/api/reviews', requireApiLogin, async (req, res) => {
 
 app.get('/updateProfile', requireLogin, async (req, res) => {
     try {
+        const user = await getCurrentUser(req.session.userId);
+
         const [rows] = await pool.query(
             `SELECT *
              FROM userGig
@@ -950,6 +1042,7 @@ app.get('/updateProfile', requireLogin, async (req, res) => {
         );
 
         res.render('updateProfile', {
+            user,
             profileUser: rows[0]
         });
     } catch (err) {
@@ -1146,6 +1239,7 @@ app.get('/pitchInfo/:id', requireLogin, async (req, res) => {
             pitch,
             isSaved: savedRows.length > 0,
             isOwner: req.session.userId === pitch.user_id,
+            theme: 'pitch',
             user
         });
     } catch (err) {

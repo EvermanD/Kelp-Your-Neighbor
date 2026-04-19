@@ -4,14 +4,11 @@
     <%- include("partials/head.ejs") %>
     <title>OtterGigs | Gig Info</title>
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
-
         .detail-card {
-            border: none;
-            border-radius: 22px;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+            background: var(--color-surface-white);
+            border: 1px solid var(--color-border-soft);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-card);
             overflow: hidden;
         }
 
@@ -19,13 +16,13 @@
             width: 100%;
             max-height: 420px;
             object-fit: cover;
-            background-color: #e9ecef;
+            background-color: var(--color-surface-soft);
         }
 
         .info-pill {
             display: inline-block;
             padding: 0.45rem 0.75rem;
-            border-radius: 999px;
+            border-radius: var(--radius-pill);
             margin-right: 0.4rem;
             margin-bottom: 0.4rem;
             font-size: 0.85rem;
@@ -47,31 +44,13 @@
             object-fit: cover;
             border-radius: 50%;
         }
-
-        .nav-profile-btn {
-            width: 42px;
-            height: 42px;
-            padding: 0;
-            border-radius: 50%;
-            overflow: hidden;
-            border: none;
-            background: transparent;
-        }
-
-        .nav-profile-btn img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 2px solid white;
-        }
     </style>
 </head>
-<body>
+<body class="page-detail page-theme-gig">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <div class="navbar-controls">
-            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: typeof user !== "undefined" && user ? user.profile_image_url : null }) %>
             <%- include("partials/navActions.ejs") %>
         </div>
 
@@ -92,6 +71,9 @@
         >
 
         <div class="card-body p-4 p-md-5">
+            <% const gigUrgencyLabel = gig.urgency || 'Open'; %>
+            <% const gigUrgencyClass = gig.urgency === 'Urgent' ? 'gig-pill-urgent' : gig.urgency === 'High' ? 'gig-pill-high' : gig.urgency === 'Medium' ? 'gig-pill-medium' : 'gig-pill-low'; %>
+            <% const gigStatusClass = gig.status === 'New' ? 'gig-pill-status-new' : gig.status === 'Filled' ? 'gig-pill-status-filled' : gig.status === 'Completed' ? 'gig-pill-status-completed' : gig.status === 'Closed' ? 'gig-pill-status-closed' : 'gig-pill-status-open'; %>
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                 <div>
                     <h1 class="fw-bold mb-2"><%= gig.title %></h1>
@@ -99,21 +81,14 @@
                 </div>
 
                 <div class="text-md-end">
-                    <span class="info-pill bg-primary text-white"><%= gig.category || 'Misc' %></span>
-
-                    <% if (gig.urgency === 'Urgent') { %>
-                        <span class="info-pill bg-danger text-white"><%= gig.urgency %></span>
-                    <% } else if (gig.urgency === 'High') { %>
-                        <span class="info-pill bg-warning text-dark"><%= gig.urgency %></span>
-                    <% } else { %>
-                        <span class="info-pill bg-secondary text-white"><%= gig.urgency %></span>
-                    <% } %>
+                    <span class="info-pill theme-pill gig-pill-category"><%= gig.category || 'Misc' %></span>
+                    <span class="info-pill theme-pill <%= gigUrgencyClass %>"><%= gigUrgencyLabel %></span>
 
                     <% if (gig.beginner_friendly) { %>
-                        <span class="info-pill bg-success text-white">Beginner Friendly</span>
+                        <span class="info-pill theme-pill gig-pill-beginner">Beginner Friendly</span>
                     <% } %>
 
-                    <span class="info-pill bg-dark text-white"><%= gig.status %></span>
+                    <span class="info-pill theme-pill <%= gigStatusClass %>"><%= gig.status %></span>
                 </div>
             </div>
 
@@ -127,7 +102,7 @@
                     <div class="mt-4">
                         <h4 class="fw-bold mb-3">Poster</h4>
                         <a href="/profile/<%= gig.user_id %>" class="poster-link">
-                            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-4 border">
+                            <div class="d-flex align-items-center gap-3 p-3 detail-subcard">
                                 <img
                                     src="<%= gig.profile_image_url && gig.profile_image_url.trim() !== '' ? gig.profile_image_url : 'https://via.placeholder.com/80x80?text=U' %>"
                                     alt="Poster"
@@ -143,7 +118,7 @@
                 </div>
 
                 <div class="col-lg-4">
-                    <div class="bg-light rounded-4 p-4 border">
+                    <div class="detail-sidebar p-4">
                         <h4 class="fw-bold mb-3">Gig Details</h4>
 
                         <p><strong>Looking For:</strong><br><span class="text-muted"><%= gig.looking_for %></span></p>
@@ -159,24 +134,24 @@
                         <p><strong>Event Date:</strong><br><span class="text-muted"><%= gig.event_date ? new Date(gig.event_date).toLocaleDateString() : 'N/A' %></span></p>
                         <p><strong>Contact Email:</strong><br><span class="text-muted"><%= gig.contact_email || 'Not listed' %></span></p>
 
-                        <div class="d-grid gap-2 mt-4">
+                        <div class="detail-action-stack">
                             <% if (!isSaved) { %>
                                 <form action="/saveGig/<%= gig.id %>" method="POST">
-                                    <button type="submit" class="btn btn-primary w-100">Save Gig</button>
+                                    <button type="submit" class="btn detail-action-btn detail-action-btn-primary">Save Gig</button>
                                 </form>
                             <% } else { %>
                                 <form action="/unsaveGig/<%= gig.id %>" method="POST">
-                                    <button type="submit" class="btn btn-outline-danger w-100">Remove Saved Gig</button>
+                                    <button type="submit" class="btn detail-action-btn detail-action-btn-danger">Remove Saved Gig</button>
                                 </form>
                             <% } %>
 
-                            <a href="mailto:<%= gig.contact_email %>?subject=Interested in: <%= gig.title %>" class="btn btn-outline-dark">
+                            <a href="mailto:<%= gig.contact_email %>?subject=Interested in: <%= gig.title %>" class="btn detail-action-btn detail-action-btn-secondary">
                                 Contact Poster
                             </a>
 
                             <% if (isOwner) { %>
-                                <a href="/updateGig/<%= gig.id %>" class="btn btn-warning">Update Gig</a>
-                                <a href="/completeGig/<%= gig.id %>" class="btn btn-success">Mark Completed + Feedback</a>
+                                <a href="/updateGig/<%= gig.id %>" class="btn detail-action-btn detail-action-btn-accent">Update Gig</a>
+                                <a href="/completeGig/<%= gig.id %>" class="btn detail-action-btn detail-action-btn-success">Mark Completed + Feedback</a>
                             <% } %>
                         </div>
 

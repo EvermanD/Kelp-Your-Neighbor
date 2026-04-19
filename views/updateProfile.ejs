@@ -227,7 +227,7 @@
 <nav class="navbar navbar-expand-lg profile-navbar">
     <div class="container">
         <div class="navbar-controls">
-            <%- include("partials/navProfileButton.ejs", { profileImageUrl: user && user.profile_image_url }) %>
+            <%- include("partials/navProfileButton.ejs", { profileImageUrl: typeof user !== "undefined" && user ? user.profile_image_url : null }) %>
             <%- include("partials/navActions.ejs") %>
         </div>
 
@@ -243,7 +243,7 @@
     <div class="card form-card">
         <div class="card-body p-4 p-md-5">
             <h1 class="page-title">Update Profile</h1>
-            <p class="page-subtitle">Edit your public profile details with the same soft lavender and blue styling as your profile page.</p>
+    
 
             <!-- <div class="form-section-note">Keep your profile image, bio, about section, and portfolio links current so your showcase page stays polished.</div> -->
 
