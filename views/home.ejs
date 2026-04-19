@@ -223,6 +223,48 @@
     </div>
 </div>
 
+<section class="impact-metrics-shell mb-5" aria-labelledby="impact-metrics-title">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+        <div>
+            <p class="local-businesses-eyebrow mb-2">Community impact</p>
+            <h2 id="impact-metrics-title" class="home-section-title mb-2">What OtterGigs is helping power</h2>
+            <p class="home-section-copy mb-0">
+                A quick look at the creative momentum building across the local community.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-3" id="impactMetricsGrid">
+        <div class="col-6 col-lg-3">
+            <article class="impact-metric-card">
+                <div class="impact-metric-label">Gigs Posted</div>
+                <div class="impact-metric-value" data-impact-stat="gigsPosted">--</div>
+            </article>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <article class="impact-metric-card">
+                <div class="impact-metric-label">Collaborations Completed</div>
+                <div class="impact-metric-value" data-impact-stat="collaborationsCompleted">--</div>
+            </article>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <article class="impact-metric-card">
+                <div class="impact-metric-label">Areas Active</div>
+                <div class="impact-metric-value" data-impact-stat="activeAreas">--</div>
+            </article>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <article class="impact-metric-card">
+                <div class="impact-metric-label">Reviews Shared</div>
+                <div class="impact-metric-value" data-impact-stat="reviewsShared">--</div>
+            </article>
+        </div>
+    </div>
+</section>
+
 <section class="home-map-shell mb-5" aria-labelledby="home-map-title">
     <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
         <div>
@@ -237,6 +279,10 @@
             <button type="button" class="btn-map-toggle active" data-map-type="gig">Show Gigs</button>
             <button type="button" class="btn-map-toggle" data-map-type="pitch">Show Pitches</button>
         </div>
+    </div>
+
+    <div class="map-insight-banner mb-3" id="localMapInsight">
+        Loading local activity insight...
     </div>
 
     <div id="localMap" class="local-map-frame home-map-frame rounded-4"></div>
@@ -393,6 +439,37 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+        const impactStats = {
+        gigsPosted: document.querySelector('[data-impact-stat="gigsPosted"]'),
+        collaborationsCompleted: document.querySelector('[data-impact-stat="collaborationsCompleted"]'),
+        activeAreas: document.querySelector('[data-impact-stat="activeAreas"]'),
+        reviewsShared: document.querySelector('[data-impact-stat="reviewsShared"]')
+    };
+
+    async function loadImpactMetrics() {
+        try {
+            const response = await fetch("/api/community-impact");
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Unable to load impact metrics.");
+            }
+
+            impactStats.gigsPosted.textContent = data.gigsPosted;
+            impactStats.collaborationsCompleted.textContent = data.collaborationsCompleted;
+            impactStats.activeAreas.textContent = data.activeAreas;
+            impactStats.reviewsShared.textContent = data.reviewsShared;
+        } catch (error) {
+            Object.values(impactStats).forEach((element) => {
+                if (element) {
+                    element.textContent = "--";
+                }
+            });
+        }
+    }
+
+    loadImpactMetrics();
+
     async function loadPulse(type) {
         currentPulseType = type;
 
@@ -448,5 +525,7 @@ document.addEventListener("DOMContentLoaded", function () {
     loadPulse("gig");
 });
 </script>
+
+<script src="/js/uiFeedback.js"></script>
 </body>
 </html>

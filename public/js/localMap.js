@@ -87,42 +87,60 @@ function animateMarkers() {
     }
 
     async function loadMapPoints(type) {
-        activeType = type;
+    activeType = type;
 
-        toggleButtons.forEach(button => {
-            button.classList.toggle('active', button.dataset.mapType === type);
+    toggleButtons.forEach(button => {
+        button.classList.toggle('active', button.dataset.mapType === type);
+    });
+
+    markersLayer.clearLayers();
+
+    try {
+        const response = await fetch(`/api/map-points?type=${encodeURIComponent(type)}`);
+        const points = await response.json();
+
+        if (!Array.isArray(points)) {
+            return;
+        }
+
+        points.forEach(point => {
+            const marker = L.marker([point.lat, point.lng], {
+                icon: createCountIcon(point.count, type)
+            });
+
+            marker.bindPopup(buildPopupHtml(point), {
+                maxWidth: 280
+            });
+
+            marker.addTo(markersLayer);
         });
 
-        markersLayer.clearLayers();
+        const insightElement = document.getElementById("localMapInsight");
 
-        try {
-            const response = await fetch(`/api/map-points?type=${encodeURIComponent(type)}`);
-            const points = await response.json();
-
-            if (!Array.isArray(points)) {
-                return;
+        if (insightElement) {
+            if (points.length === 0) {
+                insightElement.textContent = type === 'pitch'
+                    ? 'No pitch activity is available on the map right now.'
+                    : 'No gig activity is available on the map right now.';
+            } else {
+                const topPoint = [...points].sort((a, b) => b.count - a.count)[0];
+                insightElement.textContent = `${topPoint.label} currently has the highest ${type === 'pitch' ? 'pitch' : 'gig'} activity with ${topPoint.count} open ${topPoint.count === 1 ? type : `${type}s`}.`;
             }
+        }
 
-            points.forEach(point => {
-                const marker = L.marker([point.lat, point.lng], {
-                    icon: createCountIcon(point.count, type)
-                });
+        window.requestAnimationFrame(() => {
+            animateMarkers();
+        });
 
-                marker.bindPopup(buildPopupHtml(point), {
-                    maxWidth: 280
-                });
+    } catch (error) {
+        console.error('Error loading map points:', error);
 
-                marker.addTo(markersLayer);
-            });
-
-            window.requestAnimationFrame(() => {
-                animateMarkers();
-            });
-
-        } catch (error) {
-            console.error('Error loading map points:', error);
+        const insightElement = document.getElementById("localMapInsight");
+        if (insightElement) {
+            insightElement.textContent = 'Unable to load local activity insight right now.';
         }
     }
+}
 
     toggleButtons.forEach(button => {
         button.addEventListener('click', () => {

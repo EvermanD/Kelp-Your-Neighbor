@@ -8,11 +8,13 @@ async function loginUser(event) {
 
     let username = document.querySelector("input[name=username]").value;
     let password = document.querySelector("input[name=password]").value;
+    let submitButton = document.querySelector('#loginForm button[type="submit"]');
 
     if (username === "") {
         feedbackDiv.style.display = "block";
         feedbackDiv.textContent = "Error: username cannot be blank";
         feedbackDiv.style.color = "red";
+        if (window.showUiToast) window.showUiToast("Username cannot be blank.", "error");
         return;
     }
 
@@ -20,8 +22,12 @@ async function loginUser(event) {
         feedbackDiv.style.display = "block";
         feedbackDiv.textContent = "Error: password cannot be blank";
         feedbackDiv.style.color = "red";
+        if (window.showUiToast) window.showUiToast("Password cannot be blank.", "error");
         return;
     }
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Logging in...";
 
     let formData = new URLSearchParams();
     formData.append("username", username);
@@ -42,12 +48,16 @@ async function loginUser(event) {
     if (data.error) {
         feedbackDiv.textContent = data.error;
         feedbackDiv.style.color = "red";
+        if (window.showUiToast) window.showUiToast(data.error, "error");
+        submitButton.disabled = false;
+        submitButton.textContent = "Login";
     } else {
         feedbackDiv.textContent = data.success;
         feedbackDiv.style.color = "green";
+        if (window.showUiToast) window.showUiToast("Login successful!", "success");
 
         setTimeout(function() {
             window.location.href = "/home";
-        }, 1500);
+        }, 900);
     }
 }
